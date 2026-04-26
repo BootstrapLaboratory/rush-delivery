@@ -1,0 +1,21 @@
+{
+  "name": "rush-delivery-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync-docs": "node scripts/sync-docs.mjs",
+    "dev": "npm run sync-docs && astro dev",
+    "build": "npm run sync-docs && astro build",
+    "preview": "astro preview",
+    "check": "npm run sync-docs && astro check"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.38.4",
+    "astro": "6.1.9",
+    "yaml": "2.8.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.8",
+    "typescript": "5.9.3"
+  }
+}

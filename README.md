@@ -21,6 +21,13 @@ Common local checks:
 dagger call self-check
 ```
 
+Website checks:
+
+```sh
+npm run site:check
+npm run site:build
+```
+
 Recommended GitHub Actions usage wraps the Dagger workflow and prepares deploy
 env/runtime files for you:
 

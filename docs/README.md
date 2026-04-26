@@ -20,6 +20,12 @@ extension surface for validation, packaging, deployment, caches, and toolchains.
   coding agents.
 - [AI conventions](ai/conventions.md): contribution rules and invariants.
 
+## Website
+
+The public GitHub Pages site lives under [`../website`](../website). It uses
+Astro + Starlight, generates docs pages from `website/docs-tree.yaml`, and is
+deployed by [`../.github/workflows/pages.yml`](../.github/workflows/pages.yml).
+
 ## Source Of Truth
 
 The schemas under [`../schemas`](../schemas) are the field-level metadata

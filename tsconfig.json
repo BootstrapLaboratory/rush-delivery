@@ -13,5 +13,6 @@
       "@dagger.io/dagger": ["./sdk/index.ts"],
       "@dagger.io/dagger/telemetry": ["./sdk/telemetry.ts"]
     }
-  }
+  },
+  "exclude": ["website"]
 }

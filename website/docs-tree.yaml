@@ -1,0 +1,27 @@
+items:
+  - title: Quick Start
+    source: ../README.md
+    slug: quick-start
+    description: Start using Rush Delivery as a Dagger module or GitHub Action.
+  - title: GitHub Action
+    source: ../docs/github-actions.md
+    slug: github-action
+    description: Use Rush Delivery directly from GitHub Actions.
+  - title: Documentation Index
+    source: ../docs/README.md
+    slug: docs-index
+  - title: Public API
+    source: ../docs/api.md
+    slug: api
+  - title: Entrypoints
+    source: ../docs/entrypoints.md
+    slug: entrypoints
+  - title: Workflow Guide
+    source: ../docs/workflows.md
+    slug: workflows
+  - title: Metadata
+    source: ../docs/metadata.md
+    slug: metadata
+  - title: Providers
+    source: ../docs/providers.md
+    slug: providers

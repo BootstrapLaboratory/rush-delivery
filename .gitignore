@@ -1,3 +1,6 @@
 /sdk
 /**/node_modules/
 /.env
+/website/.astro/
+/website/dist/
+/website/src/content/docs/docs/
