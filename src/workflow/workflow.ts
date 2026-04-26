@@ -98,25 +98,17 @@ export async function workflow(input: WorkflowInput): Promise<string> {
 
   logSection("Source acquisition");
   console.log(`[source] mode=${sourcePlan.mode}`);
-  const sourceBootstrapToolchain = buildSourceBootstrapToolchainOptions({
-    hostEnv,
-    toolchainImageProvider: parsedToolchainImageProvider,
-  });
-
-  if (
-    parsedToolchainImageProvider !== sourceBootstrapToolchain.toolchainImageProvider
-  ) {
-    console.log(
-      "[source] toolchain image provider unavailable before metadata; using provider=off",
-    );
-  }
-
-  const sourceRepo = await resolveSource(sourcePlan, {
-    hostEnv,
-    repo,
-    toolchainImageProvider: sourceBootstrapToolchain.toolchainImageProvider,
-    toolchainImageProviders: sourceBootstrapToolchain.toolchainImageProviders,
-  });
+  const sourceRepo =
+    sourcePlan.mode === "local_copy"
+      ? await resolveSource(sourcePlan, {
+          hostEnv,
+          repo,
+          ...buildSourceBootstrapToolchainOptions({
+            hostEnv,
+            toolchainImageProvider: parsedToolchainImageProvider,
+          }),
+        })
+      : await resolveSource(sourcePlan, { hostEnv, repo });
 
   logSection("Metadata contract");
 

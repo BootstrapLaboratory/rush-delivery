@@ -1,12 +1,10 @@
 import type {
-  GitCommandPlan,
   GitSourcePlan,
   SourceMode,
   SourcePlan,
 } from "../model/source.ts";
 
 export const DEFAULT_MOUNTED_SOURCE_PATH = "/workspace";
-export const DEFAULT_GIT_SOURCE_WORKDIR = "/rush-delivery/source";
 export const DEFAULT_LOCAL_COPY_SOURCE_WORKDIR = "/rush-delivery/source";
 export const DEFAULT_DEPLOY_TAG_PREFIX = "deploy/prod";
 export const DEFAULT_LOCAL_COPY_CLEANUP_PATHS = [
@@ -214,86 +212,6 @@ export function parseSourceMode(value: string = "local_copy"): SourceMode {
   }
 }
 
-export function deployTagFetchRefspec(deployTagPrefix: string): string {
-  const prefix = parseDeployTagPrefix(deployTagPrefix);
-
-  return `+refs/tags/${prefix}/*:refs/tags/${prefix}/*`;
-}
-
-function buildGitCommandPlan(input: {
-  commitSha: string;
-  deployTagPrefix: string;
-  prBaseSha?: string;
-  ref?: string;
-  repositoryUrl: string;
-  workdir: string;
-}): GitCommandPlan[] {
-  const commands: GitCommandPlan[] = [
-    {
-      args: ["clone", "--no-checkout", input.repositoryUrl, input.workdir],
-      command: "git",
-      name: "clone",
-    },
-  ];
-
-  if (input.ref !== undefined) {
-    commands.push({
-      args: ["-C", input.workdir, "fetch", "--force", "origin", input.ref],
-      command: "git",
-      name: "fetch_ref",
-    });
-  } else {
-    commands.push({
-      args: [
-        "-C",
-        input.workdir,
-        "fetch",
-        "--force",
-        "origin",
-        input.commitSha,
-      ],
-      command: "git",
-      name: "fetch_commit",
-    });
-  }
-
-  commands.push({
-    args: [
-      "-C",
-      input.workdir,
-      "fetch",
-      "--force",
-      "origin",
-      deployTagFetchRefspec(input.deployTagPrefix),
-    ],
-    command: "git",
-    name: "fetch_deploy_tags",
-  });
-
-  if (input.prBaseSha !== undefined) {
-    commands.push({
-      args: [
-        "-C",
-        input.workdir,
-        "fetch",
-        "--force",
-        "origin",
-        input.prBaseSha,
-      ],
-      command: "git",
-      name: "fetch_pr_base",
-    });
-  }
-
-  commands.push({
-    args: ["-C", input.workdir, "checkout", "--force", input.commitSha],
-    command: "git",
-    name: "checkout",
-  });
-
-  return commands;
-}
-
 export function buildSourcePlan(input: BuildSourcePlanInput = {}): SourcePlan {
   const mode = parseSourceMode(input.mode);
 
@@ -324,26 +242,13 @@ export function buildSourcePlan(input: BuildSourcePlanInput = {}): SourcePlan {
     "Git source PR base SHA",
   );
   const deployTagPrefix = parseDeployTagPrefix(input.deployTagPrefix);
-  const workdir = parseAbsolutePath(
-    input.workdir ?? DEFAULT_GIT_SOURCE_WORKDIR,
-    "Git source workdir",
-  );
   const authTokenEnv = parseAuthTokenEnv(input.authTokenEnv);
   const authUsername = parseAuthUsername(authTokenEnv, input.authUsername);
   const plan: GitSourcePlan = {
-    commands: buildGitCommandPlan({
-      commitSha,
-      deployTagPrefix,
-      prBaseSha,
-      ref,
-      repositoryUrl,
-      workdir,
-    }),
     commitSha,
     deployTagPrefix,
     mode,
     repositoryUrl,
-    workdir,
   };
 
   if (authTokenEnv !== undefined) {

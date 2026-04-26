@@ -1,15 +1,8 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import {
-  buildGitAskPassScript,
-  buildLocalCopySourceCommand,
-} from "../src/source/source-commands.ts";
-import {
-  buildSourcePlan,
-  deployTagFetchRefspec,
-  parseSourceMode,
-} from "../src/source/source-plan.ts";
+import { buildLocalCopySourceCommand } from "../src/source/source-commands.ts";
+import { buildSourcePlan, parseSourceMode } from "../src/source/source-plan.ts";
 
 const commitSha = "0123456789abcdef0123456789abcdef01234567";
 const prBaseSha = "89abcdef0123456789abcdef0123456789abcdef";
@@ -59,7 +52,7 @@ test("builds the local copy source command", () => {
   );
 });
 
-test("builds a Git source command plan", () => {
+test("builds a Git source plan", () => {
   assert.deepStrictEqual(
     buildSourcePlan({
       authTokenEnv: "GITHUB_TOKEN",
@@ -72,72 +65,12 @@ test("builds a Git source command plan", () => {
     }),
     {
       auth: { tokenEnv: "GITHUB_TOKEN", username: "x-access-token" },
-      commands: [
-        {
-          args: [
-            "clone",
-            "--no-checkout",
-            "https://github.com/BeltOrg/beltapp.git",
-            "/rush-delivery/source",
-          ],
-          command: "git",
-          name: "clone",
-        },
-        {
-          args: [
-            "-C",
-            "/rush-delivery/source",
-            "fetch",
-            "--force",
-            "origin",
-            "refs/heads/main",
-          ],
-          command: "git",
-          name: "fetch_ref",
-        },
-        {
-          args: [
-            "-C",
-            "/rush-delivery/source",
-            "fetch",
-            "--force",
-            "origin",
-            "+refs/tags/deploy/prod/*:refs/tags/deploy/prod/*",
-          ],
-          command: "git",
-          name: "fetch_deploy_tags",
-        },
-        {
-          args: [
-            "-C",
-            "/rush-delivery/source",
-            "fetch",
-            "--force",
-            "origin",
-            prBaseSha,
-          ],
-          command: "git",
-          name: "fetch_pr_base",
-        },
-        {
-          args: [
-            "-C",
-            "/rush-delivery/source",
-            "checkout",
-            "--force",
-            commitSha,
-          ],
-          command: "git",
-          name: "checkout",
-        },
-      ],
       commitSha,
       deployTagPrefix: "deploy/prod",
       mode: "git",
       prBaseSha,
       ref: "refs/heads/main",
       repositoryUrl: "https://github.com/BeltOrg/beltapp.git",
-      workdir: "/rush-delivery/source",
     },
   );
 });
@@ -158,22 +91,7 @@ test("builds Git auth metadata with a custom username", () => {
   });
 });
 
-test("builds a Git askpass script", () => {
-  assert.equal(
-    buildGitAskPassScript("x-access-token"),
-    [
-      "#!/bin/sh",
-      'case "$1" in',
-      "  *Username*) printf '%s\\n' 'x-access-token' ;;",
-      `  *Password*) printf '%s\\n' "$RUSH_DELIVERY_GIT_TOKEN" ;;`,
-      "  *) printf '\\n' ;;",
-      "esac",
-      "",
-    ].join("\n"),
-  );
-});
-
-test("fetches the commit directly when no ref is provided", () => {
+test("builds a Git source plan without a ref", () => {
   const plan = buildSourcePlan({
     commitSha,
     mode: "git",
@@ -181,25 +99,8 @@ test("fetches the commit directly when no ref is provided", () => {
   });
 
   assert.equal(plan.mode, "git");
-  assert.deepStrictEqual(plan.commands[1], {
-    args: [
-      "-C",
-      "/rush-delivery/source",
-      "fetch",
-      "--force",
-      "origin",
-      commitSha,
-    ],
-    command: "git",
-    name: "fetch_commit",
-  });
-});
-
-test("builds deploy tag refspecs", () => {
-  assert.equal(
-    deployTagFetchRefspec("deploy/prod"),
-    "+refs/tags/deploy/prod/*:refs/tags/deploy/prod/*",
-  );
+  assert.equal(plan.repositoryUrl, "git@github.com:BeltOrg/beltapp.git");
+  assert.equal(plan.ref, undefined);
 });
 
 test("rejects unsupported source modes", () => {

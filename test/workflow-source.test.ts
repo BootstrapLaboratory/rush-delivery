@@ -26,7 +26,7 @@ test("builds Git workflow source plan without a mounted repo", () => {
   });
 });
 
-test("source acquisition bootstraps without source-owned provider metadata when provider is off", () => {
+test("local-copy source acquisition bootstraps with provider off", () => {
   assert.deepEqual(
     buildSourceBootstrapToolchainOptions({
       toolchainImageProvider: "off",
@@ -37,7 +37,7 @@ test("source acquisition bootstraps without source-owned provider metadata when 
   );
 });
 
-test("source acquisition can use default GitHub toolchain provider before metadata exists", () => {
+test("local-copy source acquisition can use default GitHub toolchain provider before metadata exists", () => {
   assert.deepEqual(
     buildSourceBootstrapToolchainOptions({
       hostEnv: {
@@ -65,7 +65,7 @@ test("source acquisition can use default GitHub toolchain provider before metada
   );
 });
 
-test("source acquisition falls back when GitHub bootstrap env is unavailable", () => {
+test("local-copy source acquisition falls back when GitHub bootstrap env is unavailable", () => {
   assert.deepEqual(
     buildSourceBootstrapToolchainOptions({
       hostEnv: {

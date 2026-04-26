@@ -1,8 +1,5 @@
 import type { LocalCopySourcePlan } from "../model/source.ts";
 
-export const GIT_TOKEN_ENV = "RUSH_DELIVERY_GIT_TOKEN";
-export const GIT_ASKPASS_PATH = "/tmp/rush-delivery-git-askpass.sh";
-
 export function shellQuote(value: string): string {
   return `'${value.replace(/'/gu, "'\\''")}'`;
 }
@@ -35,16 +32,4 @@ export function buildLocalCopySourceCommand(plan: LocalCopySourcePlan): string {
   }
 
   return commands.join("\n");
-}
-
-export function buildGitAskPassScript(username: string): string {
-  return [
-    "#!/bin/sh",
-    'case "$1" in',
-    `  *Username*) printf '%s\\n' ${shellQuote(username)} ;;`,
-    `  *Password*) printf '%s\\n' "$${GIT_TOKEN_ENV}" ;;`,
-    "  *) printf '\\n' ;;",
-    "esac",
-    "",
-  ].join("\n");
 }

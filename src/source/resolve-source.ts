@@ -1,7 +1,6 @@
 import { dag, type Container, type Directory } from "@dagger.io/dagger";
 
 import type {
-  GitCommandPlan,
   GitSourcePlan,
   LocalCopySourcePlan,
   SourcePlan,
@@ -15,13 +14,7 @@ import {
   buildResolvedToolchainContainer,
   resolveToolchainImage,
 } from "../toolchain-images/resolve.ts";
-import {
-  buildGitAskPassScript,
-  buildLocalCopySourceCommand,
-  GIT_ASKPASS_PATH,
-  GIT_TOKEN_ENV,
-  shellQuote,
-} from "./source-commands.ts";
+import { buildLocalCopySourceCommand } from "./source-commands.ts";
 
 export type ResolveSourceOptions = {
   hostEnv?: Record<string, string>;
@@ -29,16 +22,6 @@ export type ResolveSourceOptions = {
   toolchainImageProvider?: ToolchainImageProvider;
   toolchainImageProviders?: ToolchainImageProvidersDefinition;
 };
-
-function dirname(path: string): string {
-  const index = path.lastIndexOf("/");
-
-  if (index <= 0) {
-    return "/";
-  }
-
-  return path.slice(0, index);
-}
 
 function requireHostEnv(
   hostEnv: Record<string, string>,
@@ -66,15 +49,12 @@ async function sourceBaseContainer(
   );
 }
 
-function withGitAuth(
-  container: Container,
+function gitRepository(
   plan: GitSourcePlan,
   hostEnv: Record<string, string>,
-): Container {
-  let nextContainer = container.withEnvVariable("GIT_TERMINAL_PROMPT", "0");
-
+): ReturnType<typeof dag.git> {
   if (plan.auth === undefined) {
-    return nextContainer;
+    return dag.git(plan.repositoryUrl);
   }
 
   const token = requireHostEnv(
@@ -84,22 +64,9 @@ function withGitAuth(
   );
   const secret = dag.setSecret("rush-delivery-git-token", token);
 
-  nextContainer = nextContainer
-    .withSecretVariable(GIT_TOKEN_ENV, secret)
-    .withNewFile(GIT_ASKPASS_PATH, buildGitAskPassScript(plan.auth.username), {
-      permissions: 0o700,
-    })
-    .withEnvVariable("GIT_ASKPASS", GIT_ASKPASS_PATH);
-
-  return nextContainer;
-}
-
-function withGitCommandPlan(
-  container: Container,
-  commandPlan: GitCommandPlan,
-): Container {
-  return container.withExec([commandPlan.command, ...commandPlan.args], {
-    expand: false,
+  return dag.git(plan.repositoryUrl, {
+    httpAuthToken: secret,
+    httpAuthUsername: plan.auth.username,
   });
 }
 
@@ -123,21 +90,10 @@ async function resolveGitSource(
   plan: GitSourcePlan,
   options: ResolveSourceOptions,
 ): Promise<Directory> {
-  let container = withGitAuth(
-    (await sourceBaseContainer(options)).withExec([
-      "bash",
-      "-lc",
-      `rm -rf ${shellQuote(plan.workdir)} && mkdir -p ${shellQuote(dirname(plan.workdir))}`,
-    ]),
-    plan,
-    options.hostEnv ?? {},
-  );
-
-  for (const commandPlan of plan.commands) {
-    container = withGitCommandPlan(container, commandPlan);
-  }
-
-  return container.directory(plan.workdir);
+  return gitRepository(plan, options.hostEnv ?? {})
+    .commit(plan.commitSha)
+    // Rush compares against deploy tags and PR bases, so keep full history.
+    .tree({ depth: -1, discardGitDir: false, includeTags: true });
 }
 
 export async function resolveSource(
