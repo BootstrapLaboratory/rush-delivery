@@ -11,7 +11,7 @@ dagger call self-check
 ## Local Provider-Off Dry Run
 
 This exercises the full release composition without GHCR, cloud credentials, or
-a Docker socket:
+a Docker socket against local unpushed changes:
 
 ```sh
 RUSH_DELIVERY_MODULE=github.com/OWNER/rush-delivery@VERSION
@@ -34,7 +34,6 @@ Dry-runs use target `dry_run_defaults` for allowed runtime environment values.
 A CI provider should keep provider-specific setup small, then call the Dagger
 workflow. For GitHub Actions this means:
 
-- Checkout the Rush repository that owns the `.dagger/` metadata.
 - Install the Dagger CLI.
 - Authenticate to external providers when live deploy targets need it.
 - Write a deploy environment file with provider secrets and configuration.
@@ -48,7 +47,6 @@ package, deployment, and deploy tag updates.
 
 ```sh
 dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
-  --repo=. \
   --git-sha="$GITHUB_SHA" \
   --event-name="$GITHUB_EVENT_NAME" \
   --force-targets-json="$FORCE_TARGETS_JSON" \

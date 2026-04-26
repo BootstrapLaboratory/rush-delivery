@@ -7,10 +7,11 @@ credentials.
 ## Source Providers
 
 `sourceMode=local_copy` copies the caller-provided `repo` directory into a
-Dagger-owned workspace. This is the default for local development and requires
-no source credential.
+Dagger-owned workspace. Use it for local development, offline runs, and
+unpushed changes. It requires `--repo`.
 
-`sourceMode=git` clones or fetches the source from provider-neutral coordinates:
+`sourceMode=git` clones or fetches the source from provider-neutral coordinates.
+This is the recommended CI path and does not require `--repo`:
 
 - `sourceRepositoryUrl`
 - `sourceRef`

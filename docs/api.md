@@ -1,7 +1,8 @@
 # Public Dagger API
 
-When consuming this module from another repository, run commands from the Rush
-repository being released and pass it explicitly with `--repo=.`:
+When consuming this module from CI, prefer Git source mode so Dagger clones the
+Rush repository internally. Use `--repo=.` only for local-copy runs against a
+checked-out working tree.
 
 ```sh
 RUSH_DELIVERY_MODULE=github.com/OWNER/rush-delivery@VERSION
@@ -15,14 +16,14 @@ artifacts, and deploys them in dependency order.
 
 ```sh
 dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
-  --repo=. \
   --git-sha="$GIT_SHA" \
   --event-name=push \
   --dry-run=false \
   --deploy-env-file="$DEPLOY_ENV_FILE" \
   --source-mode=git \
   --source-repository-url="$SOURCE_REPOSITORY_URL" \
-  --source-ref="$SOURCE_REF"
+  --source-ref="$SOURCE_REF" \
+  --source-auth-token-env=GITHUB_TOKEN
 ```
 
 `self-check` is the framework health check. It runs the Dagger module
@@ -48,9 +49,8 @@ and diagnostic entrypoints.
 
 ## Key Inputs
 
-`repo` is the caller's Rush repository directory. In local source mode the
-framework copies it into a Dagger-owned workspace before running stages. Pass it
-explicitly when calling this module from another repository.
+`repo` is the caller's Rush repository directory for `sourceMode=local_copy`.
+Git source mode does not require it.
 
 `gitSha` is the commit being validated or released.
 
@@ -60,8 +60,9 @@ detection. Forced targets are used by manual deploy wrappers.
 `deployEnvFile` is a newline-delimited environment file. The framework reads it
 once, then passes only target-allowed variables to runtime containers.
 
-`sourceMode` is `local_copy` or `git`. Local mode needs no provider credential;
-Git mode uses provider-neutral source coordinates.
+`sourceMode` is `git` or `local_copy`. Git mode is the recommended CI path and
+uses provider-neutral source coordinates. Local-copy mode needs `repo` and is
+intended for local tests, offline runs, and unpushed changes.
 
 `toolchainImageProvider` and `rushCacheProvider` are `off` by default. Provider
 `github` enables GHCR-backed toolchain images or Rush install cache.

@@ -174,7 +174,6 @@ export class RushDelivery {
    */
   @func()
   async workflow(
-    repo: Directory,
     gitSha: string,
     eventName: string = "push",
     forceTargetsJson: string = "[]",
@@ -195,8 +194,9 @@ export class RushDelivery {
     sourceAuthTokenEnv: string = "",
     sourceAuthUsername: string = "",
     dockerSocket?: Socket,
+    repo?: Directory,
   ): Promise<string> {
-    return runWorkflow(
+    return runWorkflow({
       repo,
       gitSha,
       eventName,
@@ -218,7 +218,7 @@ export class RushDelivery {
       sourceAuthTokenEnv,
       sourceAuthUsername,
       dockerSocket,
-    );
+    });
   }
 
   /**

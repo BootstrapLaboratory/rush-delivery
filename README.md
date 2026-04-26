@@ -20,19 +20,31 @@ Common local checks:
 dagger call self-check
 ```
 
-External callers should run from the Rush repository they want to release and
-pass that repository explicitly:
+Recommended CI usage clones the Rush repository inside Dagger from Git source
+coordinates:
 
 ```sh
 RUSH_DELIVERY_MODULE=github.com/OWNER/rush-delivery@VERSION
 
 dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
-  --repo=. \
   --git-sha="$(git rev-parse HEAD)" \
   --event-name=workflow_call \
   --force-targets-json='["server","webapp"]' \
   --dry-run=true \
   --toolchain-image-provider=off \
   --rush-cache-provider=off \
+  --source-mode=git \
+  --source-repository-url="$SOURCE_REPOSITORY_URL" \
+  --source-ref="$SOURCE_REF" \
+  --source-auth-token-env=GITHUB_TOKEN
+```
+
+For local runs against unpushed changes, pass the working tree explicitly:
+
+```sh
+dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
+  --repo=. \
+  --git-sha="$(git rev-parse HEAD)" \
+  --dry-run=true \
   --source-mode=local_copy
 ```

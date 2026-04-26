@@ -1,7 +1,7 @@
 # Entrypoints Reference
 
-When consuming this module from another repository, run commands from that
-repository and pass it explicitly with `--repo=.`:
+When consuming this module from CI, prefer Git source mode so Dagger clones the
+Rush repository internally:
 
 ```sh
 RUSH_DELIVERY_MODULE=github.com/OWNER/rush-delivery@VERSION
@@ -16,17 +16,20 @@ Use it for normal CI release runs and local release dry-runs.
 
 ```sh
 dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
-  --repo=. \
   --git-sha="$GIT_SHA" \
   --event-name=push \
   --dry-run=false \
   --deploy-env-file="$DEPLOY_ENV_FILE" \
   --source-mode=git \
   --source-repository-url="$SOURCE_REPOSITORY_URL" \
-  --source-ref="$SOURCE_REF"
+  --source-ref="$SOURCE_REF" \
+  --source-auth-token-env=GITHUB_TOKEN
 ```
 
 Returns a text deployment summary.
+
+For local runs against a checked-out working tree, use `--repo=.` with
+`--source-mode=local_copy`.
 
 ## `validate`
 

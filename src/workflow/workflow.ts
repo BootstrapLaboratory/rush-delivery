@@ -17,62 +17,82 @@ import {
 import { parseRushCacheProviders } from "../rush-cache/parse-providers.ts";
 import { rushCacheProvidersPath } from "../rush-cache/metadata-paths.ts";
 import { parseDeployEnvFile } from "../stages/deploy/runtime-env.ts";
-import { buildSourcePlan } from "../source/source-plan.ts";
 import { resolveSource } from "../source/resolve-source.ts";
+import {
+  buildWorkflowSourcePlan,
+  SOURCE_BOOTSTRAP_TOOLCHAIN_PROVIDER,
+} from "./source-options.ts";
 import { runBuildPackageWorkflow } from "./build-package-runner.ts";
 
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
 
-export async function workflow(
-  repo: Directory,
-  gitSha: string,
-  eventName: string = "push",
-  forceTargetsJson: string = "[]",
-  prBaseSha: string = "",
-  deployTagPrefix: string = "deploy/prod",
-  artifactPrefix: string = "deploy-target",
-  environment: string = "prod",
-  dryRun: boolean = true,
-  deployEnvFile?: File,
-  hostWorkspaceDir: string = "",
-  toolchainImageProvider: string = "off",
-  toolchainImagePolicy: string = "lazy",
-  rushCacheProvider: string = "off",
-  rushCachePolicy: string = "lazy",
-  sourceMode: string = "local_copy",
-  sourceRepositoryUrl: string = "",
-  sourceRef: string = "",
-  sourceAuthTokenEnv: string = "",
-  sourceAuthUsername: string = "",
-  dockerSocket?: Socket,
-): Promise<string> {
+export type WorkflowInput = {
+  artifactPrefix?: string;
+  deployEnvFile?: File;
+  deployTagPrefix?: string;
+  dockerSocket?: Socket;
+  dryRun?: boolean;
+  environment?: string;
+  eventName?: string;
+  forceTargetsJson?: string;
+  gitSha: string;
+  hostWorkspaceDir?: string;
+  prBaseSha?: string;
+  repo?: Directory;
+  rushCachePolicy?: string;
+  rushCacheProvider?: string;
+  sourceAuthTokenEnv?: string;
+  sourceAuthUsername?: string;
+  sourceMode?: string;
+  sourceRef?: string;
+  sourceRepositoryUrl?: string;
+  toolchainImagePolicy?: string;
+  toolchainImageProvider?: string;
+};
+
+export async function workflow(input: WorkflowInput): Promise<string> {
+  const {
+    artifactPrefix = "deploy-target",
+    deployEnvFile,
+    deployTagPrefix = "deploy/prod",
+    dockerSocket,
+    dryRun = true,
+    environment = "prod",
+    eventName = "push",
+    forceTargetsJson = "[]",
+    gitSha,
+    hostWorkspaceDir = "",
+    prBaseSha = "",
+    repo,
+    rushCachePolicy = "lazy",
+    rushCacheProvider = "off",
+    sourceAuthTokenEnv = "",
+    sourceAuthUsername = "",
+    sourceMode = "local_copy",
+    sourceRef = "",
+    sourceRepositoryUrl = "",
+    toolchainImagePolicy = "lazy",
+    toolchainImageProvider = "off",
+  } = input;
+
   logSection("Release workflow");
   const hostEnv = deployEnvFile
     ? parseDeployEnvFile(await deployEnvFile.contents())
     : {};
-  const sourcePlan = buildSourcePlan({
-    authTokenEnv:
-      sourceAuthTokenEnv.length === 0 ? undefined : sourceAuthTokenEnv,
-    authUsername:
-      sourceAuthUsername.length === 0 ? undefined : sourceAuthUsername,
-    commitSha: gitSha,
+  const sourcePlan = buildWorkflowSourcePlan({
+    sourceAuthTokenEnv,
+    sourceAuthUsername,
     deployTagPrefix,
-    mode: sourceMode,
+    gitSha,
     prBaseSha,
-    ref: sourceRef.length === 0 ? undefined : sourceRef,
-    repositoryUrl:
-      sourceRepositoryUrl.length === 0 ? undefined : sourceRepositoryUrl,
+    sourceMode,
+    sourceRef,
+    sourceRepositoryUrl,
   });
   const parsedToolchainImageProvider = parseToolchainImageProvider(
     toolchainImageProvider,
   );
   parseToolchainImagePolicy(toolchainImagePolicy);
-  const sourceToolchainImageProviders =
-    parsedToolchainImageProvider === "off"
-      ? undefined
-      : parseToolchainImageProviders(
-          await repo.file(toolchainImageProvidersPath).contents(),
-        );
 
   logSection("Source acquisition");
   console.log(`[source] mode=${sourcePlan.mode}`);
@@ -80,8 +100,7 @@ export async function workflow(
   const sourceRepo = await resolveSource(sourcePlan, {
     hostEnv,
     repo,
-    toolchainImageProvider: parsedToolchainImageProvider,
-    toolchainImageProviders: sourceToolchainImageProviders,
+    toolchainImageProvider: SOURCE_BOOTSTRAP_TOOLCHAIN_PROVIDER,
   });
 
   logSection("Metadata contract");
@@ -139,7 +158,7 @@ export async function workflow(
     toolchainImageProvider,
     toolchainImagePolicy,
     dockerSocket,
-    repo,
+    packagedRepo,
     deployTagTokenEnv,
   );
 }
