@@ -1,7 +1,18 @@
 import type { SourcePlan } from "../model/source.ts";
+import type {
+  ToolchainImageProvider,
+  ToolchainImageProvidersDefinition,
+} from "../model/toolchain-image.ts";
 import { buildSourcePlan } from "../source/source-plan.ts";
 
-export const SOURCE_BOOTSTRAP_TOOLCHAIN_PROVIDER = "off";
+const SOURCE_BOOTSTRAP_GITHUB_REPOSITORY_ENV = "GITHUB_REPOSITORY";
+const SOURCE_BOOTSTRAP_GITHUB_TOKEN_ENV = "GITHUB_TOKEN";
+const SOURCE_BOOTSTRAP_GITHUB_USERNAME_ENV = "GITHUB_ACTOR";
+
+export type SourceBootstrapToolchainOptions = {
+  toolchainImageProvider: ToolchainImageProvider;
+  toolchainImageProviders?: ToolchainImageProvidersDefinition;
+};
 
 export type WorkflowSourceInput = {
   deployTagPrefix?: string;
@@ -42,4 +53,53 @@ export function buildWorkflowSourcePlan(
         ? undefined
         : input.sourceRepositoryUrl,
   });
+}
+
+function hasNonEmptyHostEnv(
+  hostEnv: Record<string, string>,
+  name: string,
+): boolean {
+  return hostEnv[name] !== undefined && hostEnv[name].length > 0;
+}
+
+function buildSourceBootstrapGithubProviders(): ToolchainImageProvidersDefinition {
+  return {
+    providers: {
+      github: {
+        image_namespace: "rush-delivery-toolchains",
+        kind: "github_container_registry",
+        registry: "ghcr.io",
+        repository_env: SOURCE_BOOTSTRAP_GITHUB_REPOSITORY_ENV,
+        token_env: SOURCE_BOOTSTRAP_GITHUB_TOKEN_ENV,
+        username_env: SOURCE_BOOTSTRAP_GITHUB_USERNAME_ENV,
+      },
+    },
+  };
+}
+
+export function buildSourceBootstrapToolchainOptions(input: {
+  hostEnv?: Record<string, string>;
+  toolchainImageProvider: ToolchainImageProvider;
+}): SourceBootstrapToolchainOptions {
+  const { toolchainImageProvider } = input;
+
+  if (toolchainImageProvider === "off") {
+    return { toolchainImageProvider: "off" };
+  }
+
+  const hostEnv = input.hostEnv ?? {};
+  const canUseGithubBootstrap = [
+    SOURCE_BOOTSTRAP_GITHUB_REPOSITORY_ENV,
+    SOURCE_BOOTSTRAP_GITHUB_TOKEN_ENV,
+    SOURCE_BOOTSTRAP_GITHUB_USERNAME_ENV,
+  ].every((name) => hasNonEmptyHostEnv(hostEnv, name));
+
+  if (!canUseGithubBootstrap) {
+    return { toolchainImageProvider: "off" };
+  }
+
+  return {
+    toolchainImageProvider: "github",
+    toolchainImageProviders: buildSourceBootstrapGithubProviders(),
+  };
 }

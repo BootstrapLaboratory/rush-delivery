@@ -19,8 +19,8 @@ import { rushCacheProvidersPath } from "../rush-cache/metadata-paths.ts";
 import { parseDeployEnvFile } from "../stages/deploy/runtime-env.ts";
 import { resolveSource } from "../source/resolve-source.ts";
 import {
+  buildSourceBootstrapToolchainOptions,
   buildWorkflowSourcePlan,
-  SOURCE_BOOTSTRAP_TOOLCHAIN_PROVIDER,
 } from "./source-options.ts";
 import { runBuildPackageWorkflow } from "./build-package-runner.ts";
 
@@ -98,11 +98,24 @@ export async function workflow(input: WorkflowInput): Promise<string> {
 
   logSection("Source acquisition");
   console.log(`[source] mode=${sourcePlan.mode}`);
+  const sourceBootstrapToolchain = buildSourceBootstrapToolchainOptions({
+    hostEnv,
+    toolchainImageProvider: parsedToolchainImageProvider,
+  });
+
+  if (
+    parsedToolchainImageProvider !== sourceBootstrapToolchain.toolchainImageProvider
+  ) {
+    console.log(
+      "[source] toolchain image provider unavailable before metadata; using provider=off",
+    );
+  }
 
   const sourceRepo = await resolveSource(sourcePlan, {
     hostEnv,
     repo,
-    toolchainImageProvider: SOURCE_BOOTSTRAP_TOOLCHAIN_PROVIDER,
+    toolchainImageProvider: sourceBootstrapToolchain.toolchainImageProvider,
+    toolchainImageProviders: sourceBootstrapToolchain.toolchainImageProviders,
   });
 
   logSection("Metadata contract");
