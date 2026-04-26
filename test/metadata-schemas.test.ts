@@ -12,18 +12,19 @@ type SchemaCase = {
 };
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(testDirectory, "../..");
+const repoRoot = path.resolve(testDirectory, "..");
+const fixtureRoot = path.resolve(testDirectory, "fixtures/rush-repo");
 
 async function readJson(relativePath: string): Promise<unknown> {
   return JSON.parse(await readFile(path.join(repoRoot, relativePath), "utf8"));
 }
 
 async function readYaml(relativePath: string): Promise<unknown> {
-  return parseYaml(await readFile(path.join(repoRoot, relativePath), "utf8"));
+  return parseYaml(await readFile(path.join(fixtureRoot, relativePath), "utf8"));
 }
 
 async function listYamlFiles(relativeDirectory: string): Promise<string[]> {
-  const entries = await readdir(path.join(repoRoot, relativeDirectory));
+  const entries = await readdir(path.join(fixtureRoot, relativeDirectory));
 
   return entries
     .filter((entry) => entry.endsWith(".yaml"))
@@ -40,31 +41,31 @@ function formatSchemaErrors(errors: ErrorObject[] | null | undefined) {
     .join("\n");
 }
 
-test("committed Dagger metadata files satisfy their JSON schemas", async () => {
+test("fixture Dagger metadata files satisfy their JSON schemas", async () => {
   const schemaCases: SchemaCase[] = [
     {
       metadataPaths: [".dagger/deploy/services-mesh.yaml"],
-      schemaPath: ".dagger/schemas/deploy-services-mesh.schema.json",
+      schemaPath: "schemas/deploy-services-mesh.schema.json",
     },
     {
       metadataPaths: await listYamlFiles(".dagger/deploy/targets"),
-      schemaPath: ".dagger/schemas/deploy-target.schema.json",
+      schemaPath: "schemas/deploy-target.schema.json",
     },
     {
       metadataPaths: await listYamlFiles(".dagger/package/targets"),
-      schemaPath: ".dagger/schemas/package-target.schema.json",
+      schemaPath: "schemas/package-target.schema.json",
     },
     {
       metadataPaths: [".dagger/toolchain-images/providers.yaml"],
-      schemaPath: ".dagger/schemas/toolchain-image-providers.schema.json",
+      schemaPath: "schemas/toolchain-image-providers.schema.json",
     },
     {
       metadataPaths: [".dagger/rush-cache/providers.yaml"],
-      schemaPath: ".dagger/schemas/rush-cache-providers.schema.json",
+      schemaPath: "schemas/rush-cache-providers.schema.json",
     },
     {
       metadataPaths: await listYamlFiles(".dagger/validate/targets"),
-      schemaPath: ".dagger/schemas/validation-target.schema.json",
+      schemaPath: "schemas/validation-target.schema.json",
     },
   ];
 

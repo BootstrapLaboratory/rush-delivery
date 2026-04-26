@@ -10,15 +10,15 @@ import { parsePackageTarget } from "../src/stages/package-stage/parse-package-ta
 import { parseServicesMesh } from "../src/planning/parse-services-mesh.ts";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(testDirectory, "../..");
-const realServicesMeshPath = path.join(repoRoot, servicesMeshPath);
+const repoRoot = path.resolve(testDirectory, "fixtures/rush-repo");
+const fixtureServicesMeshPath = path.join(repoRoot, servicesMeshPath);
 
-async function readRealServicesMesh() {
-  return parseServicesMesh(await readFile(realServicesMeshPath, "utf8"));
+async function readFixtureServicesMesh() {
+  return parseServicesMesh(await readFile(fixtureServicesMeshPath, "utf8"));
 }
 
-test("every real services mesh target has matching package metadata", async () => {
-  const mesh = await readRealServicesMesh();
+test("every fixture services mesh target has matching package metadata", async () => {
+  const mesh = await readFixtureServicesMesh();
 
   await Promise.all(
     Object.keys(mesh.services).map(async (target) => {

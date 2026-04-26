@@ -1,6 +1,11 @@
 # Public Dagger API
 
-Run commands from the [`dagger`](..) directory unless noted otherwise.
+When consuming this module from another repository, run commands from the Rush
+repository being released and pass it explicitly with `--repo=.`:
+
+```sh
+RUSH_DELIVERY_MODULE=github.com/OWNER/rush-delivery@VERSION
+```
 
 ## Entrypoints
 
@@ -9,8 +14,8 @@ metadata, computes the CI plan, builds selected deploy targets, packages their
 artifacts, and deploys them in dependency order.
 
 ```sh
-dagger call workflow \
-  --repo=.. \
+dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
+  --repo=. \
   --git-sha="$GIT_SHA" \
   --event-name=push \
   --dry-run=false \
@@ -21,18 +26,18 @@ dagger call workflow \
 ```
 
 `self-check` is the framework health check. It runs the Dagger module
-typecheck, unit tests, and metadata contract validation.
+typecheck and unit tests from this repository.
 
 ```sh
-dagger call self-check --repo=..
+dagger call self-check
 ```
 
 `validate` runs pull-request validation for affected Rush projects and any
 target-specific validation metadata.
 
 ```sh
-dagger call validate \
-  --repo=.. \
+dagger -m "$RUSH_DELIVERY_MODULE" call validate \
+  --repo=. \
   --event-name=pull_request \
   --pr-base-sha="$PR_BASE_SHA"
 ```
@@ -43,8 +48,9 @@ and diagnostic entrypoints.
 
 ## Key Inputs
 
-`repo` is the Dagger module/repository directory. In local source mode the
-framework copies it into a Dagger-owned workspace before running stages.
+`repo` is the caller's Rush repository directory. In local source mode the
+framework copies it into a Dagger-owned workspace before running stages. Pass it
+explicitly when calling this module from another repository.
 
 `gitSha` is the commit being validated or released.
 

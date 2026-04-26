@@ -1,0 +1,14 @@
+cache:
+  version: v1
+  key_files:
+    - rush.json
+    - common/config/rush/pnpm-lock.yaml
+  paths:
+    - common/temp/node_modules
+    - common/temp/pnpm-store
+providers:
+  github:
+    kind: github_container_registry
+    repository_env: GITHUB_REPOSITORY
+    token_env: GITHUB_TOKEN
+    username_env: GITHUB_ACTOR

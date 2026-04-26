@@ -8,14 +8,14 @@ import { validationTargetsDirectory } from "../src/stages/validate/metadata-path
 import { parseValidationTarget } from "../src/stages/validate/parse-validation-target.ts";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(testDirectory, "../..");
-const realValidationTargetsDirectory = path.join(
+const repoRoot = path.resolve(testDirectory, "fixtures/rush-repo");
+const fixtureValidationTargetsDirectory = path.join(
   repoRoot,
   validationTargetsDirectory,
 );
 
-test("loads every committed validation target metadata file", async () => {
-  const entries = await readdir(realValidationTargetsDirectory);
+test("loads every fixture validation target metadata file", async () => {
+  const entries = await readdir(fixtureValidationTargetsDirectory);
   const targetFiles = entries.filter((entry) => entry.endsWith(".yaml")).sort();
 
   assert.ok(
@@ -28,7 +28,7 @@ test("loads every committed validation target metadata file", async () => {
       const target = path.basename(targetFile, ".yaml");
       const definition = parseValidationTarget(
         await readFile(
-          path.join(realValidationTargetsDirectory, targetFile),
+          path.join(fixtureValidationTargetsDirectory, targetFile),
           "utf8",
         ),
       );

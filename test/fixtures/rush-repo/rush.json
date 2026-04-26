@@ -1,0 +1,12 @@
+{
+  "projects": [
+    {
+      "packageName": "server",
+      "projectFolder": "apps/server"
+    },
+    {
+      "packageName": "webapp",
+      "projectFolder": "apps/webapp"
+    }
+  ]
+}

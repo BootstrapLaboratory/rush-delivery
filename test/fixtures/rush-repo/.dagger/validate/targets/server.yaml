@@ -1,0 +1,21 @@
+name: server
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - 5432
+    env:
+      POSTGRES_PASSWORD: example
+steps:
+  - name: smoke
+    command: npm
+    args:
+      - --version
+  - name: wait-db
+    service:
+      command: pg_isready
+      args:
+        - -h
+        - localhost
+      ports:
+        - 5432

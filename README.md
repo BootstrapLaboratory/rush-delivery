@@ -17,13 +17,18 @@ Start here:
 Common local checks:
 
 ```sh
-dagger call self-check --repo=..
+dagger call self-check
 ```
 
+External callers should run from the Rush repository they want to release and
+pass that repository explicitly:
+
 ```sh
-dagger call workflow \
-  --repo=.. \
-  --git-sha="$(git -C .. rev-parse HEAD)" \
+RUSH_DELIVERY_MODULE=github.com/OWNER/rush-delivery@VERSION
+
+dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
+  --repo=. \
+  --git-sha="$(git rev-parse HEAD)" \
   --event-name=workflow_call \
   --force-targets-json='["server","webapp"]' \
   --dry-run=true \

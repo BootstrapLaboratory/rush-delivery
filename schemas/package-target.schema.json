@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rush Delivery package target",
+  "type": "object",
+  "required": ["artifact", "name"],
+  "additionalProperties": false,
+  "properties": {
+    "artifact": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind", "path"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "directory"
+            },
+            "path": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "output", "project", "scenario"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "rush_deploy_archive"
+            },
+            "output": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "project": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "scenario": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        }
+      ]
+    },
+    "name": {
+      "$ref": "#/$defs/nonEmptyString"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

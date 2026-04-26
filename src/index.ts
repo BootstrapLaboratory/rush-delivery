@@ -33,13 +33,17 @@ export class RushDelivery {
   }
 
   /**
-   * Runs the framework's local typecheck, unit tests, and metadata contract validation.
+   * Runs the framework's local typecheck and unit tests.
    */
   @func()
   async selfCheck(
-    @argument({ defaultPath: ".." }) repo: Directory,
+    @argument({
+      defaultPath: ".",
+      ignore: ["node_modules", ".git", ".trunk/out", ".trunk/logs"],
+    })
+    moduleSource: Directory,
   ): Promise<string> {
-    return runSelfCheck(repo);
+    return runSelfCheck(moduleSource);
   }
 
   /**
@@ -47,7 +51,7 @@ export class RushDelivery {
    */
   @func()
   async detect(
-    @argument({ defaultPath: ".." }) repo: Directory,
+    repo: Directory,
     eventName: string = "push",
     forceTargetsJson: string = "[]",
     prBaseSha: string = "",
@@ -83,7 +87,7 @@ export class RushDelivery {
    */
   @func()
   async buildDeployTargets(
-    @argument({ defaultPath: ".." }) repo: Directory,
+    repo: Directory,
     ciPlanFile: File,
   ): Promise<Directory> {
     await assertMetadataContract(repo);
@@ -96,7 +100,7 @@ export class RushDelivery {
    */
   @func()
   async packageDeployTargets(
-    @argument({ defaultPath: ".." }) repo: Directory,
+    repo: Directory,
     ciPlanFile: File,
     artifactPrefix: string = "deploy-target",
   ): Promise<Directory> {
@@ -110,7 +114,7 @@ export class RushDelivery {
    */
   @func()
   async buildAndPackageDeployTargets(
-    @argument({ defaultPath: ".." }) repo: Directory,
+    repo: Directory,
     ciPlanFile: File,
     artifactPrefix: string = "deploy-target",
   ): Promise<Directory> {
@@ -124,7 +128,7 @@ export class RushDelivery {
    */
   @func()
   async deployRelease(
-    @argument({ defaultPath: ".." }) repo: Directory,
+    repo: Directory,
     gitSha: string,
     releaseTargetsJson: string = "[]",
     environment: string = "prod",
@@ -158,7 +162,7 @@ export class RushDelivery {
    */
   @func()
   async validateMetadataContract(
-    @argument({ defaultPath: ".." }) repo: Directory,
+    repo: Directory,
   ): Promise<string> {
     return formatMetadataContractValidationResult(
       await validateMetadataContractForRepo(repo),
@@ -170,7 +174,7 @@ export class RushDelivery {
    */
   @func()
   async workflow(
-    @argument({ defaultPath: ".." }) repo: Directory,
+    repo: Directory,
     gitSha: string,
     eventName: string = "push",
     forceTargetsJson: string = "[]",
@@ -222,7 +226,7 @@ export class RushDelivery {
    */
   @func()
   async validate(
-    @argument({ defaultPath: ".." }) repo: Directory,
+    repo: Directory,
     eventName: string = "pull_request",
     prBaseSha: string = "",
     validateTargetsJson: string = "[]",

@@ -12,15 +12,15 @@ import {
 import { parseServicesMesh } from "../src/planning/parse-services-mesh.ts";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(testDirectory, "../..");
-const realServicesMeshPath = path.join(repoRoot, servicesMeshPath);
+const repoRoot = path.resolve(testDirectory, "fixtures/rush-repo");
+const fixtureServicesMeshPath = path.join(repoRoot, servicesMeshPath);
 
-async function readRealServicesMesh() {
-  return parseServicesMesh(await readFile(realServicesMeshPath, "utf8"));
+async function readFixtureServicesMesh() {
+  return parseServicesMesh(await readFile(fixtureServicesMeshPath, "utf8"));
 }
 
-test("loads every target YAML referenced by the real services mesh", async () => {
-  const mesh = await readRealServicesMesh();
+test("loads every target YAML referenced by the fixture services mesh", async () => {
+  const mesh = await readFixtureServicesMesh();
   const loadedTargets = await Promise.all(
     Object.keys(mesh.services)
       .sort()
@@ -44,8 +44,8 @@ test("loads every target YAML referenced by the real services mesh", async () =>
   }
 });
 
-test("every real services mesh target has a deploy script that exists on disk", async () => {
-  const mesh = await readRealServicesMesh();
+test("every fixture services mesh target has a deploy script that exists on disk", async () => {
+  const mesh = await readFixtureServicesMesh();
 
   await Promise.all(
     Object.keys(mesh.services).map(async (target) => {

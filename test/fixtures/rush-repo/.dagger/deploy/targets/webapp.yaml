@@ -1,0 +1,6 @@
+name: webapp
+deploy_script: deploy/webapp.sh
+runtime:
+  image: node:24-bookworm-slim
+  workspace:
+    mode: full

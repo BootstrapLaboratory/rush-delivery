@@ -1,0 +1,13 @@
+name: server
+deploy_script: deploy/server.sh
+runtime:
+  image: node:24-bookworm-slim
+  pass_env:
+    - CLOUD_RUN_REGION
+  dry_run_defaults:
+    CLOUD_RUN_REGION: europe-west4
+  workspace:
+    dirs:
+      - apps/server
+    files:
+      - rush.json

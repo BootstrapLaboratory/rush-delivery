@@ -20,6 +20,5 @@ extension surface for validation, packaging, deployment, caches, and toolchains.
 
 ## Source Of Truth
 
-The schemas under [`../../.dagger/schemas`](../../.dagger/schemas) are the
-exact validation contract for metadata. These docs explain intent and usage;
-schemas define field-level rules.
+The schemas under [`../schemas`](../schemas) are the field-level metadata
+contract. These docs explain intent and usage; schemas define file shape.

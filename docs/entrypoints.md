@@ -1,6 +1,11 @@
 # Entrypoints Reference
 
-Run commands from the [`dagger`](..) directory unless noted otherwise.
+When consuming this module from another repository, run commands from that
+repository and pass it explicitly with `--repo=.`:
+
+```sh
+RUSH_DELIVERY_MODULE=github.com/OWNER/rush-delivery@VERSION
+```
 
 ## `workflow`
 
@@ -10,8 +15,8 @@ targets, builds, packages, and deploys selected targets.
 Use it for normal CI release runs and local release dry-runs.
 
 ```sh
-dagger call workflow \
-  --repo=.. \
+dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
+  --repo=. \
   --git-sha="$GIT_SHA" \
   --event-name=push \
   --dry-run=false \
@@ -32,8 +37,8 @@ startup, and smoke tests.
 Use it for pull-request validation paths or local validation experiments.
 
 ```sh
-dagger call validate \
-  --repo=.. \
+dagger -m "$RUSH_DELIVERY_MODULE" call validate \
+  --repo=. \
   --event-name=pull_request \
   --pr-base-sha="$PR_BASE_SHA"
 ```
@@ -49,8 +54,8 @@ Use it when a CI provider intentionally runs split stages. The `workflow`
 entrypoint already calls it internally.
 
 ```sh
-dagger call detect \
-  --repo=.. \
+dagger -m "$RUSH_DELIVERY_MODULE" call detect \
+  --repo=. \
   --event-name=push \
   --force-targets-json='[]' \
   --deploy-tag-prefix=deploy/prod
@@ -66,8 +71,8 @@ Use it only in split-stage workflows where build is separated from package and
 deploy.
 
 ```sh
-dagger call build-deploy-targets \
-  --repo=.. \
+dagger -m "$RUSH_DELIVERY_MODULE" call build-deploy-targets \
+  --repo=. \
   --ci-plan-file="$CI_PLAN_FILE"
 ```
 
@@ -81,8 +86,8 @@ behavior is driven by `.dagger/package/targets`.
 Use it only in split-stage workflows after build outputs already exist.
 
 ```sh
-dagger call package-deploy-targets \
-  --repo=.. \
+dagger -m "$RUSH_DELIVERY_MODULE" call package-deploy-targets \
+  --repo=. \
   --ci-plan-file="$CI_PLAN_FILE" \
   --artifact-prefix=deploy-target
 ```
@@ -97,8 +102,8 @@ packaged workspace once.
 Use it when a split workflow needs build and package together but deploy later.
 
 ```sh
-dagger call build-and-package-deploy-targets \
-  --repo=.. \
+dagger -m "$RUSH_DELIVERY_MODULE" call build-and-package-deploy-targets \
+  --repo=. \
   --ci-plan-file="$CI_PLAN_FILE" \
   --artifact-prefix=deploy-target
 ```
@@ -115,8 +120,8 @@ Use it for split-stage workflows, deploy-only retries, or tests around deploy
 metadata.
 
 ```sh
-dagger call deploy-release \
-  --repo=.. \
+dagger -m "$RUSH_DELIVERY_MODULE" call deploy-release \
+  --repo=. \
   --git-sha="$GIT_SHA" \
   --release-targets-json='["server","webapp"]' \
   --environment=prod \
@@ -129,16 +134,15 @@ Returns a text deployment summary.
 
 ## `self-check`
 
-Runs the framework health check: Dagger module typecheck, unit tests, and
-metadata contract validation.
+Runs the framework health check: Dagger module typecheck and unit tests.
 
-Use it before changing framework source, schemas, or `.dagger/` metadata.
+Use it before changing framework source, schemas, or docs.
 
 ```sh
-dagger call self-check --repo=..
+dagger call self-check
 ```
 
-Returns a self-check summary and metadata contract output.
+Returns a self-check summary.
 
 ## `validate-metadata-contract`
 
@@ -147,7 +151,7 @@ Checks cross-file metadata consistency without running release stages.
 Use it when editing `.dagger/` metadata and wanting a fast contract check.
 
 ```sh
-dagger call validate-metadata-contract --repo=..
+dagger -m "$RUSH_DELIVERY_MODULE" call validate-metadata-contract --repo=.
 ```
 
 Returns formatted metadata contract JSON.
@@ -159,7 +163,8 @@ Validates and normalizes a release target JSON array.
 Use it for quick checks around manual target input.
 
 ```sh
-dagger call describe-release-targets --release-targets-json='["server"]'
+dagger -m "$RUSH_DELIVERY_MODULE" call describe-release-targets \
+  --release-targets-json='["server"]'
 ```
 
 Returns a short text description.
@@ -171,5 +176,5 @@ Returns a simple readiness marker.
 Use it only to verify that the module is callable.
 
 ```sh
-dagger call ping
+dagger -m "$RUSH_DELIVERY_MODULE" call ping
 ```

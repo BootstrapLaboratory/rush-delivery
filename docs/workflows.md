@@ -5,7 +5,7 @@
 Use `self-check` before changing metadata, schemas, or Dagger source:
 
 ```sh
-dagger call self-check --repo=..
+dagger call self-check
 ```
 
 ## Local Provider-Off Dry Run
@@ -14,9 +14,11 @@ This exercises the full release composition without GHCR, cloud credentials, or
 a Docker socket:
 
 ```sh
-dagger call workflow \
-  --repo=.. \
-  --git-sha="$(git -C .. rev-parse HEAD)" \
+RUSH_DELIVERY_MODULE=github.com/OWNER/rush-delivery@VERSION
+
+dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
+  --repo=. \
+  --git-sha="$(git rev-parse HEAD)" \
   --event-name=workflow_call \
   --force-targets-json='["server","webapp"]' \
   --dry-run=true \
@@ -32,11 +34,11 @@ Dry-runs use target `dry_run_defaults` for allowed runtime environment values.
 A CI provider should keep provider-specific setup small, then call the Dagger
 workflow. For GitHub Actions this means:
 
-- Checkout the repository while this Dagger module lives inside the same repo.
+- Checkout the Rush repository that owns the `.dagger/` metadata.
 - Install the Dagger CLI.
 - Authenticate to external providers when live deploy targets need it.
 - Write a deploy environment file with provider secrets and configuration.
-- Call `dagger call workflow`.
+- Call `dagger -m "$RUSH_DELIVERY_MODULE" call workflow`.
 
 The CI provider should pass source coordinates rather than doing release logic
 itself. Dagger owns source acquisition, deploy tag fetching, detection, build,
@@ -45,8 +47,8 @@ package, deployment, and deploy tag updates.
 ## Recommended CI Shape
 
 ```sh
-dagger call workflow \
-  --repo=.. \
+dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
+  --repo=. \
   --git-sha="$GITHUB_SHA" \
   --event-name="$GITHUB_EVENT_NAME" \
   --force-targets-json="$FORCE_TARGETS_JSON" \
