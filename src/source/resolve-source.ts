@@ -1,26 +1,14 @@
-import { dag, type Container, type Directory } from "@dagger.io/dagger";
+import { dag, type Directory, ExistsType } from "@dagger.io/dagger";
 
 import type {
   GitSourcePlan,
   LocalCopySourcePlan,
   SourcePlan,
 } from "../model/source.ts";
-import type {
-  ToolchainImageProvider,
-  ToolchainImageProvidersDefinition,
-} from "../model/toolchain-image.ts";
-import { rushWorkflowToolchainSpec } from "../rush/container.ts";
-import {
-  buildResolvedToolchainContainer,
-  resolveToolchainImage,
-} from "../toolchain-images/resolve.ts";
-import { buildLocalCopySourceCommand } from "./source-commands.ts";
 
 export type ResolveSourceOptions = {
   hostEnv?: Record<string, string>;
   repo?: Directory;
-  toolchainImageProvider?: ToolchainImageProvider;
-  toolchainImageProviders?: ToolchainImageProvidersDefinition;
 };
 
 function requireHostEnv(
@@ -35,18 +23,6 @@ function requireHostEnv(
   }
 
   return value;
-}
-
-async function sourceBaseContainer(
-  options: ResolveSourceOptions,
-): Promise<Container> {
-  return buildResolvedToolchainContainer(
-    await resolveToolchainImage(rushWorkflowToolchainSpec(), {
-      hostEnv: options.hostEnv,
-      provider: options.toolchainImageProvider,
-      providers: options.toolchainImageProviders,
-    }),
-  );
 }
 
 function gitRepository(
@@ -70,6 +46,64 @@ function gitRepository(
   });
 }
 
+async function withoutPathIfExists(
+  repo: Directory,
+  path: string,
+): Promise<Directory> {
+  if (await repo.exists(path, { expectedType: ExistsType.DirectoryType })) {
+    return repo.withoutDirectory(path);
+  }
+
+  if (await repo.exists(path, { expectedType: ExistsType.RegularType })) {
+    return repo.withoutFile(path);
+  }
+
+  return repo;
+}
+
+async function directoryEntries(
+  repo: Directory,
+  path: string,
+): Promise<string[]> {
+  return path.length === 0 ? repo.entries() : repo.entries({ path });
+}
+
+function joinPath(parent: string, child: string): string {
+  return parent.length === 0 ? child : `${parent}/${child}`;
+}
+
+async function withoutNestedNodeModules(
+  repo: Directory,
+  path = "",
+): Promise<Directory> {
+  let nextRepo = repo;
+
+  for (const entry of await directoryEntries(repo, path)) {
+    if (entry === ".git") {
+      continue;
+    }
+
+    const entryPath = joinPath(path, entry);
+
+    if (
+      !(await repo.exists(entryPath, {
+        expectedType: ExistsType.DirectoryType,
+      }))
+    ) {
+      continue;
+    }
+
+    if (entry === "node_modules") {
+      nextRepo = nextRepo.withoutDirectory(entryPath);
+      continue;
+    }
+
+    nextRepo = await withoutNestedNodeModules(nextRepo, entryPath);
+  }
+
+  return nextRepo;
+}
+
 async function resolveLocalCopySource(
   plan: LocalCopySourcePlan,
   options: ResolveSourceOptions,
@@ -78,12 +112,15 @@ async function resolveLocalCopySource(
     throw new Error("Local copy source mode requires a repo directory.");
   }
 
-  return (await sourceBaseContainer(options))
-    .withDirectory(plan.sourcePath, options.repo)
-    .withExec(["bash", "-lc", buildLocalCopySourceCommand(plan)], {
-      expand: false,
-    })
-    .directory(plan.workdir);
+  let nextRepo = options.repo;
+
+  for (const cleanupPath of plan.cleanupPaths) {
+    nextRepo = await withoutPathIfExists(nextRepo, cleanupPath);
+  }
+
+  return plan.removeNodeModules
+    ? withoutNestedNodeModules(nextRepo)
+    : nextRepo;
 }
 
 async function resolveGitSource(

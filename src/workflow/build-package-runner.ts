@@ -15,6 +15,7 @@ import { formatCiPlan } from "../ci-plan/parse-ci-plan.ts";
 import { computeCiPlan } from "../stages/detect/compute-ci-plan.ts";
 import { loadPackageTargetDefinition } from "../stages/package-stage/load-package-metadata.ts";
 import { buildPackageActionPlan } from "../stages/package-stage/package-action-plan.ts";
+import { assertPackageValidation } from "../stages/package-stage/package-validation.ts";
 import {
   createEmptyPackageManifest,
   formatPackageManifest,
@@ -70,13 +71,13 @@ async function runPackageStage(
   container: Container,
   ciPlan: CiPlan,
   artifactPrefix: string,
-): Promise<Container> {
+): Promise<Directory> {
   logSection("Package deploy artifacts");
 
   if (ciPlan.deploy_targets.length === 0) {
     console.log("[package] no deploy targets selected");
-    return container.withNewFile(
-      `${RUSH_WORKDIR}/${PACKAGE_MANIFEST_PATH}`,
+    return container.directory(RUSH_WORKDIR).withNewFile(
+      PACKAGE_MANIFEST_PATH,
       formatPackageManifest(createEmptyPackageManifest()),
     );
   }
@@ -101,14 +102,11 @@ async function runPackageStage(
     console.log(`[package] ${target}: ${plan.artifact.kind}`);
 
     for (const validation of plan.validations) {
-      if (validation.kind === "directory") {
-        nextContainer = nextContainer.withExec(
-          ["test", "-d", validation.path],
-          {
-            expand: false,
-          },
-        );
-      }
+      await assertPackageValidation(
+        nextContainer.directory(RUSH_WORKDIR),
+        validation,
+        target,
+      );
     }
 
     for (const { command, args } of plan.commands) {
@@ -118,8 +116,8 @@ async function runPackageStage(
     }
   }
 
-  return nextContainer.withNewFile(
-    `${RUSH_WORKDIR}/${PACKAGE_MANIFEST_PATH}`,
+  return nextContainer.directory(RUSH_WORKDIR).withNewFile(
+    PACKAGE_MANIFEST_PATH,
     formatPackageManifest({ artifacts }),
   );
 }
@@ -188,9 +186,12 @@ export async function runBuildPackageWorkflow(
   if (ciPlan.deploy_targets.length === 0) {
     return {
       ciPlan,
-      repo: (
-        await runPackageStage(repo, detectedContainer, ciPlan, artifactPrefix)
-      ).directory(RUSH_WORKDIR),
+      repo: await runPackageStage(
+        repo,
+        detectedContainer,
+        ciPlan,
+        artifactPrefix,
+      ),
     };
   }
 
@@ -222,7 +223,7 @@ export async function runBuildPackageWorkflow(
   await publishResolvedRushInstallCache(rushContainer, resolvedCache);
 
   const builtContainer = runBuildStage(rushContainer, ciPlan);
-  const packagedContainer = await runPackageStage(
+  const packagedRepo = await runPackageStage(
     repo,
     builtContainer,
     ciPlan,
@@ -231,6 +232,6 @@ export async function runBuildPackageWorkflow(
 
   return {
     ciPlan,
-    repo: packagedContainer.directory(RUSH_WORKDIR),
+    repo: packagedRepo,
   };
 }

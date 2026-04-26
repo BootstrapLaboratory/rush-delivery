@@ -1,7 +1,6 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { buildLocalCopySourceCommand } from "../src/source/source-commands.ts";
 import { buildSourcePlan, parseSourceMode } from "../src/source/source-plan.ts";
 
 const commitSha = "0123456789abcdef0123456789abcdef01234567";
@@ -12,8 +11,6 @@ test("defaults to local copy source mode", () => {
     cleanupPaths: ["common/temp", ".dagger/runtime"],
     mode: "local_copy",
     removeNodeModules: true,
-    sourcePath: "/workspace",
-    workdir: "/rush-delivery/source",
   });
 });
 
@@ -21,34 +18,13 @@ test("builds a local copy source plan with explicit cleanup paths", () => {
   assert.deepStrictEqual(
     buildSourcePlan({
       cleanupPaths: ["common/temp", ".dagger/runtime", "common/deploy"],
-      localSourcePath: "/mounted/repo",
       mode: "local_copy",
-      workdir: "/copied/repo",
     }),
     {
       cleanupPaths: ["common/temp", ".dagger/runtime", "common/deploy"],
       mode: "local_copy",
       removeNodeModules: true,
-      sourcePath: "/mounted/repo",
-      workdir: "/copied/repo",
     },
-  );
-});
-
-test("builds the local copy source command", () => {
-  const plan = buildSourcePlan();
-
-  assert.equal(plan.mode, "local_copy");
-  assert.equal(
-    buildLocalCopySourceCommand(plan),
-    [
-      "rm -rf '/rush-delivery/source'",
-      "mkdir -p '/rush-delivery/source'",
-      "cp -a '/workspace'/. '/rush-delivery/source'/",
-      "rm -rf '/rush-delivery/source/common/temp'",
-      "rm -rf '/rush-delivery/source/.dagger/runtime'",
-      "find '/rush-delivery/source' -path '/rush-delivery/source/.git' -prune -o -name 'node_modules' -prune -exec rm -rf {} +",
-    ].join("\n"),
   );
 });
 
@@ -129,7 +105,7 @@ test("requires Git source repository URL and commit SHA", () => {
   );
 });
 
-test("rejects unsafe local copy paths", () => {
+test("rejects unsafe local copy cleanup paths", () => {
   assert.throws(
     () =>
       buildSourcePlan({
@@ -137,14 +113,6 @@ test("rejects unsafe local copy paths", () => {
         mode: "local_copy",
       }),
     /Local copy cleanup paths\[0\] must stay inside the repository/,
-  );
-  assert.throws(
-    () =>
-      buildSourcePlan({
-        localSourcePath: "workspace",
-        mode: "local_copy",
-      }),
-    /Local copy source path must be a specific absolute path/,
   );
 });
 

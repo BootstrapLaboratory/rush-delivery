@@ -198,6 +198,9 @@ export class RushDelivery {
     sourceAuthTokenEnv: string = "",
     sourceAuthUsername: string = "",
     dockerSocket?: Socket,
+    @argument({
+      ignore: ["**/node_modules", ".trunk/out", ".trunk/logs"],
+    })
     repo?: Directory,
     runtimeFiles?: Directory,
   ): Promise<string> {

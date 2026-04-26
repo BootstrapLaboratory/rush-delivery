@@ -18,10 +18,7 @@ import { parseRushCacheProviders } from "../rush-cache/parse-providers.ts";
 import { rushCacheProvidersPath } from "../rush-cache/metadata-paths.ts";
 import { parseDeployEnvFile } from "../stages/deploy/runtime-env.ts";
 import { resolveSource } from "../source/resolve-source.ts";
-import {
-  buildSourceBootstrapToolchainOptions,
-  buildWorkflowSourcePlan,
-} from "./source-options.ts";
+import { buildWorkflowSourcePlan } from "./source-options.ts";
 import { runBuildPackageWorkflow } from "./build-package-runner.ts";
 
 const PACKAGE_MANIFEST_PATH = ".dagger/runtime/package-manifest.json";
@@ -98,17 +95,7 @@ export async function workflow(input: WorkflowInput): Promise<string> {
 
   logSection("Source acquisition");
   console.log(`[source] mode=${sourcePlan.mode}`);
-  const sourceRepo =
-    sourcePlan.mode === "local_copy"
-      ? await resolveSource(sourcePlan, {
-          hostEnv,
-          repo,
-          ...buildSourceBootstrapToolchainOptions({
-            hostEnv,
-            toolchainImageProvider: parsedToolchainImageProvider,
-          }),
-        })
-      : await resolveSource(sourcePlan, { hostEnv, repo });
+  const sourceRepo = await resolveSource(sourcePlan, { hostEnv, repo });
 
   logSection("Metadata contract");
 

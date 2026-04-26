@@ -1,10 +1,7 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import {
-  buildSourceBootstrapToolchainOptions,
-  buildWorkflowSourcePlan,
-} from "../src/workflow/source-options.ts";
+import { buildWorkflowSourcePlan } from "../src/workflow/source-options.ts";
 
 const commitSha = "0123456789abcdef0123456789abcdef01234567";
 
@@ -26,61 +23,6 @@ test("builds Git workflow source plan without a mounted repo", () => {
   });
 });
 
-test("local-copy source acquisition bootstraps with provider off", () => {
-  assert.deepEqual(
-    buildSourceBootstrapToolchainOptions({
-      toolchainImageProvider: "off",
-    }),
-    {
-      toolchainImageProvider: "off",
-    },
-  );
-});
-
-test("local-copy source acquisition can use default GitHub toolchain provider before metadata exists", () => {
-  assert.deepEqual(
-    buildSourceBootstrapToolchainOptions({
-      hostEnv: {
-        GITHUB_ACTOR: "beltbot",
-        GITHUB_REPOSITORY: "BeltOrg/beltapp",
-        GITHUB_TOKEN: "token",
-      },
-      toolchainImageProvider: "github",
-    }),
-    {
-      toolchainImageProvider: "github",
-      toolchainImageProviders: {
-        providers: {
-          github: {
-            image_namespace: "rush-delivery-toolchains",
-            kind: "github_container_registry",
-            registry: "ghcr.io",
-            repository_env: "GITHUB_REPOSITORY",
-            token_env: "GITHUB_TOKEN",
-            username_env: "GITHUB_ACTOR",
-          },
-        },
-      },
-    },
-  );
-});
-
-test("local-copy source acquisition falls back when GitHub bootstrap env is unavailable", () => {
-  assert.deepEqual(
-    buildSourceBootstrapToolchainOptions({
-      hostEnv: {
-        CUSTOM_GITHUB_REPOSITORY: "BeltOrg/beltapp",
-        CUSTOM_GITHUB_TOKEN: "token",
-        CUSTOM_GITHUB_ACTOR: "beltbot",
-      },
-      toolchainImageProvider: "github",
-    }),
-    {
-      toolchainImageProvider: "off",
-    },
-  );
-});
-
 test("local copy workflow source remains available for mounted repo runs", () => {
   const plan = buildWorkflowSourcePlan({
     gitSha: commitSha,
@@ -88,5 +30,5 @@ test("local copy workflow source remains available for mounted repo runs", () =>
   });
 
   assert.equal(plan.mode, "local_copy");
-  assert.equal(plan.sourcePath, "/workspace");
+  assert.deepEqual(plan.cleanupPaths, ["common/temp", ".dagger/runtime"]);
 });

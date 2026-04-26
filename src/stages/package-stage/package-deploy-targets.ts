@@ -5,6 +5,7 @@ import { logSection, logSubsection } from "../../logging/sections.ts";
 import { installRush, prepareRushContainer } from "../../rush/container.ts";
 import { loadPackageTargetDefinition } from "./load-package-metadata.ts";
 import { buildPackageActionPlan } from "./package-action-plan.ts";
+import { assertPackageValidation } from "./package-validation.ts";
 import {
   createEmptyPackageManifest,
   formatPackageManifest,
@@ -43,6 +44,21 @@ export async function packageDeployTargets(
   const artifacts = Object.fromEntries(
     packagePlans.map(({ plan, target }) => [target, plan.artifact]),
   );
+  const packageManifest = formatPackageManifest({ artifacts });
+
+  if (packagePlans.every(({ plan }) => plan.commands.length === 0)) {
+    for (const { plan, target } of packagePlans) {
+      logSubsection(`Package target: ${target}`);
+      console.log(`[package] ${target}: ${plan.artifact.kind}`);
+
+      for (const validation of plan.validations) {
+        await assertPackageValidation(repo, validation, target);
+      }
+    }
+
+    return repo.withNewFile(PACKAGE_MANIFEST_PATH, packageManifest);
+  }
+
   let container = installRush(await prepareRushContainer(repo));
 
   for (const { plan, target } of packagePlans) {
@@ -50,11 +66,11 @@ export async function packageDeployTargets(
     console.log(`[package] ${target}: ${plan.artifact.kind}`);
 
     for (const validation of plan.validations) {
-      if (validation.kind === "directory") {
-        container = container.withExec(["test", "-d", validation.path], {
-          expand: false,
-        });
-      }
+      await assertPackageValidation(
+        container.directory(WORKDIR),
+        validation,
+        target,
+      );
     }
 
     for (const { command, args } of plan.commands) {
@@ -66,5 +82,5 @@ export async function packageDeployTargets(
 
   return container
     .directory(WORKDIR)
-    .withNewFile(PACKAGE_MANIFEST_PATH, formatPackageManifest({ artifacts }));
+    .withNewFile(PACKAGE_MANIFEST_PATH, packageManifest);
 }

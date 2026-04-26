@@ -4,8 +4,6 @@ import type {
   SourcePlan,
 } from "../model/source.ts";
 
-export const DEFAULT_MOUNTED_SOURCE_PATH = "/workspace";
-export const DEFAULT_LOCAL_COPY_SOURCE_WORKDIR = "/rush-delivery/source";
 export const DEFAULT_DEPLOY_TAG_PREFIX = "deploy/prod";
 export const DEFAULT_LOCAL_COPY_CLEANUP_PATHS = [
   "common/temp",
@@ -22,13 +20,11 @@ export type BuildSourcePlanInput = {
   cleanupPaths?: string[];
   commitSha?: string;
   deployTagPrefix?: string;
-  localSourcePath?: string;
   mode?: string;
   prBaseSha?: string;
   ref?: string;
   repositoryUrl?: string;
   removeNodeModules?: boolean;
-  workdir?: string;
 };
 
 function requireNonEmpty(value: string | undefined, name: string): string {
@@ -51,20 +47,6 @@ function rejectShellUnsafe(value: string, name: string): string {
   }
 
   return value;
-}
-
-function parseAbsolutePath(value: string, name: string): string {
-  rejectShellUnsafe(value, name);
-
-  if (!value.startsWith("/") || value === "/") {
-    throw new Error(`${name} must be a specific absolute path.`);
-  }
-
-  if (value.split("/").some((segment) => segment === "..")) {
-    throw new Error(`${name} must not contain parent segments.`);
-  }
-
-  return value.replace(/\/+$/u, "");
 }
 
 function parseRepoRelativePath(value: string, name: string): string {
@@ -223,14 +205,6 @@ export function buildSourcePlan(input: BuildSourcePlanInput = {}): SourcePlan {
       ),
       mode,
       removeNodeModules: input.removeNodeModules ?? true,
-      sourcePath: parseAbsolutePath(
-        input.localSourcePath ?? DEFAULT_MOUNTED_SOURCE_PATH,
-        "Local copy source path",
-      ),
-      workdir: parseAbsolutePath(
-        input.workdir ?? DEFAULT_LOCAL_COPY_SOURCE_WORKDIR,
-        "Local copy workdir",
-      ),
     };
   }
 

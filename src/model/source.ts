@@ -9,8 +9,6 @@ export type LocalCopySourcePlan = {
   cleanupPaths: string[];
   mode: "local_copy";
   removeNodeModules: boolean;
-  sourcePath: string;
-  workdir: string;
 };
 
 export type GitSourcePlan = {
