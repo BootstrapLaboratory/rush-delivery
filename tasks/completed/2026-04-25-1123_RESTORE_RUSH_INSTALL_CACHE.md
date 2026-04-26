@@ -57,7 +57,7 @@ Use the existing GitHub adapter shape:
 
 1. Restore `rush-bootstrap-*` and `rush-deps-*` with `actions/cache/restore`.
 2. Run `node common/scripts/install-run-rush.js install --max-install-attempts
-   1` on the host.
+1` on the host.
 3. Save cache entries on misses with `actions/cache/save`.
 4. Call the normal Dagger `workflow`.
 
@@ -87,8 +87,8 @@ GitHub cache APIs inside the Dagger framework.
 - [x] Remove Rush Dagger cache-volume mounts from `rush/container.ts`.
 - [x] Keep `installRush` as the single Dagger-side Rush install command.
 - [x] Confirm Dagger receives the host-warmed `common/temp` paths in GitHub CI.
-  Superseded: host-warmed `common/temp` paths are no longer part of the release
-  workflow.
+      Superseded: host-warmed `common/temp` paths are no longer part of the release
+      workflow.
 
 ### Phase 3: Validation
 
@@ -97,6 +97,6 @@ GitHub cache APIs inside the Dagger framework.
 - [x] Run `dagger call self-check --repo=..`.
 - [x] Run a local Dagger host-directory probe for `common/temp`.
 - [x] Run GitHub CI once and confirm cache restore/save works.
-  Superseded by the Dagger-owned GHCR cache provider.
+      Superseded by the Dagger-owned GHCR cache provider.
 - [x] Run GitHub CI again and confirm Rush install cache hits reduce runtime.
-  Superseded by the Dagger-owned GHCR cache provider.
+      Superseded by the Dagger-owned GHCR cache provider.

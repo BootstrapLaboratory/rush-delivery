@@ -1,4 +1,7 @@
-import type { RushCachePolicy, RushCacheProvider } from "../model/rush-cache.ts";
+import type {
+  RushCachePolicy,
+  RushCacheProvider,
+} from "../model/rush-cache.ts";
 
 export function parseRushCacheProvider(value: string): RushCacheProvider {
   switch (value) {

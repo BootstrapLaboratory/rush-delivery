@@ -58,14 +58,11 @@ async function sourceBaseContainer(
   options: ResolveSourceOptions,
 ): Promise<Container> {
   return buildResolvedToolchainContainer(
-    await resolveToolchainImage(
-      rushWorkflowToolchainSpec(),
-      {
-        hostEnv: options.hostEnv,
-        provider: options.toolchainImageProvider,
-        providers: options.toolchainImageProviders,
-      },
-    ),
+    await resolveToolchainImage(rushWorkflowToolchainSpec(), {
+      hostEnv: options.hostEnv,
+      provider: options.toolchainImageProvider,
+      providers: options.toolchainImageProviders,
+    }),
   );
 }
 

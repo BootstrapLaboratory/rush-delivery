@@ -22,9 +22,10 @@ export async function buildDeployTargets(
 
   console.log(`[build] Rush targets: ${ciPlan.deploy_targets.join(", ")}`);
 
-  let container = installRush(
-    await prepareRushContainer(repo),
-  ).withEnvVariable("FAILURE_MODE", "deploy");
+  let container = installRush(await prepareRushContainer(repo)).withEnvVariable(
+    "FAILURE_MODE",
+    "deploy",
+  );
 
   for (const { command, args } of buildRushBuildSteps(ciPlan)) {
     console.log(`[build] Rush command: ${args[1]}`);

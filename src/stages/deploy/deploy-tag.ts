@@ -42,9 +42,10 @@ function parseGithubRepository(value: string): string {
 }
 
 function parseGithubApiUrl(value: string | undefined): string {
-  const apiUrl = value === undefined || value.length === 0
-    ? "https://api.github.com"
-    : value;
+  const apiUrl =
+    value === undefined || value.length === 0
+      ? "https://api.github.com"
+      : value;
 
   return apiUrl.replace(/\/+$/u, "");
 }
@@ -96,9 +97,7 @@ export function buildGithubDeployTagUpdateRequests(
   };
 }
 
-export function buildDeployTargetCommand(
-  deployScript: string,
-): string {
+export function buildDeployTargetCommand(deployScript: string): string {
   return `bash ${deployScript}`;
 }
 

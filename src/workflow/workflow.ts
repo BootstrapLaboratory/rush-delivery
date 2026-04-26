@@ -63,8 +63,9 @@ export async function workflow(
     repositoryUrl:
       sourceRepositoryUrl.length === 0 ? undefined : sourceRepositoryUrl,
   });
-  const parsedToolchainImageProvider =
-    parseToolchainImageProvider(toolchainImageProvider);
+  const parsedToolchainImageProvider = parseToolchainImageProvider(
+    toolchainImageProvider,
+  );
   parseToolchainImagePolicy(toolchainImagePolicy);
   const sourceToolchainImageProviders =
     parsedToolchainImageProvider === "off"

@@ -132,7 +132,9 @@ async function resolveGithubToolchainImage(
         `https://github.com/${repository}`,
       )
       .withRegistryAuth(registryAuth.address, username, secret);
-    const publishedReference = await builtContainer.publish(reference.reference);
+    const publishedReference = await builtContainer.publish(
+      reference.reference,
+    );
 
     console.log(`[toolchain-images] published ${publishedReference}`);
 
@@ -180,11 +182,7 @@ function applyToolchainImageResolution(
     return container;
   }
 
-  return container.withExec([
-    "bash",
-    "-lc",
-    resolution.install.join(" && "),
-  ]);
+  return container.withExec(["bash", "-lc", resolution.install.join(" && ")]);
 }
 
 export function buildResolvedToolchainContainer(

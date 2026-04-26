@@ -47,8 +47,9 @@ export async function deployRelease(
     ? parseDeployEnvFile(await deployEnvFile.contents())
     : {};
   const deploymentPlan = await buildReleasePlan(repo, releaseTargetsJson);
-  const parsedToolchainImageProvider =
-    parseToolchainImageProvider(toolchainImageProvider);
+  const parsedToolchainImageProvider = parseToolchainImageProvider(
+    toolchainImageProvider,
+  );
   parseToolchainImagePolicy(toolchainImagePolicy);
   const toolchainImageProviders: ToolchainImageProvidersDefinition | undefined =
     parsedToolchainImageProvider === "off"

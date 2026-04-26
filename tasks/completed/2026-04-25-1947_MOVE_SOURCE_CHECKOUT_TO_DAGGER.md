@@ -76,13 +76,13 @@ to run the workflow.
 - [x] Add a source acquisition model for `local_copy` and `git`.
 - [x] Define provider-neutral source inputs and defaults.
 - [x] Decide the public Dagger API shape for source mode without breaking local
-  `--repo=..` workflows.
+      `--repo=..` workflows.
 - [x] Add tests for source input validation and normalized source plans.
 
 ### Phase 2: Git Checkout Runner
 
 - [x] Implement a Dagger Git checkout container that clones or fetches the
-  configured repository.
+      configured repository.
 - [x] Checkout the exact requested commit SHA before running detect/build/package.
 - [x] Fetch deploy tags, or at minimum tags matching `DEPLOY_TAG_PREFIX`.
 - [x] Fetch PR base SHA/ref when validation requires `rush list --from`.
@@ -92,37 +92,37 @@ to run the workflow.
 ### Phase 3: Workflow Integration
 
 - [x] Make `workflow` resolve the source directory before metadata contract,
-  detect, build, package, and deploy stages.
+      detect, build, package, and deploy stages.
 - [x] Keep the existing `repo: Directory` input working through `local_copy` for
-  local development and incremental rollout.
+      local development and incremental rollout.
 - [x] Update build/package/deploy code to consume the resolved source directory
-  rather than assuming the caller-provided directory is the workflow source.
+      rather than assuming the caller-provided directory is the workflow source.
 - [x] Confirm deploy file mounts and credentials still work when source is
-  internally cloned.
+      internally cloned.
 
 ### Phase 4: GitHub CI Adapter
 
 - [x] Update `.github/workflows/ci-release.yaml` to pass source coordinates into
-  Dagger.
+      Dagger.
 - [x] Remove host-side `git fetch --force --tags origin` after Dagger fetches
-  deploy tags itself.
+      deploy tags itself.
 - [x] Decide whether GitHub still needs a minimal checkout while the Dagger
-  module lives inside this repository.
+      module lives inside this repository.
 - [x] Document the future dedicated-framework-repository path where even the
-  module checkout can disappear.
+      module checkout can disappear.
 
 ### Phase 5: Cache Follow-Up
 
 - [x] Re-test Rush install cache with Dagger-owned source checkout.
 - [x] Decide whether `node_modules` can be safely cached inside the
-  Dagger-owned filesystem.
+      Dagger-owned filesystem.
 - [x] If `node_modules` is safe, add it back in a separate cache metadata
-  version and prove both cache miss and cache hit in real CI.
+      version and prove both cache miss and cache hit in real CI.
 - [x] If `node_modules` is still unsafe, document that the stable cache payload
-  is `install-run` plus `pnpm-store`.
-  Not applicable after the Dagger-owned source checkout validation:
-  `node_modules` is safe in the current Dagger-owned source/cache flow, and the
-  cache payload is `common/temp/node_modules` plus `common/temp/pnpm-store`.
+      is `install-run` plus `pnpm-store`.
+      Not applicable after the Dagger-owned source checkout validation:
+      `node_modules` is safe in the current Dagger-owned source/cache flow, and the
+      cache payload is `common/temp/node_modules` plus `common/temp/pnpm-store`.
 
 ### Phase 6: Validation
 
@@ -131,9 +131,9 @@ to run the workflow.
 - [x] Run local workflow dry-run with local-copy source mode.
 - [x] Run local workflow dry-run with Git source mode.
 - [x] Run real GitHub CI for a PR validation path.
-  User confirmed the real PR validation CI path is green.
+      User confirmed the real PR validation CI path is green.
 - [x] Run real GitHub CI for a release/deploy path with Git source acquisition
-  and source-acquisition toolchain image optimization.
+      and source-acquisition toolchain image optimization.
 
 ## Non-Goals
 

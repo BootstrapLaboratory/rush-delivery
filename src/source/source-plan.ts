@@ -43,7 +43,9 @@ function requireNonEmpty(value: string | undefined, name: string): string {
 
 function rejectShellUnsafe(value: string, name: string): string {
   if (/[\u0000-\u001f\u007f\s]/u.test(value)) {
-    throw new Error(`${name} must not contain whitespace or control characters.`);
+    throw new Error(
+      `${name} must not contain whitespace or control characters.`,
+    );
   }
 
   if (value.startsWith("-")) {
@@ -131,11 +133,7 @@ function parseDeployTagPrefix(value: string | undefined): string {
     "Deploy tag prefix",
   );
 
-  if (
-    prefix.startsWith("/") ||
-    prefix.endsWith("/") ||
-    prefix.includes("..")
-  ) {
+  if (prefix.startsWith("/") || prefix.endsWith("/") || prefix.includes("..")) {
     throw new Error("Deploy tag prefix is not a safe tag prefix.");
   }
 
@@ -274,7 +272,14 @@ function buildGitCommandPlan(input: {
 
   if (input.prBaseSha !== undefined) {
     commands.push({
-      args: ["-C", input.workdir, "fetch", "--force", "origin", input.prBaseSha],
+      args: [
+        "-C",
+        input.workdir,
+        "fetch",
+        "--force",
+        "origin",
+        input.prBaseSha,
+      ],
       command: "git",
       name: "fetch_pr_base",
     });

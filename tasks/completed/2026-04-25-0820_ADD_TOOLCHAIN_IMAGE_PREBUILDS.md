@@ -85,7 +85,7 @@ Workflow-level parameters:
 workflow({
   toolchainImageProvider: "github",
   toolchainImagePolicy: "lazy",
-})
+});
 ```
 
 Provider metadata example:

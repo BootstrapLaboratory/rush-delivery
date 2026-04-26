@@ -1,8 +1,4 @@
-import {
-  dag,
-  type Container,
-  type Secret,
-} from "@dagger.io/dagger";
+import { dag, type Container, type Secret } from "@dagger.io/dagger";
 
 import type {
   RushCacheProvider,
@@ -91,17 +87,16 @@ async function resolveGithubRushInstallCache(
     .withRegistryAuth(registryAuth.address, registryAuth.username, secret);
 
   try {
-    const cacheContainer = authenticatedContainer.from(plan.reference.reference);
+    const cacheContainer = authenticatedContainer.from(
+      plan.reference.reference,
+    );
 
     await cacheContainer.sync();
     console.log(`[rush-cache] using ${plan.reference.reference}`);
 
     return {
       cacheHit: true,
-      container: withRushCacheArchive(
-        container,
-        cacheContainer,
-      ),
+      container: withRushCacheArchive(container, cacheContainer),
       paths: [...options.providers.cache.paths],
       provider: "github",
       reference: plan.reference,

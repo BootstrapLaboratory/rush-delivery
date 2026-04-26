@@ -31,4 +31,4 @@ module repository boundary is settled.
 
 - [ ] Run the new CI path once and confirm `self-check` passes.
 - [ ] Confirm the command still works locally with `dagger call self-check
-      --repo=..`.
+--repo=..`.

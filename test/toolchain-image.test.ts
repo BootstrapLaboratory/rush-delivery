@@ -63,10 +63,7 @@ test("builds the generic Rush workflow toolchain spec", () => {
     {
       baseImage: "node:24-bookworm-slim",
       env: {},
-      install: [
-        "apt-get update",
-        "apt-get install -y ca-certificates git",
-      ],
+      install: ["apt-get update", "apt-get install -y ca-certificates git"],
       kind: "rush",
       name: "workflow",
       version: TOOLCHAIN_IMAGE_SPEC_VERSION,

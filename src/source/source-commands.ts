@@ -7,9 +7,7 @@ export function shellQuote(value: string): string {
   return `'${value.replace(/'/gu, "'\\''")}'`;
 }
 
-export function buildLocalCopySourceCommand(
-  plan: LocalCopySourcePlan,
-): string {
+export function buildLocalCopySourceCommand(plan: LocalCopySourcePlan): string {
   const workdir = shellQuote(plan.workdir);
   const sourcePath = shellQuote(plan.sourcePath);
   const commands = [

@@ -18,10 +18,7 @@ export function isMissingToolchainImageError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
   const lowerMessage = message.toLowerCase();
 
-  return [
-    "manifest unknown",
-    "name unknown",
-    "not found",
-    "404",
-  ].some((pattern) => lowerMessage.includes(pattern));
+  return ["manifest unknown", "name unknown", "not found", "404"].some(
+    (pattern) => lowerMessage.includes(pattern),
+  );
 }
