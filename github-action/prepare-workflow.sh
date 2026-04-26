@@ -1,0 +1,234 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+die() {
+	printf 'rush-delivery action: %s\n' "$*" >&2
+	exit 1
+}
+
+write_output() {
+	local name="$1"
+	local value="$2"
+	local output_file="${GITHUB_OUTPUT-}"
+
+	if [[ -z ${output_file} ]]; then
+		return 0
+	fi
+
+	local delimiter
+	delimiter="rush_delivery_${name}_${RANDOM}${RANDOM}"
+	{
+		printf '%s<<%s\n' "${name}" "${delimiter}"
+		printf '%s\n' "${value}"
+		printf '%s\n' "${delimiter}"
+	} >>"${output_file}"
+}
+
+append_env_line() {
+	local env_file="$1"
+	local name="$2"
+	local value="$3"
+
+	if [[ -z ${value} ]]; then
+		return 0
+	fi
+
+	if [[ ! ${name} =~ ^[A-Z][A-Z0-9_]*$ ]]; then
+		die "invalid deploy env key: ${name}"
+	fi
+
+	if [[ ${value} == *$'\n'* ]]; then
+		die "deploy env value for ${name} must be single-line"
+	fi
+
+	printf '%s=%s\n' "${name}" "${value}" >>"${env_file}"
+}
+
+copy_file_if_present() {
+	local source="$1"
+	local dest="$2"
+
+	if [[ -z ${source} ]]; then
+		return 0
+	fi
+
+	[[ -f ${source} ]] || die "runtime file source does not exist: ${source}"
+	mkdir -p "$(dirname "${dest}")"
+	cp "${source}" "${dest}"
+}
+
+normalize_runtime_dest() {
+	local raw_dest="$1"
+	local dest="${raw_dest//\\//}"
+
+	while [[ ${dest} == ./* ]]; do
+		dest="${dest#./}"
+	done
+
+	while [[ ${dest} == */ ]]; do
+		dest="${dest%/}"
+	done
+
+	if [[ -z ${dest} || ${dest} == "." ]]; then
+		die "runtime file destination must be a bundle-relative path"
+	fi
+
+	if [[ ${dest} == /* || ${dest} =~ ^[A-Za-z]:/ ]]; then
+		die "runtime file destination must be relative: ${raw_dest}"
+	fi
+
+	IFS='/' read -r -a segments <<<"${dest}"
+	for segment in "${segments[@]}"; do
+		if [[ ${segment} == ".." ]]; then
+			die "runtime file destination must stay inside runtime-files: ${raw_dest}"
+		fi
+	done
+
+	printf '%s' "${dest}"
+}
+
+shell_quote_args() {
+	local args=("$@")
+	local quoted=""
+
+	for arg in "${args[@]}"; do
+		quoted+="$(printf '%q' "${arg}") "
+	done
+
+	printf '%s' "${quoted% }"
+}
+
+runner_temp="${RUNNER_TEMP:-${TMPDIR:-/tmp}}"
+action_temp="${runner_temp}/rush-delivery-action"
+mkdir -p "${action_temp}"
+
+module="${INPUT_MODULE:-${GITHUB_ACTION_PATH}}"
+deploy_env_file="${action_temp}/dagger-deploy.env"
+runtime_files="${INPUT_RUNTIME_FILES:-${action_temp}/runtime-files}"
+
+: >"${deploy_env_file}"
+
+if [[ -n ${INPUT_DEPLOY_ENV_FILE-} ]]; then
+	[[ -f ${INPUT_DEPLOY_ENV_FILE} ]] || die "deploy-env-file does not exist: ${INPUT_DEPLOY_ENV_FILE}"
+	cat "${INPUT_DEPLOY_ENV_FILE}" >>"${deploy_env_file}"
+	printf '\n' >>"${deploy_env_file}"
+fi
+
+if [[ -n ${INPUT_DEPLOY_ENV-} ]]; then
+	printf '%s\n' "${INPUT_DEPLOY_ENV}" >>"${deploy_env_file}"
+fi
+
+case "${INPUT_INCLUDE_GITHUB_ENV:-true}" in
+true | TRUE | True | 1 | yes | YES | Yes | on | ON | On)
+	append_env_line "${deploy_env_file}" GITHUB_ACTOR "${GITHUB_ACTOR-}"
+	append_env_line "${deploy_env_file}" GITHUB_REPOSITORY "${GITHUB_REPOSITORY-}"
+	append_env_line "${deploy_env_file}" GITHUB_API_URL "${RD_GITHUB_API_URL-}"
+	append_env_line "${deploy_env_file}" GITHUB_TOKEN "${RD_GITHUB_TOKEN-}"
+	;;
+*) ;;
+esac
+
+mkdir -p "${runtime_files}"
+
+if [[ -n ${INPUT_RUNTIME_FILE_MAP-} ]]; then
+	while IFS= read -r mapping || [[ -n ${mapping} ]]; do
+		[[ -z ${mapping} || ${mapping} =~ ^[[:space:]]*# ]] && continue
+
+		if [[ ${mapping} != *"=>"* ]]; then
+			die "runtime-file-map entries must use SOURCE=>DEST: ${mapping}"
+		fi
+
+		source_path="${mapping%%=>*}"
+		raw_dest="${mapping#*=>}"
+
+		if [[ -z ${source_path} ]]; then
+			continue
+		fi
+
+		dest_path="$(normalize_runtime_dest "${raw_dest}")"
+		copy_file_if_present "${source_path}" "${runtime_files}/${dest_path}"
+	done <<<"${INPUT_RUNTIME_FILE_MAP}"
+fi
+
+git_sha="${INPUT_GIT_SHA:-${GITHUB_SHA-}}"
+[[ -n ${git_sha} ]] || die "git-sha input or GITHUB_SHA is required"
+
+event_name="${INPUT_EVENT_NAME:-${GITHUB_EVENT_NAME:-push}}"
+force_targets_json="${INPUT_FORCE_TARGETS_JSON:-[]}"
+pr_base_sha="${INPUT_PR_BASE_SHA-}"
+deploy_tag_prefix="${INPUT_DEPLOY_TAG_PREFIX:-deploy/prod}"
+artifact_prefix="${INPUT_ARTIFACT_PREFIX:-deploy-target}"
+environment="${INPUT_ENVIRONMENT:-prod}"
+dry_run="${INPUT_DRY_RUN:-true}"
+toolchain_image_provider="${INPUT_TOOLCHAIN_IMAGE_PROVIDER:-off}"
+toolchain_image_policy="${INPUT_TOOLCHAIN_IMAGE_POLICY:-lazy}"
+rush_cache_provider="${INPUT_RUSH_CACHE_PROVIDER:-off}"
+rush_cache_policy="${INPUT_RUSH_CACHE_POLICY:-lazy}"
+source_mode="${INPUT_SOURCE_MODE:-git}"
+source_repository_url="${INPUT_SOURCE_REPOSITORY_URL-}"
+source_ref="${INPUT_SOURCE_REF:-${GITHUB_REF-}}"
+source_auth_token_env="${INPUT_SOURCE_AUTH_TOKEN_ENV:-GITHUB_TOKEN}"
+source_auth_username="${INPUT_SOURCE_AUTH_USERNAME-}"
+host_workspace_dir="${INPUT_HOST_WORKSPACE_DIR:-${GITHUB_WORKSPACE-}}"
+if [[ -v INPUT_DOCKER_SOCKET ]]; then
+	docker_socket="${INPUT_DOCKER_SOCKET}"
+else
+	docker_socket="/var/run/docker.sock"
+fi
+
+if [[ -z ${source_repository_url} && -n ${GITHUB_SERVER_URL-} && -n ${GITHUB_REPOSITORY-} ]]; then
+	source_repository_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+fi
+
+args=(
+	workflow
+	"--git-sha=${git_sha}"
+	"--event-name=${event_name}"
+	"--force-targets-json=${force_targets_json}"
+	"--pr-base-sha=${pr_base_sha}"
+	"--deploy-tag-prefix=${deploy_tag_prefix}"
+	"--artifact-prefix=${artifact_prefix}"
+	"--environment=${environment}"
+	"--dry-run=${dry_run}"
+	"--deploy-env-file=${deploy_env_file}"
+	"--toolchain-image-provider=${toolchain_image_provider}"
+	"--toolchain-image-policy=${toolchain_image_policy}"
+	"--rush-cache-provider=${rush_cache_provider}"
+	"--rush-cache-policy=${rush_cache_policy}"
+	"--source-mode=${source_mode}"
+	"--runtime-files=${runtime_files}"
+)
+
+if [[ -n ${source_repository_url} ]]; then
+	args+=("--source-repository-url=${source_repository_url}")
+fi
+
+if [[ -n ${source_ref} ]]; then
+	args+=("--source-ref=${source_ref}")
+fi
+
+if [[ -n ${source_auth_token_env} ]]; then
+	args+=("--source-auth-token-env=${source_auth_token_env}")
+fi
+
+if [[ -n ${source_auth_username} ]]; then
+	args+=("--source-auth-username=${source_auth_username}")
+fi
+
+if [[ -n ${host_workspace_dir} ]]; then
+	args+=("--host-workspace-dir=${host_workspace_dir}")
+fi
+
+if [[ -n ${docker_socket} ]]; then
+	args+=("--docker-socket=${docker_socket}")
+fi
+
+call_args="$(shell_quote_args "${args[@]}")"
+if [[ -n ${INPUT_EXTRA_ARGS-} ]]; then
+	call_args="${call_args} ${INPUT_EXTRA_ARGS}"
+fi
+
+write_output module "${module}"
+write_output args "${call_args}"
+write_output deploy-env-file "${deploy_env_file}"
+write_output runtime-files "${runtime_files}"

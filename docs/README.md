@@ -7,6 +7,8 @@ extension surface for validation, packaging, deployment, caches, and toolchains.
 ## Guides
 
 - [Public Dagger API](api.md): callable functions and when to use them.
+- [GitHub Action usage](github-actions.md): GitHub CI wrapper for the workflow
+  entrypoint.
 - [Entrypoints reference](entrypoints.md): every callable Dagger function and
   separate-use workflow.
 - [Workflow guide](workflows.md): local and CI workflow shapes.

@@ -8,6 +8,7 @@ Start here:
 
 - [Documentation index](docs/README.md)
 - [Public Dagger API](docs/api.md)
+- [GitHub Action usage](docs/github-actions.md)
 - [Entrypoints reference](docs/entrypoints.md)
 - [Workflow guide](docs/workflows.md)
 - [Metadata contracts](docs/metadata.md)
@@ -18,6 +19,21 @@ Common local checks:
 
 ```sh
 dagger call self-check
+```
+
+Recommended GitHub Actions usage wraps the Dagger workflow and prepares deploy
+env/runtime files for you:
+
+```yaml
+- name: Rush Delivery
+  uses: BootstrapLaboratory/rush-delivery@v0.3.0
+  with:
+    dry-run: "false"
+    force-targets-json: ${{ inputs.force_targets_json || '[]' }}
+    deploy-env: |
+      CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}
+    runtime-file-map: |
+      ${{ steps.auth.outputs.credentials_file_path }}=>gcp-credentials.json
 ```
 
 Recommended CI usage clones the Rush repository inside Dagger from Git source

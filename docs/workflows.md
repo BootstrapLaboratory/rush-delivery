@@ -32,7 +32,26 @@ Dry-runs use target `dry_run_defaults` for allowed runtime environment values.
 ## CI Release Workflow
 
 A CI provider should keep provider-specific setup small, then call the Dagger
-workflow. For GitHub Actions this means:
+workflow.
+
+For GitHub Actions, prefer the repository action wrapper:
+
+```yaml
+- name: Rush Delivery
+  uses: BootstrapLaboratory/rush-delivery@v0.3.0
+  with:
+    force-targets-json: ${{ inputs.force_targets_json || '[]' }}
+    environment: prod
+    dry-run: "false"
+    runtime-file-map: |
+      ${{ steps.auth.outputs.credentials_file_path }}=>gcp-credentials.json
+    deploy-env: |
+      GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}
+```
+
+See [GitHub Action usage](github-actions.md) for the complete production shape.
+
+For a raw Dagger command this means:
 
 - Install the Dagger CLI.
 - Authenticate to external providers when live deploy targets need it.

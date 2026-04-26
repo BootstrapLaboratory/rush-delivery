@@ -1,0 +1,218 @@
+name: Rush Delivery
+author: Bootstrap Laboratory
+description: Run the Rush Delivery Dagger workflow from GitHub Actions.
+
+inputs:
+  module:
+    description: Dagger module reference. Defaults to this action checkout.
+    required: false
+    default: ""
+  workdir:
+    description: Working directory for the Dagger CLI.
+    required: false
+    default: .
+  dagger-version:
+    description: Dagger CLI version.
+    required: false
+    default: v0.20.6
+  dagger-flags:
+    description: Additional Dagger CLI flags.
+    required: false
+    default: --progress plain
+  dagger-cloud-token:
+    description: Dagger Cloud token.
+    required: false
+    default: ""
+  dagger-no-nag:
+    description: Value for DAGGER_NO_NAG.
+    required: false
+    default: "1"
+  enable-github-summary:
+    description: Whether dagger/dagger-for-github should write a job summary.
+    required: false
+    default: "false"
+  summary-path:
+    description: Optional path for the Dagger job summary.
+    required: false
+    default: ""
+
+  git-sha:
+    description: Commit SHA to release. Defaults to the GitHub workflow SHA.
+    required: false
+    default: ""
+  event-name:
+    description: GitHub event name. Defaults to the current workflow event.
+    required: false
+    default: ""
+  force-targets-json:
+    description: JSON array of deploy targets to force.
+    required: false
+    default: "[]"
+  pr-base-sha:
+    description: Pull request base SHA for detection.
+    required: false
+    default: ""
+  deploy-tag-prefix:
+    description: Deploy tag prefix.
+    required: false
+    default: deploy/prod
+  artifact-prefix:
+    description: Package artifact prefix.
+    required: false
+    default: deploy-target
+  environment:
+    description: Release environment name.
+    required: false
+    default: prod
+  dry-run:
+    description: Whether to run the workflow in dry-run mode.
+    required: false
+    default: "true"
+
+  deploy-env:
+    description: Multiline KEY=VALUE deploy environment content.
+    required: false
+    default: ""
+  deploy-env-file:
+    description: Existing deploy env file to copy before appending deploy-env.
+    required: false
+    default: ""
+  include-github-env:
+    description: Append GitHub actor, repository, API URL, and token to the deploy env file.
+    required: false
+    default: "true"
+  github-token:
+    description: GitHub token written to GITHUB_TOKEN in the deploy env file.
+    required: false
+    default: ""
+
+  runtime-files:
+    description: Existing runtime files directory. Defaults to a directory under RUNNER_TEMP.
+    required: false
+    default: ""
+  runtime-file-map:
+    description: Multiline SOURCE=>DEST mappings copied into runtime-files.
+    required: false
+    default: ""
+
+  toolchain-image-provider:
+    description: Toolchain image provider.
+    required: false
+    default: "off"
+  toolchain-image-policy:
+    description: Toolchain image policy.
+    required: false
+    default: lazy
+  rush-cache-provider:
+    description: Rush cache provider.
+    required: false
+    default: "off"
+  rush-cache-policy:
+    description: Rush cache policy.
+    required: false
+    default: lazy
+
+  source-mode:
+    description: Source acquisition mode.
+    required: false
+    default: git
+  source-repository-url:
+    description: Source repository Git URL. Defaults to the current GitHub repository URL.
+    required: false
+    default: ""
+  source-ref:
+    description: Source ref. Defaults to the current GitHub ref.
+    required: false
+    default: ""
+  source-auth-token-env:
+    description: Deploy env key containing the Git source token.
+    required: false
+    default: GITHUB_TOKEN
+  source-auth-username:
+    description: Optional Git source auth username.
+    required: false
+    default: ""
+
+  host-workspace-dir:
+    description: Host workspace directory for compatibility host file mounts.
+    required: false
+    default: ""
+  docker-socket:
+    description: Docker socket path. Set empty to omit.
+    required: false
+    default: /var/run/docker.sock
+  extra-args:
+    description: Extra raw arguments appended to the Dagger workflow call.
+    required: false
+    default: ""
+
+outputs:
+  output:
+    description: Dagger workflow stdout.
+    value: ${{ steps.dagger.outputs.output }}
+  trace-url:
+    description: Dagger Cloud trace URL, when available.
+    value: ${{ steps.dagger.outputs.traceURL }}
+  deploy-env-file:
+    description: Prepared deploy env file path.
+    value: ${{ steps.prepare.outputs.deploy-env-file }}
+  runtime-files:
+    description: Prepared runtime files directory.
+    value: ${{ steps.prepare.outputs.runtime-files }}
+
+runs:
+  using: composite
+  steps:
+    - id: prepare
+      name: Prepare Rush Delivery inputs
+      shell: bash
+      env:
+        INPUT_MODULE: ${{ inputs.module }}
+        INPUT_GIT_SHA: ${{ inputs.git-sha }}
+        INPUT_EVENT_NAME: ${{ inputs.event-name }}
+        INPUT_FORCE_TARGETS_JSON: ${{ inputs.force-targets-json }}
+        INPUT_PR_BASE_SHA: ${{ inputs.pr-base-sha }}
+        INPUT_DEPLOY_TAG_PREFIX: ${{ inputs.deploy-tag-prefix }}
+        INPUT_ARTIFACT_PREFIX: ${{ inputs.artifact-prefix }}
+        INPUT_ENVIRONMENT: ${{ inputs.environment }}
+        INPUT_DRY_RUN: ${{ inputs.dry-run }}
+        INPUT_DEPLOY_ENV: ${{ inputs.deploy-env }}
+        INPUT_DEPLOY_ENV_FILE: ${{ inputs.deploy-env-file }}
+        INPUT_INCLUDE_GITHUB_ENV: ${{ inputs.include-github-env }}
+        INPUT_RUNTIME_FILES: ${{ inputs.runtime-files }}
+        INPUT_RUNTIME_FILE_MAP: ${{ inputs.runtime-file-map }}
+        INPUT_TOOLCHAIN_IMAGE_PROVIDER: ${{ inputs.toolchain-image-provider }}
+        INPUT_TOOLCHAIN_IMAGE_POLICY: ${{ inputs.toolchain-image-policy }}
+        INPUT_RUSH_CACHE_PROVIDER: ${{ inputs.rush-cache-provider }}
+        INPUT_RUSH_CACHE_POLICY: ${{ inputs.rush-cache-policy }}
+        INPUT_SOURCE_MODE: ${{ inputs.source-mode }}
+        INPUT_SOURCE_REPOSITORY_URL: ${{ inputs.source-repository-url }}
+        INPUT_SOURCE_REF: ${{ inputs.source-ref }}
+        INPUT_SOURCE_AUTH_TOKEN_ENV: ${{ inputs.source-auth-token-env }}
+        INPUT_SOURCE_AUTH_USERNAME: ${{ inputs.source-auth-username }}
+        INPUT_HOST_WORKSPACE_DIR: ${{ inputs.host-workspace-dir }}
+        INPUT_DOCKER_SOCKET: ${{ inputs.docker-socket }}
+        INPUT_EXTRA_ARGS: ${{ inputs.extra-args }}
+        RD_GITHUB_TOKEN: ${{ inputs.github-token || github.token }}
+        RD_GITHUB_API_URL: ${{ github.api_url }}
+      run: $GITHUB_ACTION_PATH/github-action/prepare-workflow.sh
+
+    - id: dagger
+      name: Run Rush Delivery workflow
+      uses: dagger/dagger-for-github@v8.4.1
+      env:
+        DAGGER_NO_NAG: ${{ inputs.dagger-no-nag }}
+      with:
+        version: ${{ inputs.dagger-version }}
+        verb: call
+        module: ${{ steps.prepare.outputs.module }}
+        args: ${{ steps.prepare.outputs.args }}
+        workdir: ${{ inputs.workdir }}
+        dagger-flags: ${{ inputs.dagger-flags }}
+        cloud-token: ${{ inputs.dagger-cloud-token }}
+        enable-github-summary: ${{ inputs.enable-github-summary }}
+        summary-path: ${{ inputs.summary-path }}
+
+branding:
+  icon: package
+  color: blue

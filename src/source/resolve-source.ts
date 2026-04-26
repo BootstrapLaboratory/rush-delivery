@@ -118,19 +118,19 @@ async function resolveLocalCopySource(
     nextRepo = await withoutPathIfExists(nextRepo, cleanupPath);
   }
 
-  return plan.removeNodeModules
-    ? withoutNestedNodeModules(nextRepo)
-    : nextRepo;
+  return plan.removeNodeModules ? withoutNestedNodeModules(nextRepo) : nextRepo;
 }
 
 async function resolveGitSource(
   plan: GitSourcePlan,
   options: ResolveSourceOptions,
 ): Promise<Directory> {
-  return gitRepository(plan, options.hostEnv ?? {})
-    .commit(plan.commitSha)
-    // Rush compares against deploy tags and PR bases, so keep full history.
-    .tree({ depth: -1, discardGitDir: false, includeTags: true });
+  return (
+    gitRepository(plan, options.hostEnv ?? {})
+      .commit(plan.commitSha)
+      // Rush compares against deploy tags and PR bases, so keep full history.
+      .tree({ depth: -1, discardGitDir: false, includeTags: true })
+  );
 }
 
 export async function resolveSource(

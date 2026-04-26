@@ -8,6 +8,9 @@ checked-out working tree.
 RUSH_DELIVERY_MODULE=github.com/OWNER/rush-delivery@VERSION
 ```
 
+GitHub Actions can use the root action wrapper instead of assembling the raw
+command. See [GitHub Action usage](github-actions.md).
+
 ## Entrypoints
 
 `workflow` is the normal release orchestrator. It resolves source, validates

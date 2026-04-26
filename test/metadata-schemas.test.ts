@@ -20,7 +20,9 @@ async function readJson(relativePath: string): Promise<unknown> {
 }
 
 async function readYaml(relativePath: string): Promise<unknown> {
-  return parseYaml(await readFile(path.join(fixtureRoot, relativePath), "utf8"));
+  return parseYaml(
+    await readFile(path.join(fixtureRoot, relativePath), "utf8"),
+  );
 }
 
 async function listYamlFiles(relativeDirectory: string): Promise<string[]> {

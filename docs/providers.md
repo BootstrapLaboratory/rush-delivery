@@ -71,3 +71,7 @@ A CI provider should provide:
 
 The CI provider should not compute deploy plans, package artifacts, update
 deploy tags, or encode target-specific behavior.
+
+The GitHub Action wrapper in this repository is the first CI adapter. It
+prepares GitHub-specific defaults and then calls the same Dagger `workflow`
+entrypoint as raw CLI usage.

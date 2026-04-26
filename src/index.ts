@@ -165,9 +165,7 @@ export class RushDelivery {
    * Validates cross-file Dagger metadata contracts before running release stages.
    */
   @func()
-  async validateMetadataContract(
-    repo: Directory,
-  ): Promise<string> {
+  async validateMetadataContract(repo: Directory): Promise<string> {
     return formatMetadataContractValidationResult(
       await validateMetadataContractForRepo(repo),
     );

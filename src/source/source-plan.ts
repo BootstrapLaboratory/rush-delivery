@@ -1,8 +1,4 @@
-import type {
-  GitSourcePlan,
-  SourceMode,
-  SourcePlan,
-} from "../model/source.ts";
+import type { GitSourcePlan, SourceMode, SourcePlan } from "../model/source.ts";
 
 export const DEFAULT_DEPLOY_TAG_PREFIX = "deploy/prod";
 export const DEFAULT_LOCAL_COPY_CLEANUP_PATHS = [

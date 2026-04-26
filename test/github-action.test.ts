@@ -1,0 +1,184 @@
+import * as assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdir, readFile, rm, stat } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import * as path from "node:path";
+import { test } from "node:test";
+import { fileURLToPath } from "node:url";
+import { parse as parseYaml } from "yaml";
+
+const testDirectory = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(testDirectory, "..");
+const scriptPath = path.join(repoRoot, "github-action", "prepare-workflow.sh");
+
+function parseGithubOutput(contents: string): Record<string, string> {
+  const outputs: Record<string, string> = {};
+  const lines = contents.split(/\r?\n/);
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const heredocMatch = /^([^<]+)<<(.+)$/.exec(line);
+
+    if (heredocMatch === null) {
+      continue;
+    }
+
+    const [, name, delimiter] = heredocMatch;
+    const valueLines: string[] = [];
+    index += 1;
+
+    while (index < lines.length && lines[index] !== delimiter) {
+      valueLines.push(lines[index]);
+      index += 1;
+    }
+
+    outputs[name] = valueLines.join("\n");
+  }
+
+  return outputs;
+}
+
+function runPrepare(env: Record<string, string>) {
+  const result = spawnSync("bash", [scriptPath], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: {
+      PATH: process.env.PATH ?? "",
+      ...env,
+    },
+  });
+
+  return result;
+}
+
+test("action metadata defines a composite action over dagger-for-github", () => {
+  const metadata = parseYaml(
+    readFileSync(path.join(repoRoot, "action.yml"), "utf8"),
+  ) as {
+    runs: {
+      steps: Array<{ uses?: string }>;
+      using: string;
+    };
+  };
+
+  assert.equal(metadata.runs.using, "composite");
+  assert.ok(
+    metadata.runs.steps.some(
+      (step) => step.uses === "dagger/dagger-for-github@v8.4.1",
+    ),
+  );
+});
+
+test("prepare workflow writes deploy env, runtime files, and Dagger args", async () => {
+  const tempDir = mkdtempSync(path.join(tmpdir(), "rush-delivery-action-"));
+  const outputPath = path.join(tempDir, "github-output");
+  const sourceCredential = path.join(tempDir, "gha-creds.json");
+  const deployEnvFile = path.join(tempDir, "base.env");
+
+  writeFileSync(sourceCredential, '{"ok":true}\n');
+  writeFileSync(deployEnvFile, "BASE_VALUE=from-file\n");
+
+  const result = runPrepare({
+    GITHUB_ACTION_PATH: repoRoot,
+    GITHUB_ACTOR: "octocat",
+    GITHUB_OUTPUT: outputPath,
+    GITHUB_REF: "refs/heads/main",
+    GITHUB_REPOSITORY: "owner/repo",
+    GITHUB_SERVER_URL: "https://github.example",
+    GITHUB_SHA: "1234567890abcdef1234567890abcdef12345678",
+    GITHUB_WORKSPACE: "/home/runner/work/repo/repo",
+    INPUT_ARTIFACT_PREFIX: "artifact",
+    INPUT_DEPLOY_ENV:
+      "GCP_PROJECT_ID=test-project\nCLOUD_RUN_REGION=us-central1",
+    INPUT_DEPLOY_ENV_FILE: deployEnvFile,
+    INPUT_DEPLOY_TAG_PREFIX: "deploy/prod",
+    INPUT_DOCKER_SOCKET: "",
+    INPUT_DRY_RUN: "false",
+    INPUT_ENVIRONMENT: "prod",
+    INPUT_EVENT_NAME: "workflow_call",
+    INPUT_FORCE_TARGETS_JSON: '["server"]',
+    INPUT_INCLUDE_GITHUB_ENV: "true",
+    INPUT_MODULE: "",
+    INPUT_PR_BASE_SHA: "",
+    INPUT_RUNTIME_FILE_MAP: `${sourceCredential}=>gcp-credentials.json\n=>ignored.json`,
+    INPUT_RUNTIME_FILES: "",
+    INPUT_RUSH_CACHE_POLICY: "lazy",
+    INPUT_RUSH_CACHE_PROVIDER: "github",
+    INPUT_SOURCE_AUTH_TOKEN_ENV: "GITHUB_TOKEN",
+    INPUT_SOURCE_AUTH_USERNAME: "",
+    INPUT_SOURCE_MODE: "git",
+    INPUT_SOURCE_REF: "",
+    INPUT_SOURCE_REPOSITORY_URL: "",
+    INPUT_TOOLCHAIN_IMAGE_POLICY: "lazy",
+    INPUT_TOOLCHAIN_IMAGE_PROVIDER: "github",
+    RD_GITHUB_API_URL: "https://api.github.example",
+    RD_GITHUB_TOKEN: "token-value",
+    RUNNER_TEMP: tempDir,
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+
+  const outputs = parseGithubOutput(await readFile(outputPath, "utf8"));
+  assert.equal(outputs.module, repoRoot);
+  assert.match(outputs.args, /^workflow /);
+  assert.match(
+    outputs.args,
+    /--git-sha=1234567890abcdef1234567890abcdef12345678/,
+  );
+  assert.match(outputs.args, /--dry-run=false/);
+  assert.match(outputs.args, /--source-mode=git/);
+  assert.match(
+    outputs.args,
+    /--source-repository-url=https:\/\/github\.example\/owner\/repo\.git/,
+  );
+  assert.match(outputs.args, /--source-auth-token-env=GITHUB_TOKEN/);
+  assert.doesNotMatch(outputs.args, /--docker-socket=/);
+
+  const deployEnv = await readFile(outputs["deploy-env-file"], "utf8");
+  assert.match(deployEnv, /BASE_VALUE=from-file/);
+  assert.match(deployEnv, /GCP_PROJECT_ID=test-project/);
+  assert.match(deployEnv, /GITHUB_ACTOR=octocat/);
+  assert.match(deployEnv, /GITHUB_REPOSITORY=owner\/repo/);
+  assert.match(deployEnv, /GITHUB_API_URL=https:\/\/api\.github\.example/);
+  assert.match(deployEnv, /GITHUB_TOKEN=token-value/);
+
+  assert.equal(
+    await readFile(
+      path.join(outputs["runtime-files"], "gcp-credentials.json"),
+      "utf8",
+    ),
+    '{"ok":true}\n',
+  );
+
+  await assert.rejects(
+    stat(path.join(outputs["runtime-files"], "ignored.json")),
+  );
+
+  await rm(tempDir, { force: true, recursive: true });
+});
+
+test("prepare workflow rejects runtime file destinations that escape the bundle", async () => {
+  const tempDir = mkdtempSync(path.join(tmpdir(), "rush-delivery-action-"));
+  const outputPath = path.join(tempDir, "github-output");
+  const sourceCredential = path.join(tempDir, "gha-creds.json");
+  await mkdir(tempDir, { recursive: true });
+  writeFileSync(sourceCredential, "{}\n");
+
+  const result = runPrepare({
+    GITHUB_ACTION_PATH: repoRoot,
+    GITHUB_OUTPUT: outputPath,
+    GITHUB_REF: "refs/heads/main",
+    GITHUB_REPOSITORY: "owner/repo",
+    GITHUB_SERVER_URL: "https://github.example",
+    GITHUB_SHA: "1234567890abcdef1234567890abcdef12345678",
+    INPUT_RUNTIME_FILE_MAP: `${sourceCredential}=>../gcp-credentials.json`,
+    RD_GITHUB_TOKEN: "token-value",
+    RUNNER_TEMP: tempDir,
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /must stay inside runtime-files/);
+
+  await rm(tempDir, { force: true, recursive: true });
+});

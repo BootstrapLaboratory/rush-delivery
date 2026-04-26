@@ -76,10 +76,12 @@ async function runPackageStage(
 
   if (ciPlan.deploy_targets.length === 0) {
     console.log("[package] no deploy targets selected");
-    return container.directory(RUSH_WORKDIR).withNewFile(
-      PACKAGE_MANIFEST_PATH,
-      formatPackageManifest(createEmptyPackageManifest()),
-    );
+    return container
+      .directory(RUSH_WORKDIR)
+      .withNewFile(
+        PACKAGE_MANIFEST_PATH,
+        formatPackageManifest(createEmptyPackageManifest()),
+      );
   }
 
   const packagePlans = await Promise.all(
@@ -116,10 +118,9 @@ async function runPackageStage(
     }
   }
 
-  return nextContainer.directory(RUSH_WORKDIR).withNewFile(
-    PACKAGE_MANIFEST_PATH,
-    formatPackageManifest({ artifacts }),
-  );
+  return nextContainer
+    .directory(RUSH_WORKDIR)
+    .withNewFile(PACKAGE_MANIFEST_PATH, formatPackageManifest({ artifacts }));
 }
 
 export type BuildPackageWorkflowResult = {
