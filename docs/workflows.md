@@ -37,6 +37,8 @@ workflow. For GitHub Actions this means:
 - Install the Dagger CLI.
 - Authenticate to external providers when live deploy targets need it.
 - Write a deploy environment file with provider secrets and configuration.
+- Copy deploy-only credential files into a runtime files directory when targets
+  mount files.
 - Call `dagger -m "$RUSH_DELIVERY_MODULE" call workflow`.
 
 The CI provider should pass source coordinates rather than doing release logic
@@ -46,6 +48,10 @@ package, deployment, and deploy tag updates.
 ## Recommended CI Shape
 
 ```sh
+mkdir -p "$RUNNER_TEMP/rush-delivery-runtime-files"
+cp "$GCP_CREDENTIALS_FILE" \
+  "$RUNNER_TEMP/rush-delivery-runtime-files/gcp-credentials.json"
+
 dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
   --git-sha="$GITHUB_SHA" \
   --event-name="$GITHUB_EVENT_NAME" \
@@ -65,6 +71,7 @@ dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
   --source-repository-url="$SOURCE_REPOSITORY_URL" \
   --source-ref="$SOURCE_REF" \
   --source-auth-token-env=GITHUB_TOKEN \
+  --runtime-files="$RUNNER_TEMP/rush-delivery-runtime-files" \
   --docker-socket=/var/run/docker.sock
 ```
 

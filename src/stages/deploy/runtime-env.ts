@@ -1,4 +1,7 @@
-import type { DeployRuntimeSpec } from "../../model/deploy-target.ts";
+import type {
+  DeployRuntimeSpec,
+  FileMountSpec,
+} from "../../model/deploy-target.ts";
 
 type HostEnv = Record<string, string | undefined>;
 
@@ -186,4 +189,25 @@ export function getRequiredRepoRelativeHostPathSource(
 
   const relativePath = normalizedSourcePath.slice(workspacePrefix.length);
   return validateRepoRelativePath(relativePath, target, name);
+}
+
+export function validateRuntimeFilesProvided(
+  fileMounts: FileMountSpec[],
+  runtimeFiles: unknown,
+  dryRun: boolean,
+  target: string,
+): void {
+  const hasRuntimeFileMounts = fileMounts.some(
+    (fileMount) => fileMount.kind === "runtime_file",
+  );
+
+  if (dryRun || !hasRuntimeFileMounts) {
+    return;
+  }
+
+  if (runtimeFiles === undefined) {
+    throw new Error(
+      `Runtime files directory is required for target "${target}" because it references runtime file mounts.`,
+    );
+  }
 }

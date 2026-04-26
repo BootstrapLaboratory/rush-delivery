@@ -26,6 +26,10 @@ coordinates:
 ```sh
 RUSH_DELIVERY_MODULE=github.com/OWNER/rush-delivery@VERSION
 
+mkdir -p "$RUNNER_TEMP/rush-delivery-runtime-files"
+cp "$GCP_CREDENTIALS_FILE" \
+  "$RUNNER_TEMP/rush-delivery-runtime-files/gcp-credentials.json"
+
 dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
   --git-sha="$(git rev-parse HEAD)" \
   --event-name=workflow_call \
@@ -36,7 +40,8 @@ dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
   --source-mode=git \
   --source-repository-url="$SOURCE_REPOSITORY_URL" \
   --source-ref="$SOURCE_REF" \
-  --source-auth-token-env=GITHUB_TOKEN
+  --source-auth-token-env=GITHUB_TOKEN \
+  --runtime-files="$RUNNER_TEMP/rush-delivery-runtime-files"
 ```
 
 For local runs against unpushed changes, pass the working tree explicitly:

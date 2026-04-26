@@ -1,6 +1,5 @@
 import { Directory, Socket } from "@dagger.io/dagger";
 
-import type { DeployTargetDefinition } from "../../model/deploy-target.ts";
 import type { DeployTargetResult } from "../../model/deploy-result.ts";
 import type { PackageManifestArtifact } from "../../model/package-manifest.ts";
 import type { ToolchainImageProvidersDefinition } from "../../model/toolchain-image.ts";
@@ -10,14 +9,12 @@ import {
   buildResolvedToolchainContainer,
   resolveToolchainImage,
 } from "../../toolchain-images/resolve.ts";
-import {
-  applyRuntimeWorkspace,
-  buildRuntimeWorkspacePlan,
-} from "./runtime-workspace.ts";
+import { applyRuntimeWorkspace } from "./runtime-workspace.ts";
 import { loadDeployTargetDefinition } from "./load-deploy-metadata.ts";
 import {
   getRequiredRepoRelativeHostPathSource,
   resolveSpecEnvironment,
+  validateRuntimeFilesProvided,
   validateRequiredHostEnv,
 } from "./runtime-env.ts";
 import {
@@ -25,71 +22,7 @@ import {
   deployTagName,
   updateDeployTagWithGithubApi,
 } from "./deploy-tag.ts";
-
-function formatDryRunSummary(
-  definition: DeployTargetDefinition,
-  artifact: PackageManifestArtifact,
-  artifactPath: string,
-  envVars: Record<string, string>,
-  environment: string,
-  gitSha: string,
-  deployTag: string,
-  dockerSocketEnabled: boolean,
-  wave: number,
-): string {
-  const lines = [
-    `[deploy-release] dry-run target=${definition.name} wave=${wave}`,
-    `environment=${environment}`,
-    `gitSha=${gitSha}`,
-    `deploy_tag=${deployTag}`,
-    `deploy_script=${definition.deploy_script}`,
-    `package_artifact_kind=${artifact.kind}`,
-    `package_artifact_path=${artifact.path}`,
-    `artifact_path=${artifactPath}`,
-    `image=${definition.runtime.image}`,
-  ];
-
-  if (definition.runtime.install.length > 0) {
-    lines.push("install:");
-    lines.push(
-      ...definition.runtime.install.map((command) => `  - ${command}`),
-    );
-  }
-
-  const envEntries = Object.entries(envVars).sort(([left], [right]) =>
-    left.localeCompare(right),
-  );
-  if (envEntries.length > 0) {
-    lines.push("env:");
-    lines.push(...envEntries.map(([name, value]) => `  - ${name}=${value}`));
-  }
-
-  if (definition.runtime.file_mounts.length > 0) {
-    lines.push("file_mounts:");
-    lines.push(
-      ...definition.runtime.file_mounts.map(
-        (mount) => `  - source_var=${mount.source_var} target=${mount.target}`,
-      ),
-    );
-  }
-
-  if (dockerSocketEnabled) {
-    lines.push("docker_socket:");
-    lines.push("  - /var/run/docker.sock");
-  }
-
-  const workspacePlan = buildRuntimeWorkspacePlan(definition.runtime.workspace);
-  lines.push("workspace:");
-  if (workspacePlan.mode === "full") {
-    lines.push("  mode=full");
-  } else {
-    lines.push("  mode=partial");
-    lines.push(...workspacePlan.dirs.map((dir) => `  dir=${dir}`));
-    lines.push(...workspacePlan.files.map((file) => `  file=${file}`));
-  }
-
-  return `${lines.join("\n")}\n`;
-}
+import { formatDryRunSummary } from "./dry-run-summary.ts";
 
 export async function executeTarget(
   repo: Directory,
@@ -106,9 +39,16 @@ export async function executeTarget(
   toolchainImageProviders?: ToolchainImageProvidersDefinition,
   dockerSocket?: Socket,
   deployTagTokenEnv: string = "",
+  runtimeFiles?: Directory,
 ): Promise<DeployTargetResult> {
   const definition = await loadDeployTargetDefinition(repo, target);
   validateRequiredHostEnv(definition.runtime, hostEnv, dryRun, target);
+  validateRuntimeFilesProvided(
+    definition.runtime.file_mounts,
+    runtimeFiles,
+    dryRun,
+    target,
+  );
   const artifactPath = `/workspace/${artifact.deploy_path}`;
   const deployTag = deployTagName(environment, target);
   const envVars = {
@@ -123,17 +63,17 @@ export async function executeTarget(
   console.log(`[deploy-release] wave ${wave}: starting ${target}`);
 
   if (dryRun) {
-    const output = formatDryRunSummary(
-      definition,
+    const output = formatDryRunSummary({
       artifact,
       artifactPath,
-      envVars,
-      environment,
-      gitSha,
+      definition,
       deployTag,
-      dockerSocket !== undefined,
+      dockerSocketEnabled: dockerSocket !== undefined,
+      environment,
+      envVars,
+      gitSha,
       wave,
-    );
+    });
     console.log(output.trimEnd());
 
     return {
@@ -160,16 +100,39 @@ export async function executeTarget(
   ).withWorkdir("/workspace");
 
   for (const fileMount of definition.runtime.file_mounts) {
-    const sourcePath = getRequiredRepoRelativeHostPathSource(
-      hostEnv,
-      fileMount.source_var,
-      target,
-      hostWorkspaceDir,
-    );
-    container = container.withMountedFile(
-      fileMount.target,
-      runtimeMountRepo.file(sourcePath),
-    );
+    if (fileMount.kind === "host_path") {
+      const sourcePath = getRequiredRepoRelativeHostPathSource(
+        hostEnv,
+        fileMount.source_var,
+        target,
+        hostWorkspaceDir,
+      );
+      container = container.withMountedFile(
+        fileMount.target,
+        runtimeMountRepo.file(sourcePath),
+      );
+      continue;
+    }
+
+    if (runtimeFiles === undefined) {
+      throw new Error(
+        `Runtime files directory is required for target "${target}" because it references "${fileMount.source}".`,
+      );
+    }
+
+    const runtimeFile = runtimeFiles.file(fileMount.source);
+
+    try {
+      await runtimeFile.sync();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      throw new Error(
+        `Runtime file "${fileMount.source}" for target "${target}" was not found in runtimeFiles: ${message}`,
+      );
+    }
+
+    container = container.withMountedFile(fileMount.target, runtimeFile);
   }
 
   if (dockerSocket !== undefined) {

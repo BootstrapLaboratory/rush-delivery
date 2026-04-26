@@ -40,6 +40,7 @@ export async function deployRelease(
   dockerSocket?: Socket,
   runtimeMountRepo?: Directory,
   deployTagTokenEnv: string = "",
+  runtimeFiles?: Directory,
 ): Promise<string> {
   logSection("Deploy release");
 
@@ -100,6 +101,7 @@ export async function deployRelease(
     toolchainImageProviders,
     dockerSocket,
     deployTagTokenEnv,
+    runtimeFiles,
   );
   const deployResult: DeployReleaseResult = {
     dryRun,

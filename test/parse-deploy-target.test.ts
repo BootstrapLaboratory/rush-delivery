@@ -146,3 +146,85 @@ runtime:
     /file mount source_var "not-valid" must match/,
   );
 });
+
+test("parses runtime file mounts with default targets", () => {
+  const definition = parseDeployTarget(`
+name: server
+deploy_script: deploy/cloudrun/scripts/deploy-server.sh
+
+runtime:
+  image: node:24-bookworm-slim
+  file_mounts:
+    - source: gcp-credentials.json
+    - source: nested/kubeconfig
+      target: /tmp/kubeconfig
+`);
+
+  assert.deepStrictEqual(definition.runtime.file_mounts, [
+    {
+      kind: "runtime_file",
+      source: "gcp-credentials.json",
+      target: "/runtime-files/gcp-credentials.json",
+    },
+    {
+      kind: "runtime_file",
+      source: "nested/kubeconfig",
+      target: "/tmp/kubeconfig",
+    },
+  ]);
+});
+
+test("preserves host path file mounts for compatibility", () => {
+  const definition = parseDeployTarget(`
+name: server
+deploy_script: deploy/cloudrun/scripts/deploy-server.sh
+
+runtime:
+  image: node:24-bookworm-slim
+  file_mounts:
+    - source_var: GOOGLE_GHA_CREDS_PATH
+      target: /tmp/gcp-credentials.json
+`);
+
+  assert.deepStrictEqual(definition.runtime.file_mounts, [
+    {
+      kind: "host_path",
+      source_var: "GOOGLE_GHA_CREDS_PATH",
+      target: "/tmp/gcp-credentials.json",
+    },
+  ]);
+});
+
+test("fails when runtime file mount source escapes the bundle", () => {
+  assert.throws(
+    () =>
+      parseDeployTarget(`
+name: server
+deploy_script: deploy/cloudrun/scripts/deploy-server.sh
+
+runtime:
+  image: node:24-bookworm-slim
+  file_mounts:
+    - source: ../gcp-credentials.json
+`),
+    /file mount source must stay inside the runtime files bundle/,
+  );
+});
+
+test("fails when file mount defines both source forms", () => {
+  assert.throws(
+    () =>
+      parseDeployTarget(`
+name: server
+deploy_script: deploy/cloudrun/scripts/deploy-server.sh
+
+runtime:
+  image: node:24-bookworm-slim
+  file_mounts:
+    - source: gcp-credentials.json
+      source_var: GOOGLE_GHA_CREDS_PATH
+      target: /tmp/gcp-credentials.json
+`),
+    /must define exactly one of source or source_var/,
+  );
+});

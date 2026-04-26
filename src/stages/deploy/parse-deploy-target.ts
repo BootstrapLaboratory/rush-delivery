@@ -7,6 +7,7 @@ import type {
   DeployWorkspaceSpec,
   FileMountSpec,
 } from "../../model/deploy-target.ts";
+import { RUNTIME_FILES_MOUNT_ROOT } from "../../model/deploy-target.ts";
 
 const ENV_NAME_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 
@@ -61,23 +62,31 @@ function parseEnvNameArray(
   return normalizedValues;
 }
 
-function parseRepoRelativePath(rawValue: unknown, name: string): string {
+function parseContainedRelativePath(
+  rawValue: unknown,
+  name: string,
+  containerName: string,
+): string {
   const value = parseRequiredString(rawValue, name).replace(/\\/g, "/");
   const normalizedValue = value.replace(/^\.\/+/, "").replace(/\/+$/, "");
 
   if (normalizedValue.length === 0 || normalizedValue === ".") {
-    throw new Error(`${name} must be a repository-relative path.`);
+    throw new Error(`${name} must be a ${containerName}-relative path.`);
   }
 
   if (normalizedValue.startsWith("/") || /^[A-Za-z]:\//.test(normalizedValue)) {
-    throw new Error(`${name} must be a repository-relative path.`);
+    throw new Error(`${name} must be a ${containerName}-relative path.`);
   }
 
   if (normalizedValue.split("/").some((segment) => segment === "..")) {
-    throw new Error(`${name} must stay inside the repository.`);
+    throw new Error(`${name} must stay inside the ${containerName}.`);
   }
 
   return normalizedValue;
+}
+
+function parseRepoRelativePath(rawValue: unknown, name: string): string {
+  return parseContainedRelativePath(rawValue, name, "repository");
 }
 
 function parseRepoRelativePathArray(
@@ -155,27 +164,56 @@ function parseFileMountSpecs(rawValue: unknown, name: string): FileMountSpec[] {
 
     assertKnownKeys(
       rawEntry as Record<string, unknown>,
-      ["source_var", "target"],
+      ["source", "source_var", "target"],
       "Deploy target runtime file_mounts entry",
     );
 
-    const sourceVar = parseRequiredString(
-      "source_var" in rawEntry ? rawEntry.source_var : undefined,
-      "file mount source_var",
-    );
-    const target = parseRequiredString(
-      "target" in rawEntry ? rawEntry.target : undefined,
-      "file mount target",
-    );
+    const hasSource = "source" in rawEntry;
+    const hasSourceVar = "source_var" in rawEntry;
 
-    if (!ENV_NAME_PATTERN.test(sourceVar)) {
+    if (hasSource === hasSourceVar) {
       throw new Error(
-        `file mount source_var "${sourceVar}" must match ${ENV_NAME_PATTERN}.`,
+        "Deploy target runtime file_mounts entry must define exactly one of source or source_var.",
       );
     }
 
+    if (hasSourceVar) {
+      const sourceVar = parseRequiredString(
+        rawEntry.source_var,
+        "file mount source_var",
+      );
+      const target = parseRequiredString(
+        "target" in rawEntry ? rawEntry.target : undefined,
+        "file mount target",
+      );
+
+      if (!ENV_NAME_PATTERN.test(sourceVar)) {
+        throw new Error(
+          `file mount source_var "${sourceVar}" must match ${ENV_NAME_PATTERN}.`,
+        );
+      }
+
+      normalizedSpecs.push({
+        kind: "host_path",
+        source_var: sourceVar,
+        target,
+      });
+      continue;
+    }
+
+    const source = parseContainedRelativePath(
+      rawEntry.source,
+      "file mount source",
+      "runtime files bundle",
+    );
+    const target =
+      "target" in rawEntry
+        ? parseRequiredString(rawEntry.target, "file mount target")
+        : `${RUNTIME_FILES_MOUNT_ROOT}/${source}`;
+
     normalizedSpecs.push({
-      source_var: sourceVar,
+      kind: "runtime_file",
+      source,
       target,
     });
   }

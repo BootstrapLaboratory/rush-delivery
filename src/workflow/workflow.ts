@@ -39,6 +39,7 @@ export type WorkflowInput = {
   hostWorkspaceDir?: string;
   prBaseSha?: string;
   repo?: Directory;
+  runtimeFiles?: Directory;
   rushCachePolicy?: string;
   rushCacheProvider?: string;
   sourceAuthTokenEnv?: string;
@@ -64,6 +65,7 @@ export async function workflow(input: WorkflowInput): Promise<string> {
     hostWorkspaceDir = "",
     prBaseSha = "",
     repo,
+    runtimeFiles,
     rushCachePolicy = "lazy",
     rushCacheProvider = "off",
     sourceAuthTokenEnv = "",
@@ -160,5 +162,6 @@ export async function workflow(input: WorkflowInput): Promise<string> {
     dockerSocket,
     packagedRepo,
     deployTagTokenEnv,
+    runtimeFiles,
   );
 }

@@ -31,12 +31,40 @@ Each target declares:
 - `runtime.env`: static container environment values.
 - `runtime.dry_run_defaults`: safe defaults used during dry-runs.
 - `runtime.required_host_env`: host environment keys required for live runs.
-- `runtime.file_mounts`: files sourced from host env paths and mounted into the
-  runtime container.
+- `runtime.file_mounts`: files mounted into the runtime container from the
+  deploy runtime files bundle, or from host env paths for compatibility.
 - `runtime.workspace`: directories and files mounted under `/workspace`.
 
 If `runtime.workspace.mode` is `full`, the whole prepared repository is mounted.
 If mode is omitted, only listed `dirs` and `files` are mounted.
+
+Runtime file mounts use a `source` path relative to the `runtimeFiles` bundle.
+`target` is optional and defaults to `/runtime-files/<source>`.
+
+```yaml
+runtime:
+  env:
+    GOOGLE_APPLICATION_CREDENTIALS: /runtime-files/gcp-credentials.json
+  file_mounts:
+    - source: gcp-credentials.json
+```
+
+The `source` path must stay inside the runtime files bundle: no absolute paths
+and no `..` segments. Live deploys that reference `source` mounts require the
+`runtimeFiles` Dagger input. Dry-runs report the intended mount and do not
+require the file.
+
+Compatibility mounts can still read a host path from an allowlisted environment
+variable and mount it at an explicit target:
+
+```yaml
+runtime:
+  required_host_env:
+    - GOOGLE_GHA_CREDS_PATH
+  file_mounts:
+    - source_var: GOOGLE_GHA_CREDS_PATH
+      target: /tmp/gcp-credentials.json
+```
 
 Schema:
 [`../schemas/deploy-target.schema.json`](../schemas/deploy-target.schema.json)

@@ -7,6 +7,7 @@ import {
   getRequiredRepoRelativeHostPathSource,
   parseDeployEnvFile,
   resolveSpecEnvironment,
+  validateRuntimeFilesProvided,
   validateRequiredHostEnv,
 } from "../src/stages/deploy/runtime-env.ts";
 
@@ -163,5 +164,54 @@ test("fails when an absolute workspace-backed mount source is provided without h
         "server",
       ),
     /hostWorkspaceDir/,
+  );
+});
+
+test("requires runtime files only for live runtime file mounts", () => {
+  assert.doesNotThrow(() =>
+    validateRuntimeFilesProvided(
+      [
+        {
+          kind: "runtime_file",
+          source: "gcp-credentials.json",
+          target: "/runtime-files/gcp-credentials.json",
+        },
+      ],
+      undefined,
+      true,
+      "server",
+    ),
+  );
+
+  assert.throws(
+    () =>
+      validateRuntimeFilesProvided(
+        [
+          {
+            kind: "runtime_file",
+            source: "gcp-credentials.json",
+            target: "/runtime-files/gcp-credentials.json",
+          },
+        ],
+        undefined,
+        false,
+        "server",
+      ),
+    /Runtime files directory is required for target "server"/,
+  );
+
+  assert.doesNotThrow(() =>
+    validateRuntimeFilesProvided(
+      [
+        {
+          kind: "host_path",
+          source_var: "GOOGLE_GHA_CREDS_PATH",
+          target: "/tmp/gcp-credentials.json",
+        },
+      ],
+      undefined,
+      false,
+      "server",
+    ),
   );
 });

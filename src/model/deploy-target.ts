@@ -1,7 +1,18 @@
-export type FileMountSpec = {
+export const RUNTIME_FILES_MOUNT_ROOT = "/runtime-files";
+
+export type HostFileMountSpec = {
+  kind: "host_path";
   source_var: string;
   target: string;
 };
+
+export type RuntimeFileMountSpec = {
+  kind: "runtime_file";
+  source: string;
+  target: string;
+};
+
+export type FileMountSpec = HostFileMountSpec | RuntimeFileMountSpec;
 
 export type DeployWorkspaceSpec = {
   dirs: string[];

@@ -139,6 +139,7 @@ export class RushDelivery {
     toolchainImageProvider: string = "off",
     toolchainImagePolicy: string = "lazy",
     dockerSocket?: Socket,
+    runtimeFiles?: Directory,
   ): Promise<string> {
     await assertMetadataContract(repo);
 
@@ -154,6 +155,9 @@ export class RushDelivery {
       toolchainImageProvider,
       toolchainImagePolicy,
       dockerSocket,
+      undefined,
+      "",
+      runtimeFiles,
     );
   }
 
@@ -195,6 +199,7 @@ export class RushDelivery {
     sourceAuthUsername: string = "",
     dockerSocket?: Socket,
     repo?: Directory,
+    runtimeFiles?: Directory,
   ): Promise<string> {
     return runWorkflow({
       repo,
@@ -218,6 +223,7 @@ export class RushDelivery {
       sourceAuthTokenEnv,
       sourceAuthUsername,
       dockerSocket,
+      runtimeFiles,
     });
   }
 

@@ -23,6 +23,7 @@ export async function executeDeploymentPlan(
   toolchainImageProviders?: ToolchainImageProvidersDefinition,
   dockerSocket?: Socket,
   deployTagTokenEnv: string = "",
+  runtimeFiles?: Directory,
 ): Promise<DeployTargetResult[]> {
   const results: DeployTargetResult[] = [];
 
@@ -61,6 +62,7 @@ export async function executeDeploymentPlan(
             toolchainImageProviders,
             dockerSocket,
             deployTagTokenEnv,
+            runtimeFiles,
           );
         } catch (error) {
           const message =

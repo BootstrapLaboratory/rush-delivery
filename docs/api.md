@@ -20,6 +20,7 @@ dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
   --event-name=push \
   --dry-run=false \
   --deploy-env-file="$DEPLOY_ENV_FILE" \
+  --runtime-files="$RUNTIME_FILES_DIR" \
   --source-mode=git \
   --source-repository-url="$SOURCE_REPOSITORY_URL" \
   --source-ref="$SOURCE_REF" \
@@ -59,6 +60,11 @@ detection. Forced targets are used by manual deploy wrappers.
 
 `deployEnvFile` is a newline-delimited environment file. The framework reads it
 once, then passes only target-allowed variables to runtime containers.
+
+`runtimeFiles` is an optional directory of deploy-only files such as cloud
+credentials, kubeconfig files, or signing material. Deploy target metadata can
+mount files from this bundle without making them part of source, package
+artifacts, cache keys, or toolchain image hashes.
 
 `sourceMode` is `git` or `local_copy`. Git mode is the recommended CI path and
 uses provider-neutral source coordinates. Local-copy mode needs `repo` and is

@@ -253,6 +253,10 @@ function validateDeployRuntime(
   }
 
   for (const fileMount of runtime.file_mounts) {
+    if (fileMount.kind === "runtime_file") {
+      continue;
+    }
+
     if (!runtime.required_host_env.includes(fileMount.source_var)) {
       issues.push(
         `Deploy target "${target}" file mount source_var "${fileMount.source_var}" must be listed in required_host_env.`,

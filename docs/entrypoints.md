@@ -20,6 +20,7 @@ dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
   --event-name=push \
   --dry-run=false \
   --deploy-env-file="$DEPLOY_ENV_FILE" \
+  --runtime-files="$RUNTIME_FILES_DIR" \
   --source-mode=git \
   --source-repository-url="$SOURCE_REPOSITORY_URL" \
   --source-ref="$SOURCE_REF" \
@@ -130,6 +131,7 @@ dagger -m "$RUSH_DELIVERY_MODULE" call deploy-release \
   --environment=prod \
   --dry-run=false \
   --deploy-env-file="$DEPLOY_ENV_FILE" \
+  --runtime-files="$RUNTIME_FILES_DIR" \
   --package-manifest-file="$PACKAGE_MANIFEST_FILE"
 ```
 

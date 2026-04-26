@@ -53,6 +53,10 @@ tooling it needs through deploy target metadata.
 
 The framework only passes allowlisted data into each target runtime.
 
+Deploy-only files should be passed through `runtimeFiles` and mounted from
+target metadata. This keeps credentials out of source acquisition, Rush cache,
+package artifacts, toolchain image hashes, logs, and generated manifests.
+
 ## CI Provider Responsibilities
 
 A CI provider should provide:
@@ -60,6 +64,8 @@ A CI provider should provide:
 - Dagger CLI availability.
 - Source coordinates for Git source mode.
 - A deploy environment file with provider credentials and project settings.
+- A runtime files directory for deploy-only credential or config files when
+  targets need file mounts.
 - Optional Docker socket for targets that build container images.
 - Permissions for any selected provider adapters.
 
