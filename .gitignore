@@ -4,3 +4,6 @@
 /website/.astro/
 /website/dist/
 /website/src/content/docs/docs/
+/website-docusaurus/.docusaurus/
+/website-docusaurus/build/
+/website-docusaurus/docs/

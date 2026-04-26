@@ -22,9 +22,12 @@ extension surface for validation, packaging, deployment, caches, and toolchains.
 
 ## Website
 
-The public GitHub Pages site lives under [`../website`](../website). It uses
-Astro + Starlight, generates docs pages from `website/docs-tree.yaml`, and is
-deployed by [`../.github/workflows/pages.yml`](../.github/workflows/pages.yml).
+The public GitHub Pages site currently builds from
+[`../website-docusaurus`](../website-docusaurus). It uses Docusaurus, generates
+docs pages from `website-docusaurus/docs-tree.yaml`, and is deployed by
+[`../.github/workflows/pages.yml`](../.github/workflows/pages.yml).
+
+The Astro + Starlight comparison site remains under [`../website`](../website).
 
 ## Source Of Truth
 

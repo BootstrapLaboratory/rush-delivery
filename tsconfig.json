@@ -14,5 +14,5 @@
       "@dagger.io/dagger/telemetry": ["./sdk/telemetry.ts"]
     }
   },
-  "exclude": ["website"]
+  "exclude": ["website", "website-docusaurus"]
 }
