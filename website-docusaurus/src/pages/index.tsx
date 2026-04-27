@@ -73,9 +73,9 @@ export default function Home() {
               </Link>
               <Link
                 className={clsx(styles.button, styles.secondary)}
-                to="/docs/github-action"
+                to="/docs/tutorial"
               >
-                GitHub Action
+                Tutorial
               </Link>
             </div>
           </div>
