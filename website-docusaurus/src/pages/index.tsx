@@ -2,7 +2,6 @@ import clsx from "clsx";
 import Heading from "@theme/Heading";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
-import type { CSSProperties } from "react";
 import styles from "./index.module.css";
 
 const capabilities = [
@@ -23,35 +22,21 @@ const capabilities = [
   },
 ];
 
-function PipelineVisual() {
-  const lanes = ["detect", "build", "package", "deploy"];
-
+function TerminalPanel() {
   return (
-    <div className={styles.visual} aria-label="Rush Delivery pipeline diagram">
-      <div className={styles.visualHeader}>
-        <span>workflow</span>
-        <strong>prod</strong>
+    <div className={styles.terminalPanel} aria-label="Rush Delivery workflow summary">
+      <div className={styles.panelBar}>
+        <span />
+        <span />
+        <span />
       </div>
-      <div className={styles.lanes}>
-        {lanes.map((lane, laneIndex) => (
-          <div className={styles.lane} key={lane}>
-            <span className={styles.laneLabel}>{lane}</span>
-            <div className={styles.track}>
-              {[0, 1, 2].map((node) => (
-                <span
-                  className={styles.node}
-                  key={node}
-                  style={{ "--node-index": node } as CSSProperties}
-                />
-              ))}
-              <span
-                className={styles.packet}
-                style={{ "--lane-index": laneIndex } as CSSProperties}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
+      <pre><code>{`uses: BootstrapLaboratory/rush-delivery@v0.3.0
+with:
+  dry-run: "false"
+  runtime-file-map: |
+    creds.json=>gcp-credentials.json
+  deploy-env: |
+    GCP_PROJECT_ID=production`}</code></pre>
     </div>
   );
 }
@@ -83,7 +68,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <PipelineVisual />
+          <TerminalPanel />
         </section>
 
         <section className={styles.commandBand} aria-label="Quick install example">
