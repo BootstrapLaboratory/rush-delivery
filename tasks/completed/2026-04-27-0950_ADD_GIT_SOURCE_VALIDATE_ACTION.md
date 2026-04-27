@@ -40,32 +40,32 @@ dagger -m "$RUSH_DELIVERY_MODULE" call validate \
 
 ## Plan
 
-- [ ] Extend the public `validate` Dagger function with source acquisition
+- [x] Extend the public `validate` Dagger function with source acquisition
       inputs matching `workflow` where they apply:
       `gitSha`, `deployEnvFile`, `sourceMode`, `sourceRepositoryUrl`,
       `sourceRef`, `sourceAuthTokenEnv`, `sourceAuthUsername`, and optional
       `repo`.
-- [ ] Reuse the existing source planning and resolution code so `workflow` and
+- [x] Reuse the existing source planning and resolution code so `workflow` and
       `validate` share Git clone, auth token, ref, local-copy cleanup, and
       safety behavior.
-- [ ] Preserve local-copy validation compatibility for existing callers that
+- [x] Preserve local-copy validation compatibility for existing callers that
       pass `--repo=.`.
-- [ ] Ensure git-source validation resolves the repository first, validates the
+- [x] Ensure git-source validation resolves the repository first, validates the
       metadata contract on the resolved source, and then runs the existing
       validation planning and execution path.
-- [ ] Add GitHub Action `entrypoint` support with at least `workflow` and
+- [x] Add GitHub Action `entrypoint` support with at least `workflow` and
       `validate`.
-- [ ] Add validate-specific action wiring for `validate-targets-json` and an
+- [x] Add validate-specific action wiring for `validate-targets-json` and an
       optional local `repo` path for local-copy action usage.
-- [ ] Keep the current action defaults optimized for GitHub CI:
+- [x] Keep the current action defaults optimized for GitHub CI:
       `source-mode=git`, repository URL from GitHub context, ref from GitHub
       context, and auth token from `GITHUB_TOKEN`.
-- [ ] Add tests for validate source planning, validate git-source behavior where
+- [x] Add tests for validate source planning, validate git-source behavior where
       practical, workflow compatibility, and action argument generation for
       `entrypoint=validate`.
-- [ ] Update README, GitHub Action docs, Public API docs, Entrypoints docs, and
+- [x] Update README, GitHub Action docs, Public API docs, Entrypoints docs, and
       quick-start material with the new PR validation action shape.
-- [ ] Run validation:
+- [x] Run validation:
       `npm test`, `npm run typecheck`, `npm run site:docusaurus:check`,
       `npm run site:check`, `git diff --check`, and `trunk check -a -y`.
 

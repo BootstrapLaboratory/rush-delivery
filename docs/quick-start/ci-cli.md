@@ -6,8 +6,32 @@ you want to own all surrounding shell steps yourself.
 This mode clones the target repository inside Dagger, so the CI runner does not
 need to mount the repository into the module.
 
+For pull-request validation:
+
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.2
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.3
+DEPLOY_ENV_FILE="${RUNNER_TEMP}/dagger-validate.env"
+SOURCE_REPOSITORY_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+
+cat > "${DEPLOY_ENV_FILE}" <<EOF
+GITHUB_TOKEN=${GITHUB_TOKEN}
+EOF
+
+dagger -m "${RUSH_DELIVERY_MODULE}" call validate \
+  --git-sha="${GITHUB_SHA}" \
+  --event-name="${GITHUB_EVENT_NAME}" \
+  --pr-base-sha="${PR_BASE_SHA}" \
+  --deploy-env-file="${DEPLOY_ENV_FILE}" \
+  --source-mode=git \
+  --source-repository-url="${SOURCE_REPOSITORY_URL}" \
+  --source-ref="${GITHUB_REF}" \
+  --source-auth-token-env=GITHUB_TOKEN
+```
+
+For release workflow runs:
+
+```sh
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.3
 RUNTIME_FILES_DIR="${RUNNER_TEMP}/rush-delivery-runtime-files"
 DEPLOY_ENV_FILE="${RUNNER_TEMP}/dagger-deploy.env"
 SOURCE_REPOSITORY_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"

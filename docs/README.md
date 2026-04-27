@@ -9,8 +9,8 @@ extension surface for validation, packaging, deployment, caches, and toolchains.
 - [Quick Start](quick-start/github-actions.md): recommended ways to run Rush
   Delivery from GitHub Actions, CI scripts, and local working trees.
 - [Public Dagger API](api.md): callable functions and when to use them.
-- [GitHub Action usage](github-actions.md): GitHub CI wrapper for the workflow
-  entrypoint.
+- [GitHub Action usage](github-actions.md): GitHub CI wrapper for validation
+  and release entrypoints.
 - [Entrypoints reference](entrypoints.md): every callable Dagger function and
   separate-use workflow.
 - [Workflow guide](workflows.md): local and CI workflow shapes.

@@ -56,12 +56,16 @@ test("action metadata defines a composite action over dagger-for-github", () => 
   const metadata = parseYaml(
     readFileSync(path.join(repoRoot, "action.yml"), "utf8"),
   ) as {
+    inputs: Record<string, { default?: string }>;
     runs: {
       steps: Array<{ uses?: string }>;
       using: string;
     };
   };
 
+  assert.equal(metadata.inputs.entrypoint.default, "workflow");
+  assert.equal(metadata.inputs.repo.default, "");
+  assert.equal(metadata.inputs["validate-targets-json"].default, "[]");
   assert.equal(metadata.runs.using, "composite");
   assert.ok(
     metadata.runs.steps.some(
@@ -154,6 +158,67 @@ test("prepare workflow writes deploy env, runtime files, and Dagger args", async
   await assert.rejects(
     stat(path.join(outputs["runtime-files"], "ignored.json")),
   );
+
+  await rm(tempDir, { force: true, recursive: true });
+});
+
+test("prepare validate entrypoint writes source-aware Dagger args", async () => {
+  const tempDir = mkdtempSync(path.join(tmpdir(), "rush-delivery-action-"));
+  const outputPath = path.join(tempDir, "github-output");
+
+  const result = runPrepare({
+    GITHUB_ACTION_PATH: repoRoot,
+    GITHUB_ACTOR: "octocat",
+    GITHUB_EVENT_NAME: "pull_request",
+    GITHUB_OUTPUT: outputPath,
+    GITHUB_REF: "refs/pull/7/merge",
+    GITHUB_REPOSITORY: "owner/repo",
+    GITHUB_SERVER_URL: "https://github.example",
+    GITHUB_SHA: "1234567890abcdef1234567890abcdef12345678",
+    GITHUB_WORKSPACE: "/home/runner/work/repo/repo",
+    INPUT_ENTRYPOINT: "validate",
+    INPUT_EVENT_NAME: "",
+    INPUT_INCLUDE_GITHUB_ENV: "true",
+    INPUT_PR_BASE_SHA: "",
+    INPUT_SOURCE_AUTH_TOKEN_ENV: "GITHUB_TOKEN",
+    INPUT_SOURCE_MODE: "git",
+    INPUT_SOURCE_REF: "",
+    INPUT_SOURCE_REPOSITORY_URL: "",
+    INPUT_VALIDATE_TARGETS_JSON: '["api-contract"]',
+    RD_GITHUB_API_URL: "https://api.github.example",
+    RD_GITHUB_TOKEN: "token-value",
+    RD_PR_BASE_SHA: "abcdefabcdefabcdefabcdefabcdefabcdefabcd",
+    RUNNER_TEMP: tempDir,
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+
+  const outputs = parseGithubOutput(await readFile(outputPath, "utf8"));
+  assert.match(outputs.args, /^validate /);
+  assert.match(
+    outputs.args,
+    /--git-sha=1234567890abcdef1234567890abcdef12345678/,
+  );
+  assert.match(outputs.args, /--event-name=pull_request/);
+  assert.match(
+    outputs.args,
+    /--pr-base-sha=abcdefabcdefabcdefabcdefabcdefabcdefabcd/,
+  );
+  assert.match(outputs.args, /--validate-targets-json=/);
+  assert.match(outputs.args, /api-contract/);
+  assert.match(outputs.args, /--deploy-env-file=/);
+  assert.match(outputs.args, /--source-mode=git/);
+  assert.match(
+    outputs.args,
+    /--source-repository-url=https:\/\/github\.example\/owner\/repo\.git/,
+  );
+  assert.match(outputs.args, /--source-ref=refs\/pull\/7\/merge/);
+  assert.match(outputs.args, /--source-auth-token-env=GITHUB_TOKEN/);
+  assert.doesNotMatch(outputs.args, /--dry-run=/);
+  assert.doesNotMatch(outputs.args, /--runtime-files=/);
+
+  const deployEnv = await readFile(outputs["deploy-env-file"], "utf8");
+  assert.match(deployEnv, /GITHUB_TOKEN=token-value/);
 
   await rm(tempDir, { force: true, recursive: true });
 });

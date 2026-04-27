@@ -103,6 +103,8 @@ action_temp="${runner_temp}/rush-delivery-action"
 mkdir -p "${action_temp}"
 
 module="${INPUT_MODULE:-${GITHUB_ACTION_PATH}}"
+entrypoint="${INPUT_ENTRYPOINT:-workflow}"
+repo_input="${INPUT_REPO-}"
 deploy_env_file="${action_temp}/dagger-deploy.env"
 runtime_files="${INPUT_RUNTIME_FILES:-${action_temp}/runtime-files}"
 
@@ -155,7 +157,8 @@ git_sha="${INPUT_GIT_SHA:-${GITHUB_SHA-}}"
 
 event_name="${INPUT_EVENT_NAME:-${GITHUB_EVENT_NAME:-push}}"
 force_targets_json="${INPUT_FORCE_TARGETS_JSON:-[]}"
-pr_base_sha="${INPUT_PR_BASE_SHA-}"
+validate_targets_json="${INPUT_VALIDATE_TARGETS_JSON:-[]}"
+pr_base_sha="${INPUT_PR_BASE_SHA:-${RD_PR_BASE_SHA-}}"
 deploy_tag_prefix="${INPUT_DEPLOY_TAG_PREFIX:-deploy/prod}"
 artifact_prefix="${INPUT_ARTIFACT_PREFIX:-deploy-target}"
 environment="${INPUT_ENVIRONMENT:-prod}"
@@ -180,48 +183,74 @@ if [[ -z ${source_repository_url} && -n ${GITHUB_SERVER_URL-} && -n ${GITHUB_REP
 	source_repository_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
 fi
 
-args=(
-	workflow
-	"--git-sha=${git_sha}"
-	"--event-name=${event_name}"
-	"--force-targets-json=${force_targets_json}"
-	"--pr-base-sha=${pr_base_sha}"
-	"--deploy-tag-prefix=${deploy_tag_prefix}"
-	"--artifact-prefix=${artifact_prefix}"
-	"--environment=${environment}"
-	"--dry-run=${dry_run}"
-	"--deploy-env-file=${deploy_env_file}"
-	"--toolchain-image-provider=${toolchain_image_provider}"
-	"--toolchain-image-policy=${toolchain_image_policy}"
-	"--rush-cache-provider=${rush_cache_provider}"
-	"--rush-cache-policy=${rush_cache_policy}"
-	"--source-mode=${source_mode}"
-	"--runtime-files=${runtime_files}"
-)
+append_source_args() {
+	args+=("--source-mode=${source_mode}")
 
-if [[ -n ${source_repository_url} ]]; then
-	args+=("--source-repository-url=${source_repository_url}")
-fi
+	if [[ -n ${source_repository_url} ]]; then
+		args+=("--source-repository-url=${source_repository_url}")
+	fi
 
-if [[ -n ${source_ref} ]]; then
-	args+=("--source-ref=${source_ref}")
-fi
+	if [[ -n ${source_ref} ]]; then
+		args+=("--source-ref=${source_ref}")
+	fi
 
-if [[ -n ${source_auth_token_env} ]]; then
-	args+=("--source-auth-token-env=${source_auth_token_env}")
-fi
+	if [[ -n ${source_auth_token_env} ]]; then
+		args+=("--source-auth-token-env=${source_auth_token_env}")
+	fi
 
-if [[ -n ${source_auth_username} ]]; then
-	args+=("--source-auth-username=${source_auth_username}")
-fi
+	if [[ -n ${source_auth_username} ]]; then
+		args+=("--source-auth-username=${source_auth_username}")
+	fi
 
-if [[ -n ${host_workspace_dir} ]]; then
-	args+=("--host-workspace-dir=${host_workspace_dir}")
-fi
+	if [[ -n ${repo_input} ]]; then
+		args+=("--repo=${repo_input}")
+	fi
+}
 
-if [[ -n ${docker_socket} ]]; then
-	args+=("--docker-socket=${docker_socket}")
-fi
+case "${entrypoint}" in
+workflow)
+	args=(
+		workflow
+		"--git-sha=${git_sha}"
+		"--event-name=${event_name}"
+		"--force-targets-json=${force_targets_json}"
+		"--pr-base-sha=${pr_base_sha}"
+		"--deploy-tag-prefix=${deploy_tag_prefix}"
+		"--artifact-prefix=${artifact_prefix}"
+		"--environment=${environment}"
+		"--dry-run=${dry_run}"
+		"--deploy-env-file=${deploy_env_file}"
+		"--toolchain-image-provider=${toolchain_image_provider}"
+		"--toolchain-image-policy=${toolchain_image_policy}"
+		"--rush-cache-provider=${rush_cache_provider}"
+		"--rush-cache-policy=${rush_cache_policy}"
+		"--runtime-files=${runtime_files}"
+	)
+	append_source_args
+
+	if [[ -n ${host_workspace_dir} ]]; then
+		args+=("--host-workspace-dir=${host_workspace_dir}")
+	fi
+
+	if [[ -n ${docker_socket} ]]; then
+		args+=("--docker-socket=${docker_socket}")
+	fi
+	;;
+validate)
+	args=(
+		validate
+		"--git-sha=${git_sha}"
+		"--event-name=${event_name}"
+		"--pr-base-sha=${pr_base_sha}"
+		"--validate-targets-json=${validate_targets_json}"
+		"--deploy-env-file=${deploy_env_file}"
+	)
+	append_source_args
+	;;
+*)
+	die "unsupported entrypoint: ${entrypoint}"
+	;;
+esac
 
 call_args="$(shell_quote_args "${args[@]}")"
 if [[ -n ${INPUT_EXTRA_ARGS-} ]]; then

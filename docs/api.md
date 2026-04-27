@@ -42,10 +42,18 @@ target-specific validation metadata.
 
 ```sh
 dagger -m "$RUSH_DELIVERY_MODULE" call validate \
-  --repo=. \
+  --git-sha="$GIT_SHA" \
   --event-name=pull_request \
-  --pr-base-sha="$PR_BASE_SHA"
+  --pr-base-sha="$PR_BASE_SHA" \
+  --deploy-env-file="$DEPLOY_ENV_FILE" \
+  --source-mode=git \
+  --source-repository-url="$SOURCE_REPOSITORY_URL" \
+  --source-ref="$SOURCE_REF" \
+  --source-auth-token-env=GITHUB_TOKEN
 ```
+
+For local validation against unpushed changes, use `--repo=.` with
+`--source-mode=local_copy`.
 
 See [Entrypoints reference](entrypoints.md) for every callable function,
 including separate `detect`, `build`, `package`, `deploy`, metadata validation,
@@ -56,7 +64,8 @@ and diagnostic entrypoints.
 `repo` is the caller's Rush repository directory for `sourceMode=local_copy`.
 Git source mode does not require it.
 
-`gitSha` is the commit being validated or released.
+`gitSha` is the commit being validated or released. It is required for Git
+source mode.
 
 `eventName`, `forceTargetsJson`, `prBaseSha`, and `deployTagPrefix` shape
 detection. Forced targets are used by manual deploy wrappers.

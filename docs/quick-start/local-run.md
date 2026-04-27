@@ -5,7 +5,7 @@ available to Dagger and avoids relying on a remote Git ref that does not contain
 your latest changes.
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.2
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.3
 
 dagger -m "${RUSH_DELIVERY_MODULE}" call workflow \
   --repo=. \
@@ -16,6 +16,16 @@ dagger -m "${RUSH_DELIVERY_MODULE}" call workflow \
   --dry-run=true \
   --toolchain-image-provider=off \
   --rush-cache-provider=off \
+  --source-mode=local_copy
+```
+
+For local PR-style validation only:
+
+```sh
+dagger -m "${RUSH_DELIVERY_MODULE}" call validate \
+  --repo=. \
+  --event-name=pull_request \
+  --pr-base-sha="$(git merge-base HEAD origin/main)" \
   --source-mode=local_copy
 ```
 

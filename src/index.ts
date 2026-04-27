@@ -233,13 +233,33 @@ export class RushDelivery {
    */
   @func()
   async validate(
-    repo: Directory,
     eventName: string = "pull_request",
     prBaseSha: string = "",
     validateTargetsJson: string = "[]",
+    gitSha: string = "",
+    deployEnvFile?: File,
+    sourceMode: string = "local_copy",
+    sourceRepositoryUrl: string = "",
+    sourceRef: string = "",
+    sourceAuthTokenEnv: string = "",
+    sourceAuthUsername: string = "",
+    @argument({
+      ignore: ["**/node_modules", ".trunk/out", ".trunk/logs"],
+    })
+    repo?: Directory,
   ): Promise<string> {
-    await assertMetadataContract(repo);
-
-    return validateRelease(repo, eventName, prBaseSha, validateTargetsJson);
+    return validateRelease({
+      deployEnvFile,
+      eventName,
+      gitSha,
+      prBaseSha,
+      repo,
+      sourceAuthTokenEnv,
+      sourceAuthUsername,
+      sourceMode,
+      sourceRef,
+      sourceRepositoryUrl,
+      validateTargetsJson,
+    });
   }
 }

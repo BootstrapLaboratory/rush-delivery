@@ -1,7 +1,10 @@
 import * as assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { buildWorkflowSourcePlan } from "../src/workflow/source-options.ts";
+import {
+  buildSourceAcquisitionPlan,
+  buildWorkflowSourcePlan,
+} from "../src/source/source-options.ts";
 
 const commitSha = "0123456789abcdef0123456789abcdef01234567";
 
@@ -31,4 +34,23 @@ test("local copy workflow source remains available for mounted repo runs", () =>
 
   assert.equal(plan.mode, "local_copy");
   assert.deepEqual(plan.cleanupPaths, ["common/temp", ".dagger/runtime"]);
+});
+
+test("local copy validation source can omit git sha", () => {
+  const plan = buildSourceAcquisitionPlan({
+    sourceMode: "local_copy",
+  });
+
+  assert.equal(plan.mode, "local_copy");
+});
+
+test("git validation source requires full commit sha", () => {
+  assert.throws(
+    () =>
+      buildSourceAcquisitionPlan({
+        sourceMode: "git",
+        sourceRepositoryUrl: "https://github.com/BeltOrg/beltapp.git",
+      }),
+    /Git source commit SHA must be a non-empty string/,
+  );
 });

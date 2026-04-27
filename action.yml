@@ -1,16 +1,24 @@
 name: Rush Delivery with Dagger
 author: Bootstrap Laboratory
-description: Run the Rush Delivery Dagger workflow from GitHub Actions.
+description: Run Rush Delivery Dagger entrypoints from GitHub Actions.
 
 inputs:
   module:
     description: Dagger module reference. Defaults to this action checkout.
     required: false
     default: ""
+  entrypoint:
+    description: Rush Delivery Dagger function to call. Supported values are workflow and validate.
+    required: false
+    default: workflow
   workdir:
     description: Working directory for the Dagger CLI.
     required: false
     default: .
+  repo:
+    description: Local repository directory to pass for local_copy source mode.
+    required: false
+    default: ""
   dagger-version:
     description: Dagger CLI version.
     required: false
@@ -46,6 +54,10 @@ inputs:
     default: ""
   force-targets-json:
     description: JSON array of deploy targets to force.
+    required: false
+    default: "[]"
+  validate-targets-json:
+    description: JSON array of Rush projects to validate when entrypoint is validate.
     required: false
     default: "[]"
   pr-base-sha:
@@ -142,13 +154,13 @@ inputs:
     required: false
     default: /var/run/docker.sock
   extra-args:
-    description: Extra raw arguments appended to the Dagger workflow call.
+    description: Extra raw arguments appended to the Dagger call.
     required: false
     default: ""
 
 outputs:
   output:
-    description: Dagger workflow stdout.
+    description: Dagger call stdout.
     value: ${{ steps.dagger.outputs.output }}
   trace-url:
     description: Dagger Cloud trace URL, when available.
@@ -168,9 +180,12 @@ runs:
       shell: bash
       env:
         INPUT_MODULE: ${{ inputs.module }}
+        INPUT_ENTRYPOINT: ${{ inputs.entrypoint }}
+        INPUT_REPO: ${{ inputs.repo }}
         INPUT_GIT_SHA: ${{ inputs.git-sha }}
         INPUT_EVENT_NAME: ${{ inputs.event-name }}
         INPUT_FORCE_TARGETS_JSON: ${{ inputs.force-targets-json }}
+        INPUT_VALIDATE_TARGETS_JSON: ${{ inputs.validate-targets-json }}
         INPUT_PR_BASE_SHA: ${{ inputs.pr-base-sha }}
         INPUT_DEPLOY_TAG_PREFIX: ${{ inputs.deploy-tag-prefix }}
         INPUT_ARTIFACT_PREFIX: ${{ inputs.artifact-prefix }}
@@ -193,12 +208,13 @@ runs:
         INPUT_HOST_WORKSPACE_DIR: ${{ inputs.host-workspace-dir }}
         INPUT_DOCKER_SOCKET: ${{ inputs.docker-socket }}
         INPUT_EXTRA_ARGS: ${{ inputs.extra-args }}
+        RD_PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
         RD_GITHUB_TOKEN: ${{ inputs.github-token || github.token }}
         RD_GITHUB_API_URL: ${{ github.api_url }}
       run: $GITHUB_ACTION_PATH/github-action/prepare-workflow.sh
 
     - id: dagger
-      name: Run Rush Delivery workflow
+      name: Run Rush Delivery
       uses: dagger/dagger-for-github@v8.4.1
       env:
         DAGGER_NO_NAG: ${{ inputs.dagger-no-nag }}

@@ -11,6 +11,34 @@ plumbing for you.
 Pin Rush Delivery to a released tag and advance that tag intentionally when you
 want new behavior.
 
+## Pull Request Validation
+
+Use `entrypoint: validate` for PR CI. The action resolves the pull request
+source through Git source mode, so the workflow does not need to check out the
+repository for normal validation.
+
+```yaml
+name: ci-validate
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: BootstrapLaboratory/rush-delivery@v0.3.3
+        with:
+          entrypoint: validate
+```
+
+## Release Workflow
+
+Use the default `workflow` entrypoint for release CI.
+
 ```yaml
 permissions:
   contents: write
@@ -29,7 +57,7 @@ jobs:
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Rush Delivery
-        uses: BootstrapLaboratory/rush-delivery@v0.3.2
+        uses: BootstrapLaboratory/rush-delivery@v0.3.3
         with:
           dry-run: "false"
           force-targets-json: ${{ inputs.force_targets_json || '[]' }}

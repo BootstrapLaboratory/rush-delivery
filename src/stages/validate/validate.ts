@@ -1,8 +1,12 @@
-import { Container, Directory } from "@dagger.io/dagger";
+import { Container, Directory, File } from "@dagger.io/dagger";
 
 import { formatCiPlan } from "../../ci-plan/parse-ci-plan.ts";
 import { computeCiPlan } from "../detect/compute-ci-plan.ts";
 import type { CiPlan } from "../../model/ci-plan.ts";
+import { assertMetadataContract } from "../../metadata/dagger-metadata-contract.ts";
+import { parseDeployEnvFile } from "../deploy/runtime-env.ts";
+import { resolveSource } from "../../source/resolve-source.ts";
+import { buildSourceAcquisitionPlan } from "../../source/source-options.ts";
 import { buildRushValidationSteps } from "../build-stage/rush-build-plan.ts";
 import {
   installRush,
@@ -20,6 +24,20 @@ import { runValidationMetadataStage } from "./validation-runner.ts";
 import { logSection } from "../../logging/sections.ts";
 
 const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
+
+export type ValidateInput = {
+  deployEnvFile?: File;
+  eventName?: string;
+  gitSha?: string;
+  prBaseSha?: string;
+  repo?: Directory;
+  sourceAuthTokenEnv?: string;
+  sourceAuthUsername?: string;
+  sourceMode?: string;
+  sourceRef?: string;
+  sourceRepositoryUrl?: string;
+  validateTargetsJson?: string;
+};
 
 type ValidationContext = {
   baseContainer?: Container;
@@ -104,14 +122,41 @@ async function resolveValidationContext(
   };
 }
 
-export async function validate(
-  repo: Directory,
-  eventName: string = "pull_request",
-  prBaseSha: string = "",
-  validateTargetsJson: string = "[]",
-): Promise<string> {
-  const { baseContainer, ciPlan } = await resolveValidationContext(
+export async function validate(input: ValidateInput): Promise<string> {
+  const {
+    deployEnvFile,
+    eventName = "pull_request",
+    gitSha = "",
+    prBaseSha = "",
     repo,
+    sourceAuthTokenEnv = "",
+    sourceAuthUsername = "",
+    sourceMode = "local_copy",
+    sourceRef = "",
+    sourceRepositoryUrl = "",
+    validateTargetsJson = "[]",
+  } = input;
+  const hostEnv = deployEnvFile
+    ? parseDeployEnvFile(await deployEnvFile.contents())
+    : {};
+  const sourcePlan = buildSourceAcquisitionPlan({
+    gitSha,
+    prBaseSha,
+    sourceAuthTokenEnv,
+    sourceAuthUsername,
+    sourceMode,
+    sourceRef,
+    sourceRepositoryUrl,
+  });
+
+  logSection("Source acquisition");
+  console.log(`[source] mode=${sourcePlan.mode}`);
+  const sourceRepo = await resolveSource(sourcePlan, { hostEnv, repo });
+
+  await assertMetadataContract(sourceRepo);
+
+  const { baseContainer, ciPlan } = await resolveValidationContext(
+    sourceRepo,
     eventName,
     prBaseSha,
     validateTargetsJson,
@@ -123,14 +168,16 @@ export async function validate(
   }
 
   const validationContainer =
-    baseContainer ?? (await prepareRushContainer(repo));
+    baseContainer ?? (await prepareRushContainer(sourceRepo));
   const detectedContainer = validationContainer
     .withExec(["mkdir", "-p", `${RUSH_WORKDIR}/.dagger/runtime`], {
       expand: false,
     })
     .withNewFile(`${RUSH_WORKDIR}/${CI_PLAN_PATH}`, formatCiPlan(ciPlan));
 
-  await (await runValidationStages(repo, detectedContainer, ciPlan)).sync();
+  await (
+    await runValidationStages(sourceRepo, detectedContainer, ciPlan)
+  ).sync();
 
   return formatValidationSummary(createValidationSummary(ciPlan));
 }

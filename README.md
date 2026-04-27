@@ -23,6 +23,33 @@ plumbing for you.
 Pin the action to a released tag and advance that tag intentionally when you
 want new behavior.
 
+### Pull Request Validation
+
+Use the `validate` entrypoint for PR CI. The action clones the pull request
+source inside Dagger, so normal validation does not need `actions/checkout`.
+
+```yaml
+name: ci-validate
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: BootstrapLaboratory/rush-delivery@v0.3.3
+        with:
+          entrypoint: validate
+```
+
+### Release Workflow
+
+Use the default `workflow` entrypoint for release CI.
+
 ```yaml
 permissions:
   contents: write
@@ -41,7 +68,7 @@ jobs:
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Rush Delivery
-        uses: BootstrapLaboratory/rush-delivery@v0.3.2
+        uses: BootstrapLaboratory/rush-delivery@v0.3.3
         with:
           dry-run: "false"
           environment: prod
@@ -68,7 +95,7 @@ This mode clones the target repository inside Dagger, so the CI runner does not
 need to mount the repository into the module.
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.2
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.3
 RUNTIME_FILES_DIR="${RUNNER_TEMP}/rush-delivery-runtime-files"
 DEPLOY_ENV_FILE="${RUNNER_TEMP}/dagger-deploy.env"
 SOURCE_REPOSITORY_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
@@ -111,7 +138,7 @@ available to Dagger and avoids relying on a remote Git ref that does not contain
 your latest changes.
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.2
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.3
 
 dagger -m "${RUSH_DELIVERY_MODULE}" call workflow \
   --repo=. \

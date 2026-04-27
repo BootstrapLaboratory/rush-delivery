@@ -42,12 +42,20 @@ Use it for pull-request validation paths or local validation experiments.
 
 ```sh
 dagger -m "$RUSH_DELIVERY_MODULE" call validate \
-  --repo=. \
+  --git-sha="$GIT_SHA" \
   --event-name=pull_request \
-  --pr-base-sha="$PR_BASE_SHA"
+  --pr-base-sha="$PR_BASE_SHA" \
+  --deploy-env-file="$DEPLOY_ENV_FILE" \
+  --source-mode=git \
+  --source-repository-url="$SOURCE_REPOSITORY_URL" \
+  --source-ref="$SOURCE_REF" \
+  --source-auth-token-env=GITHUB_TOKEN
 ```
 
 Returns a validation summary.
+
+For local runs against a checked-out working tree, use `--repo=.` with
+`--source-mode=local_copy`.
 
 ## `detect`
 
