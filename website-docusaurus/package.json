@@ -3,12 +3,13 @@
   "private": true,
   "scripts": {
     "sync-docs": "node scripts/sync-docs.mjs",
-    "start": "npm run sync-docs && docusaurus start --host 0.0.0.0",
-    "build": "npm run sync-docs && docusaurus build",
+    "sync-static": "node scripts/sync-static.mjs",
+    "start": "npm run sync-docs && npm run sync-static && docusaurus start --host 0.0.0.0",
+    "build": "npm run sync-docs && npm run sync-static && docusaurus build",
     "serve": "docusaurus serve --host 0.0.0.0",
     "clear": "docusaurus clear",
     "typecheck": "tsc --noEmit",
-    "check": "npm run sync-docs && npm run typecheck && docusaurus build"
+    "check": "npm run sync-docs && npm run sync-static && npm run typecheck && docusaurus build"
   },
   "dependencies": {
     "@docusaurus/core": "3.10.0",

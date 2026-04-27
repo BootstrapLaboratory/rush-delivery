@@ -4,9 +4,11 @@
     "site:build": "npm --prefix website run build",
     "site:check": "npm --prefix website run check",
     "site:sync-docs": "npm --prefix website run sync-docs",
+    "site:sync-static": "npm --prefix website run sync-static",
     "site:docusaurus:build": "npm --prefix website-docusaurus run build",
     "site:docusaurus:check": "npm --prefix website-docusaurus run check",
     "site:docusaurus:sync-docs": "npm --prefix website-docusaurus run sync-docs",
+    "site:docusaurus:sync-static": "npm --prefix website-docusaurus run sync-static",
     "test": "node --test --experimental-strip-types test/*.test.ts",
     "typecheck": "tsc --noEmit"
   },

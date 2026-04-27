@@ -3,7 +3,9 @@
 /.env
 /website/.astro/
 /website/dist/
+/website/public/schemas/
 /website/src/content/docs/docs/
 /website-docusaurus/.docusaurus/
 /website-docusaurus/build/
 /website-docusaurus/docs/
+/website-docusaurus/static/schemas/

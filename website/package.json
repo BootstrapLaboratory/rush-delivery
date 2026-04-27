@@ -4,10 +4,11 @@
   "type": "module",
   "scripts": {
     "sync-docs": "node scripts/sync-docs.mjs",
-    "dev": "npm run sync-docs && astro dev",
-    "build": "npm run sync-docs && astro build",
+    "sync-static": "node scripts/sync-static.mjs",
+    "dev": "npm run sync-docs && npm run sync-static && astro dev",
+    "build": "npm run sync-docs && npm run sync-static && astro build",
     "preview": "astro preview",
-    "check": "npm run sync-docs && astro check"
+    "check": "npm run sync-docs && npm run sync-static && astro check"
   },
   "dependencies": {
     "@astrojs/starlight": "0.38.4",
