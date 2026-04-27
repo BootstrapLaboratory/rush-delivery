@@ -3,7 +3,7 @@ items:
     source: ../docs/README.md
     id: introduction
   - title: Quick Start
-    source: ../README.md
+    source: ../docs/quick-start.md
     id: quick-start
     description: Start using Rush Delivery as a Dagger module or GitHub Action.
   - title: GitHub Action
