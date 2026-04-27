@@ -65,7 +65,7 @@ async function main() {
       'description: "Documentation for Rush Delivery."',
       "---",
       "",
-      "Choose a page from the sidebar, or start with the [Quick Start](quick-start/).",
+      "Choose a page from the sidebar, or start with the [Quick Start](quick-start/github-actions/).",
       "",
     ].join("\n"),
   );
@@ -88,6 +88,7 @@ async function main() {
       "",
     ].join("\n");
 
+    await mkdir(path.dirname(outputPath), { recursive: true });
     await writeFile(outputPath, `${frontmatter}${markdown.trim()}\n`);
   }
 }

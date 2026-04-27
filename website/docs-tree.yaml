@@ -2,10 +2,6 @@ items:
   - title: Introduction
     source: ../docs/README.md
     slug: introduction
-  - title: Quick Start
-    source: ../docs/quick-start.md
-    slug: quick-start
-    description: Start using Rush Delivery as a Dagger module or GitHub Action.
   - title: GitHub Action
     source: ../docs/github-actions.md
     slug: github-action
@@ -25,3 +21,17 @@ items:
   - title: Providers
     source: ../docs/providers.md
     slug: providers
+
+quickStartItems:
+  - title: GitHub Actions
+    source: ../docs/quick-start/github-actions.md
+    slug: quick-start/github-actions
+    description: Run Rush Delivery as a pinned GitHub Action.
+  - title: CI Using Command Line
+    source: ../docs/quick-start/ci-cli.md
+    slug: quick-start/ci-cli
+    description: Call the Rush Delivery Dagger module directly from CI scripts.
+  - title: Local Runs
+    source: ../docs/quick-start/local-run.md
+    slug: quick-start/local-run
+    description: Test unpushed changes from a local working tree.

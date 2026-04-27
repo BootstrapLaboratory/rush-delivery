@@ -16,9 +16,12 @@ export function loadDocsTree() {
   if (
     typeof tree !== "object" ||
     tree === null ||
-    !Array.isArray(tree.items)
+    !Array.isArray(tree.items) ||
+    (tree.quickStartItems !== undefined && !Array.isArray(tree.quickStartItems))
   ) {
-    throw new Error("website-docusaurus/docs-tree.yaml must define an items array.");
+    throw new Error(
+      "website-docusaurus/docs-tree.yaml must define items and optional quickStartItems arrays.",
+    );
   }
 
   return tree;
@@ -28,7 +31,13 @@ function normalizeSource(source) {
   return path.relative(repoRoot, path.resolve(websiteRoot, source));
 }
 
-export function flattenDocsTree(items = loadDocsTree().items) {
+function allDocItems() {
+  const tree = loadDocsTree();
+
+  return [...tree.items, ...(tree.quickStartItems ?? [])];
+}
+
+export function flattenDocsTree(items = allDocItems()) {
   const pages = [];
 
   for (const item of items) {
@@ -66,7 +75,10 @@ function treeItemToSidebar(item) {
 }
 
 export function buildSidebar() {
+  const tree = loadDocsTree();
+
   return {
-    docsSidebar: loadDocsTree().items.map(treeItemToSidebar),
+    docsSidebar: tree.items.map(treeItemToSidebar),
+    quickStartSidebar: (tree.quickStartItems ?? []).map(treeItemToSidebar),
   };
 }

@@ -66,13 +66,14 @@ const config: Config = {
       },
       items: [
         {
-          type: "doc",
-          docId: "introduction",
+          type: "docSidebar",
+          sidebarId: "docsSidebar",
           position: "left",
           label: "Docs",
         },
         {
-          to: "/docs/quick-start",
+          type: "docSidebar",
+          sidebarId: "quickStartSidebar",
           label: "Quick Start",
           position: "left",
         },
@@ -91,7 +92,7 @@ const config: Config = {
           items: [
             {
               label: "Quick Start",
-              to: "/docs/quick-start",
+              to: "/docs/quick-start/github-actions",
             },
             {
               label: "GitHub Action",

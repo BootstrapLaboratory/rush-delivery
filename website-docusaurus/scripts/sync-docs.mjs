@@ -17,10 +17,13 @@ function stripLeadingHeading(markdown) {
 function frontmatterString(page) {
   const lines = [
     "---",
-    `id: ${JSON.stringify(page.id)}`,
     `title: ${JSON.stringify(page.title)}`,
     `sidebar_label: ${JSON.stringify(page.title)}`,
   ];
+
+  if (!page.id.includes("/")) {
+    lines.splice(1, 0, `id: ${JSON.stringify(page.id)}`);
+  }
 
   if (page.description.length > 0) {
     lines.push(`description: ${JSON.stringify(page.description)}`);
@@ -28,6 +31,16 @@ function frontmatterString(page) {
 
   lines.push("---", "");
   return lines.join("\n");
+}
+
+function routeForId(id) {
+  return id === "index" ? "/docs/" : `/docs/${id}/`;
+}
+
+function relativeDocRoute(fromId, toId) {
+  const relative = path.posix.relative(routeForId(fromId), routeForId(toId));
+
+  return relative.length > 0 ? relative : ".";
 }
 
 function rewriteMarkdownLinks(markdown, page, sourceToId) {
@@ -42,10 +55,7 @@ function rewriteMarkdownLinks(markdown, page, sourceToId) {
       const targetId = sourceToId.get(targetPath);
 
       if (targetId !== undefined) {
-        const relativeDocRoute =
-          page.id === "index" ? targetId : `../${targetId}`;
-
-        return `](${relativeDocRoute}${rawHash})`;
+        return `](${relativeDocRoute(page.id, targetId)}${rawHash})`;
       }
 
       return `](${githubBlobBase}/${targetPath}${rawHash})`;
@@ -70,7 +80,7 @@ async function main() {
       'description: "Documentation for Rush Delivery."',
       "---",
       "",
-      "Choose a page from the sidebar, or start with the [Quick Start](quick-start).",
+      "Choose a page from the sidebar, or start with the [Quick Start](quick-start/github-actions).",
       "",
     ].join("\n"),
   );
@@ -84,6 +94,7 @@ async function main() {
     );
     const outputPath = path.join(generatedDocsDir, `${page.id}.md`);
 
+    await mkdir(path.dirname(outputPath), { recursive: true });
     await writeFile(outputPath, `${frontmatterString(page)}${markdown.trim()}\n`);
   }
 }

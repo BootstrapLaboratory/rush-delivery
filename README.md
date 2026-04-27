@@ -6,7 +6,7 @@ and deploy while keeping project-specific behavior in metadata.
 
 Start here:
 
-- [Quick Start](docs/quick-start.md)
+- [Quick Start](docs/quick-start/github-actions.md)
 - [Introduction](docs/README.md)
 - [Public Dagger API](docs/api.md)
 - [GitHub Action usage](docs/github-actions.md)

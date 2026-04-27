@@ -60,7 +60,10 @@ export default function Home() {
               behavior stays in metadata.
             </p>
             <div className={styles.actions}>
-              <Link className={clsx(styles.button, styles.primary)} to="/docs/quick-start">
+              <Link
+                className={clsx(styles.button, styles.primary)}
+                to="/docs/quick-start/github-actions"
+              >
                 Quick Start
               </Link>
               <Link className={clsx(styles.button, styles.secondary)} to="/docs/github-action">
