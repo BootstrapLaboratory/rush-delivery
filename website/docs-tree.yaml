@@ -39,3 +39,42 @@ quickStartItems:
     source: ../docs/quick-start/local-run.md
     slug: quick-start/local-run
     description: Test unpushed changes from a local working tree.
+
+tutorialItems:
+  - title: Tutorial
+    source: ../docs/tutorial/README.md
+    slug: tutorial
+    description: Build a Rush Delivery setup from Rush metadata to deployment.
+  - title: Rush Monorepo Baseline
+    source: ../docs/tutorial/01-rush-monorepo-baseline.md
+    slug: tutorial/rush-monorepo-baseline
+  - title: Rush Commands
+    source: ../docs/tutorial/02-rush-commands.md
+    slug: tutorial/rush-commands
+  - title: Dagger Metadata Map
+    source: ../docs/tutorial/03-dagger-metadata-map.md
+    slug: tutorial/dagger-metadata-map
+  - title: Provider Artifacts
+    source: ../docs/tutorial/04-provider-artifacts.md
+    slug: tutorial/provider-artifacts
+  - title: Package Targets
+    source: ../docs/tutorial/05-package-targets.md
+    slug: tutorial/package-targets
+  - title: Deploy Mesh
+    source: ../docs/tutorial/06-deploy-mesh.md
+    slug: tutorial/deploy-mesh
+  - title: Deploy Targets
+    source: ../docs/tutorial/07-deploy-targets.md
+    slug: tutorial/deploy-targets
+  - title: Validation Targets
+    source: ../docs/tutorial/08-validation-targets.md
+    slug: tutorial/validation-targets
+  - title: GitHub Actions
+    source: ../docs/tutorial/09-github-actions.md
+    slug: tutorial/github-actions
+  - title: Local Dry Runs
+    source: ../docs/tutorial/10-local-dry-runs.md
+    slug: tutorial/local-dry-runs
+  - title: Adapt To Your Project
+    source: ../docs/tutorial/11-adapting-to-your-project.md
+    slug: tutorial/adapting-to-your-project

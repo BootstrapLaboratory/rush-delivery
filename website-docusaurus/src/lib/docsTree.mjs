@@ -17,10 +17,12 @@ export function loadDocsTree() {
     typeof tree !== "object" ||
     tree === null ||
     !Array.isArray(tree.items) ||
-    (tree.quickStartItems !== undefined && !Array.isArray(tree.quickStartItems))
+    (tree.quickStartItems !== undefined &&
+      !Array.isArray(tree.quickStartItems)) ||
+    (tree.tutorialItems !== undefined && !Array.isArray(tree.tutorialItems))
   ) {
     throw new Error(
-      "website-docusaurus/docs-tree.yaml must define items and optional quickStartItems arrays.",
+      "website-docusaurus/docs-tree.yaml must define items and optional quickStartItems/tutorialItems arrays.",
     );
   }
 
@@ -34,7 +36,11 @@ function normalizeSource(source) {
 function allDocItems() {
   const tree = loadDocsTree();
 
-  return [...tree.items, ...(tree.quickStartItems ?? [])];
+  return [
+    ...tree.items,
+    ...(tree.quickStartItems ?? []),
+    ...(tree.tutorialItems ?? []),
+  ];
 }
 
 export function flattenDocsTree(items = allDocItems()) {
@@ -80,5 +86,6 @@ export function buildSidebar() {
   return {
     docsSidebar: tree.items.map(treeItemToSidebar),
     quickStartSidebar: (tree.quickStartItems ?? []).map(treeItemToSidebar),
+    tutorialSidebar: (tree.tutorialItems ?? []).map(treeItemToSidebar),
   };
 }

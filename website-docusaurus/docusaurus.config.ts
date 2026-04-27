@@ -80,6 +80,12 @@ const config: Config = {
           position: "left",
         },
         {
+          type: "docSidebar",
+          sidebarId: "tutorialSidebar",
+          label: "Tutorial",
+          position: "left",
+        },
+        {
           href: "https://github.com/BootstrapLaboratory/rush-delivery",
           label: "GitHub",
           position: "right",
