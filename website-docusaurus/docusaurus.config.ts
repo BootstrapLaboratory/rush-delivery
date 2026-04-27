@@ -2,12 +2,14 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import { themes as prismThemes } from "prism-react-renderer";
 
-const repository = process.env.GITHUB_REPOSITORY ?? "BootstrapLaboratory/rush-delivery";
+const repository =
+  process.env.GITHUB_REPOSITORY ?? "BootstrapLaboratory/rush-delivery";
 const repositoryName = repository.split("/").at(-1) ?? "rush-delivery";
 const isProjectPages = repositoryName !== "bootstraplaboratory.github.io";
 const baseUrl =
   process.env.PAGES_BASE_PATH ?? (isProjectPages ? `/${repositoryName}/` : "/");
-const url = process.env.PAGES_SITE_URL ?? "https://bootstraplaboratory.github.io";
+const url =
+  process.env.PAGES_SITE_URL ?? "https://bootstraplaboratory.github.io";
 
 const config: Config = {
   title: "Rush Delivery",

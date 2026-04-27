@@ -1,6 +1,10 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { flattenDocsTree, repoRoot, websiteRoot } from "../src/lib/docs-tree.mjs";
+import {
+  flattenDocsTree,
+  repoRoot,
+  websiteRoot,
+} from "../src/lib/docs-tree.mjs";
 
 const generatedDocsDir = path.join(websiteRoot, "src/content/docs/docs");
 const githubBlobBase =

@@ -24,19 +24,24 @@ const capabilities = [
 
 function TerminalPanel() {
   return (
-    <div className={styles.terminalPanel} aria-label="Rush Delivery workflow summary">
+    <div
+      className={styles.terminalPanel}
+      aria-label="Rush Delivery workflow summary"
+    >
       <div className={styles.panelBar}>
         <span />
         <span />
         <span />
       </div>
-      <pre><code>{`uses: BootstrapLaboratory/rush-delivery@v0.3.0
+      <pre>
+        <code>{`uses: BootstrapLaboratory/rush-delivery@v0.3.0
 with:
   dry-run: "false"
   runtime-file-map: |
     creds.json=>gcp-credentials.json
   deploy-env: |
-    GCP_PROJECT_ID=production`}</code></pre>
+    GCP_PROJECT_ID=production`}</code>
+      </pre>
     </div>
   );
 }
@@ -66,7 +71,10 @@ export default function Home() {
               >
                 Quick Start
               </Link>
-              <Link className={clsx(styles.button, styles.secondary)} to="/docs/github-action">
+              <Link
+                className={clsx(styles.button, styles.secondary)}
+                to="/docs/github-action"
+              >
                 GitHub Action
               </Link>
             </div>
@@ -74,10 +82,15 @@ export default function Home() {
           <TerminalPanel />
         </section>
 
-        <section className={styles.commandBand} aria-label="Quick install example">
+        <section
+          className={styles.commandBand}
+          aria-label="Quick install example"
+        >
           <code>uses: BootstrapLaboratory/rush-delivery@v0.3.0</code>
           <span>or</span>
-          <code>dagger -m github.com/BootstrapLaboratory/rush-delivery call workflow</code>
+          <code>
+            dagger -m github.com/BootstrapLaboratory/rush-delivery call workflow
+          </code>
         </section>
 
         <section className={styles.capabilities}>

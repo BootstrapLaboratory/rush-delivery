@@ -95,7 +95,10 @@ async function main() {
     const outputPath = path.join(generatedDocsDir, `${page.id}.md`);
 
     await mkdir(path.dirname(outputPath), { recursive: true });
-    await writeFile(outputPath, `${frontmatterString(page)}${markdown.trim()}\n`);
+    await writeFile(
+      outputPath,
+      `${frontmatterString(page)}${markdown.trim()}\n`,
+    );
   }
 }
 

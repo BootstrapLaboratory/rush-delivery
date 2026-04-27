@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/pages.yml"
-      - "README.md"
-      - "docs/**"
-      - "website-docusaurus/**"
+      - .github/workflows/pages.yml
+      - README.md
+      - docs/**
+      - website-docusaurus/**
   workflow_dispatch:
 
 permissions:
