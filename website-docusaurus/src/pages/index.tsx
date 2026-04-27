@@ -3,6 +3,7 @@ import clsx from "clsx";
 import Heading from "@theme/Heading";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
+import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./index.module.css";
 
 const examples = [
@@ -73,27 +74,16 @@ const capabilities = [
   },
 ];
 
-function TerminalPanel() {
+function HeroDiagram() {
+  const diagramSrc = useBaseUrl("/img/rush-delivery-orbital-pipeline.svg");
+
   return (
-    <div
-      className={styles.terminalPanel}
-      aria-label="Rush Delivery workflow summary"
-    >
-      <div className={styles.panelBar}>
-        <span />
-        <span />
-        <span />
-      </div>
-      <pre>
-        <code>{`uses: BootstrapLaboratory/rush-delivery@v0.3.4
-with:
-  dry-run: "false"
-  runtime-file-map: |
-    creds.json=>gcp-credentials.json
-  deploy-env: |
-    GCP_PROJECT_ID=production`}</code>
-      </pre>
-    </div>
+    <img
+      className={styles.heroDiagram}
+      src={diagramSrc}
+      alt="Rush plus project metadata flows into Rush Delivery, which connects to planned deploys, PR checks, releases, and versioning."
+      decoding="async"
+    />
   );
 }
 
@@ -208,7 +198,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <TerminalPanel />
+          <HeroDiagram />
         </section>
 
         <ExampleSwitcher />

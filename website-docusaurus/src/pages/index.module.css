@@ -113,50 +113,11 @@
   background: rgba(30, 41, 59, 0.96);
 }
 
-.terminalPanel {
-  border: 1px solid var(--home-panel-border);
-  border-radius: 8px;
-  background: var(--home-terminal);
-  box-shadow: 0 24px 80px var(--home-panel-shadow);
-  overflow: hidden;
-}
-
-.panelBar {
-  display: flex;
-  gap: 8px;
-  border-bottom: 1px solid var(--home-panel-border);
-  padding: 14px;
-}
-
-.panelBar span {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #14b8a6;
-}
-
-.panelBar span:nth-child(2) {
-  background: #f59e0b;
-}
-
-.panelBar span:nth-child(3) {
-  background: #64748b;
-}
-
-.terminalPanel pre {
-  margin: 0;
-  padding: 22px;
-  overflow: auto;
-  color: var(--home-title);
-  font-size: 0.9rem;
-  line-height: 1.7;
-}
-
-.terminalPanel code {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
+.heroDiagram {
+  display: block;
+  width: min(100%, 640px);
+  aspect-ratio: 784 / 514;
+  justify-self: center;
 }
 
 .exampleSwitcher {

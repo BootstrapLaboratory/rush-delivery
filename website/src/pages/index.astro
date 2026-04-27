@@ -1,7 +1,9 @@
 ---
 const base = import.meta.env.BASE_URL;
-const docsUrl = `${base}docs/quick-start/github-actions/`;
-const tutorialUrl = `${base}docs/tutorial/`;
+const baseUrl = base.endsWith("/") ? base : `${base}/`;
+const docsUrl = `${baseUrl}docs/quick-start/github-actions/`;
+const diagramUrl = `${baseUrl}img/rush-delivery-orbital-pipeline.svg`;
+const tutorialUrl = `${baseUrl}docs/tutorial/`;
 const examples = [
   {
     id: "github-action",
@@ -89,18 +91,12 @@ const examples = [
             <a class="button secondary" href={tutorialUrl}>Tutorial</a>
           </div>
         </div>
-        <div class="terminal-panel" aria-label="Rush Delivery workflow summary">
-          <div class="panel-bar">
-            <span></span><span></span><span></span>
-          </div>
-          <pre><code>uses: BootstrapLaboratory/rush-delivery@v0.3.4
-with:
-  dry-run: "false"
-  runtime-file-map: |
-    creds.json=>gcp-credentials.json
-  deploy-env: |
-    GCP_PROJECT_ID=production</code></pre>
-        </div>
+        <img
+          class="hero-diagram"
+          src={diagramUrl}
+          alt="Rush plus project metadata flows into Rush Delivery, which connects to planned deploys, PR checks, releases, and versioning."
+          decoding="async"
+        />
       </section>
 
       <section class="example-switcher" aria-label="Workflow examples">
@@ -467,43 +463,11 @@ with:
     background: rgba(255, 255, 255, 0.72);
   }
 
-  .terminal-panel {
-    border: 1px solid rgba(15, 23, 42, 0.12);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.82);
-    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.14);
-    overflow: hidden;
-  }
-
-  .panel-bar {
-    display: flex;
-    gap: 8px;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-    padding: 14px;
-  }
-
-  .panel-bar span {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #14b8a6;
-  }
-
-  .panel-bar span:nth-child(2) {
-    background: #f59e0b;
-  }
-
-  .panel-bar span:nth-child(3) {
-    background: #64748b;
-  }
-
-  pre {
-    margin: 0;
-    padding: 22px;
-    overflow: auto;
-    color: #0f172a;
-    font-size: 0.9rem;
-    line-height: 1.7;
+  .hero-diagram {
+    display: block;
+    width: min(100%, 640px);
+    aspect-ratio: 784 / 514;
+    justify-self: center;
   }
 
   .example-switcher {
@@ -598,7 +562,9 @@ with:
 
   .example-panel pre {
     min-height: 268px;
+    margin: 0;
     padding: clamp(18px, 2.4vw, 28px);
+    overflow: auto;
     color: #e2e8f0;
     background: #111827;
     font-size: 0.88rem;
