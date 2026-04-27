@@ -31,7 +31,7 @@
       .small-title {
         fill: #e5e7eb;
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 850;
         letter-spacing: 0;
       }
@@ -40,82 +40,52 @@
         stroke: url(#nodeStroke);
         stroke-width: 1.35;
       }
-      .inner-shell {
-        fill: none;
-        stroke: #cbd5e1;
-        stroke-opacity: 0.12;
-        stroke-width: 1;
-      }
       .connector {
         fill: none;
         stroke: url(#connectorStroke);
         stroke-width: 2.2;
         stroke-linecap: round;
       }
-      .port {
-        fill: #2dd4bf;
-        stroke: #e0f2fe;
-        stroke-opacity: 0.5;
-      }
     </style>
   </defs>
 
   <g opacity="0.92">
     <path class="connector" d="M480 184V250"/>
-    <path class="connector" d="M201 380V470"/>
-    <path class="connector" d="M387 380V470"/>
-    <path class="connector" d="M573 380V470"/>
-    <path class="connector" d="M759 380V470"/>
+    <path class="connector" d="M201 380V480"/>
+    <path class="connector" d="M387 380V480"/>
+    <path class="connector" d="M573 380V480"/>
+    <path class="connector" d="M759 380V480"/>
   </g>
 
   <g filter="url(#nodeShadow)">
     <g>
       <path class="shell" d="M148 76h664l28 28v54l-28 28H148l-28-28v-54z"/>
-      <rect class="inner-shell" x="152" y="102" width="656" height="58" rx="15"/>
       <text x="480" y="141" text-anchor="middle" class="title">Rush + Project Metadata</text>
     </g>
 
     <g>
       <path class="shell" d="M152 250h656l32 32v66l-32 32H152l-32-32v-66z"/>
-      <rect class="inner-shell" x="152" y="284" width="656" height="62" rx="16"/>
       <text x="480" y="323" text-anchor="middle" class="title">Rush Delivery</text>
     </g>
 
     <g>
-      <path class="shell" d="M136 470h130l16 16v42l-16 16H136l-16-16v-42z"/>
-      <rect class="inner-shell" x="138" y="490" width="126" height="34" rx="10"/>
-      <text x="201" y="515" text-anchor="middle" class="small-title">Planned Deploy</text>
+      <path class="shell" d="M136 480h130l16 14v36l-16 14H136l-16-14v-36z"/>
+      <text x="201" y="518" text-anchor="middle" class="small-title">Planned Deploy</text>
     </g>
 
     <g>
-      <path class="shell" d="M322 470h130l16 16v42l-16 16H322l-16-16v-42z"/>
-      <rect class="inner-shell" x="324" y="490" width="126" height="34" rx="10"/>
-      <text x="387" y="515" text-anchor="middle" class="small-title">PR Checks</text>
+      <path class="shell" d="M322 480h130l16 14v36l-16 14H322l-16-14v-36z"/>
+      <text x="387" y="518" text-anchor="middle" class="small-title">PR Checks</text>
     </g>
 
     <g>
-      <path class="shell" d="M508 470h130l16 16v42l-16 16H508l-16-16v-42z"/>
-      <rect class="inner-shell" x="510" y="490" width="126" height="34" rx="10"/>
-      <text x="573" y="515" text-anchor="middle" class="small-title">Release</text>
+      <path class="shell" d="M508 480h130l16 14v36l-16 14H508l-16-14v-36z"/>
+      <text x="573" y="518" text-anchor="middle" class="small-title">Release</text>
     </g>
 
     <g>
-      <path class="shell" d="M694 470h130l16 16v42l-16 16H694l-16-16v-42z"/>
-      <rect class="inner-shell" x="696" y="490" width="126" height="34" rx="10"/>
-      <text x="759" y="515" text-anchor="middle" class="small-title">Versioning</text>
+      <path class="shell" d="M694 480h130l16 14v36l-16 14H694l-16-14v-36z"/>
+      <text x="759" y="518" text-anchor="middle" class="small-title">Versioning</text>
     </g>
-  </g>
-
-  <g opacity="0.96">
-    <circle class="port" cx="480" cy="184" r="4.5"/>
-    <circle class="port" cx="480" cy="250" r="4.5"/>
-    <circle class="port" cx="201" cy="380" r="4.5"/>
-    <circle class="port" cx="387" cy="380" r="4.5"/>
-    <circle class="port" cx="573" cy="380" r="4.5"/>
-    <circle class="port" cx="759" cy="380" r="4.5"/>
-    <circle class="port" cx="201" cy="470" r="4.5"/>
-    <circle class="port" cx="387" cy="470" r="4.5"/>
-    <circle class="port" cx="573" cy="470" r="4.5"/>
-    <circle class="port" cx="759" cy="470" r="4.5"/>
   </g>
 </svg>
