@@ -1,4 +1,7 @@
 items:
+  - title: Introduction
+    source: ../docs/README.md
+    slug: introduction
   - title: Quick Start
     source: ../README.md
     slug: quick-start
@@ -7,9 +10,6 @@ items:
     source: ../docs/github-actions.md
     slug: github-action
     description: Use Rush Delivery directly from GitHub Actions.
-  - title: Documentation Index
-    source: ../docs/README.md
-    slug: docs-index
   - title: Public API
     source: ../docs/api.md
     slug: api

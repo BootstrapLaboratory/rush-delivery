@@ -6,7 +6,7 @@ and deploy while keeping project-specific behavior in metadata.
 
 Start here:
 
-- [Documentation index](docs/README.md)
+- [Introduction](docs/README.md)
 - [Public Dagger API](docs/api.md)
 - [GitHub Action usage](docs/github-actions.md)
 - [Entrypoints reference](docs/entrypoints.md)
