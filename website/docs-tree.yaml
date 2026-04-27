@@ -21,6 +21,10 @@ items:
   - title: Providers
     source: ../docs/providers.md
     slug: providers
+  - title: Development
+    source: ../docs/development.md
+    slug: development
+    description: Maintain this repository and generated documentation.
 
 quickStartItems:
   - title: GitHub Actions

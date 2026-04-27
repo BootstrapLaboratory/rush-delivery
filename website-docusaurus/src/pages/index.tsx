@@ -34,7 +34,7 @@ function TerminalPanel() {
         <span />
       </div>
       <pre>
-        <code>{`uses: BootstrapLaboratory/rush-delivery@v0.3.0
+        <code>{`uses: BootstrapLaboratory/rush-delivery@v0.3.2
 with:
   dry-run: "false"
   runtime-file-map: |
@@ -86,7 +86,7 @@ export default function Home() {
           className={styles.commandBand}
           aria-label="Quick install example"
         >
-          <code>uses: BootstrapLaboratory/rush-delivery@v0.3.0</code>
+          <code>uses: BootstrapLaboratory/rush-delivery@v0.3.2</code>
           <span>or</span>
           <code>
             dagger -m github.com/BootstrapLaboratory/rush-delivery call workflow

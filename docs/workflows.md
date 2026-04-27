@@ -38,7 +38,7 @@ For GitHub Actions, prefer the repository action wrapper:
 
 ```yaml
 - name: Rush Delivery
-  uses: BootstrapLaboratory/rush-delivery@v0.3.0
+  uses: BootstrapLaboratory/rush-delivery@v0.3.2
   with:
     force-targets-json: ${{ inputs.force_targets_json || '[]' }}
     environment: prod

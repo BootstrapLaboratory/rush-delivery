@@ -18,18 +18,11 @@ extension surface for validation, packaging, deployment, caches, and toolchains.
   behavior.
 - [Provider adapters](providers.md): source, registry, cache, and CI-provider
   boundaries.
+- [Development](development.md): maintainer checks, website build notes, and
+  generated documentation inputs.
 - [AI architecture](ai/architecture.md): high-level design map for future
   coding agents.
 - [AI conventions](ai/conventions.md): contribution rules and invariants.
-
-## Website
-
-The public GitHub Pages site currently builds from
-[`../website-docusaurus`](../website-docusaurus). It uses Docusaurus, generates
-docs pages from `website-docusaurus/docs-tree.yaml`, and is deployed by
-[`../.github/workflows/pages.yml`](../.github/workflows/pages.yml).
-
-The Astro + Starlight comparison site remains under [`../website`](../website).
 
 ## Source Of Truth
 
