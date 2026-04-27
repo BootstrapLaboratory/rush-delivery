@@ -60,6 +60,10 @@ const config: Config = {
 
   themeConfig: {
     image: "img/rush-delivery-card.svg",
+    colorMode: {
+      defaultMode: "dark",
+      respectPrefersColorScheme: false,
+    },
     navbar: {
       title: "Rush Delivery",
       logo: {
@@ -93,7 +97,7 @@ const config: Config = {
       ],
     },
     footer: {
-      style: "light",
+      style: "dark",
       links: [
         {
           title: "Docs",
