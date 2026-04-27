@@ -1,4 +1,4 @@
-name: Rush Delivery
+name: Rush Delivery with Dagger
 author: Bootstrap Laboratory
 description: Run the Rush Delivery Dagger workflow from GitHub Actions.
 
