@@ -103,8 +103,8 @@ const config: Config = {
               to: "/docs/quick-start/github-actions",
             },
             {
-              label: "GitHub Action",
-              to: "/docs/github-action",
+              label: "Tutorial",
+              to: "/docs/tutorial",
             },
             {
               label: "Metadata",
