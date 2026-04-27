@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" role="img" aria-labelledby="title desc">
+  <title id="title">Rush Delivery release framework diagram</title>
+  <desc id="desc">Rush and service mesh metadata connect vertically to Rush Delivery, which connects vertically to planned deploys, PR checks, releases, and versioning.</desc>
+  <defs>
+    <linearGradient id="nodeStroke" x1="120" y1="76" x2="840" y2="544" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#93c5fd"/>
+      <stop offset="0.56" stop-color="#2dd4bf"/>
+      <stop offset="1" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="nodeFill" x1="120" y1="76" x2="840" y2="544" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#162033" stop-opacity="0.92"/>
+      <stop offset="0.52" stop-color="#0f172a" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#102725" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="connectorStroke" x1="480" y1="176" x2="480" y2="470" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#93c5fd"/>
+      <stop offset="1" stop-color="#2dd4bf"/>
+    </linearGradient>
+    <filter id="nodeShadow" x="-10%" y="-18%" width="120%" height="136%">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#020617" flood-opacity="0.3"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#38bdf8" flood-opacity="0.08"/>
+    </filter>
+    <style>
+      .title {
+        fill: #f8fafc;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 24px;
+        font-weight: 850;
+        letter-spacing: 0;
+      }
+      .subtitle {
+        fill: #a7b4c8;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .micro {
+        fill: #7dd3fc;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0;
+      }
+      .small-title {
+        fill: #e5e7eb;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 14px;
+        font-weight: 850;
+        letter-spacing: 0;
+      }
+      .shell {
+        fill: url(#nodeFill);
+        stroke: url(#nodeStroke);
+        stroke-width: 1.35;
+      }
+      .inner-shell {
+        fill: none;
+        stroke: #cbd5e1;
+        stroke-opacity: 0.12;
+        stroke-width: 1;
+      }
+      .connector {
+        fill: none;
+        stroke: url(#connectorStroke);
+        stroke-width: 2.2;
+        stroke-linecap: round;
+      }
+      .port {
+        fill: #2dd4bf;
+        stroke: #e0f2fe;
+        stroke-opacity: 0.5;
+      }
+      .edge-cut {
+        stroke: #7dd3fc;
+        stroke-opacity: 0.55;
+        stroke-width: 2;
+        stroke-linecap: round;
+      }
+    </style>
+  </defs>
+
+  <g opacity="0.92">
+    <path class="connector" d="M480 184V250"/>
+    <path class="connector" d="M201 380V470"/>
+    <path class="connector" d="M387 380V470"/>
+    <path class="connector" d="M573 380V470"/>
+    <path class="connector" d="M759 380V470"/>
+  </g>
+
+  <g filter="url(#nodeShadow)">
+    <g>
+      <path class="shell" d="M148 76h664l28 28v54l-28 28H148l-28-28v-54z"/>
+      <rect class="inner-shell" x="152" y="102" width="656" height="58" rx="15"/>
+      <path class="edge-cut" d="M152 106h-36M808 106h36M152 156h-36M808 156h36"/>
+      <text x="480" y="126" text-anchor="middle" class="micro">PRODUCT REPOSITORY CONTROL LAYER</text>
+      <text x="480" y="155" text-anchor="middle" class="title">Rush + service mesh metadata</text>
+    </g>
+
+    <g>
+      <path class="shell" d="M152 250h656l32 32v66l-32 32H152l-32-32v-66z"/>
+      <rect class="inner-shell" x="152" y="284" width="656" height="62" rx="16"/>
+      <path class="edge-cut" d="M152 288h-44M808 288h44M152 342h-44M808 342h44"/>
+      <text x="480" y="316" text-anchor="middle" class="title">Rush Delivery</text>
+      <text x="480" y="344" text-anchor="middle" class="subtitle">CI vendor independent and isolated Dagger execution</text>
+    </g>
+
+    <g>
+      <path class="shell" d="M136 470h130l16 16v42l-16 16H136l-16-16v-42z"/>
+      <rect class="inner-shell" x="138" y="490" width="126" height="34" rx="10"/>
+      <path class="edge-cut" d="M138 488h-24M264 526h24"/>
+      <text x="201" y="515" text-anchor="middle" class="small-title">Planned Deploy</text>
+    </g>
+
+    <g>
+      <path class="shell" d="M322 470h130l16 16v42l-16 16H322l-16-16v-42z"/>
+      <rect class="inner-shell" x="324" y="490" width="126" height="34" rx="10"/>
+      <path class="edge-cut" d="M324 488h-24M450 526h24"/>
+      <text x="387" y="515" text-anchor="middle" class="small-title">PR Checks</text>
+    </g>
+
+    <g>
+      <path class="shell" d="M508 470h130l16 16v42l-16 16H508l-16-16v-42z"/>
+      <rect class="inner-shell" x="510" y="490" width="126" height="34" rx="10"/>
+      <path class="edge-cut" d="M510 488h-24M636 526h24"/>
+      <text x="573" y="515" text-anchor="middle" class="small-title">Release</text>
+    </g>
+
+    <g>
+      <path class="shell" d="M694 470h130l16 16v42l-16 16H694l-16-16v-42z"/>
+      <rect class="inner-shell" x="696" y="490" width="126" height="34" rx="10"/>
+      <path class="edge-cut" d="M696 488h-24M822 526h24"/>
+      <text x="759" y="515" text-anchor="middle" class="small-title">Versioning</text>
+    </g>
+  </g>
+
+  <g opacity="0.96">
+    <circle class="port" cx="480" cy="184" r="4.5"/>
+    <circle class="port" cx="480" cy="250" r="4.5"/>
+    <circle class="port" cx="201" cy="380" r="4.5"/>
+    <circle class="port" cx="387" cy="380" r="4.5"/>
+    <circle class="port" cx="573" cy="380" r="4.5"/>
+    <circle class="port" cx="759" cy="380" r="4.5"/>
+    <circle class="port" cx="201" cy="470" r="4.5"/>
+    <circle class="port" cx="387" cy="470" r="4.5"/>
+    <circle class="port" cx="573" cy="470" r="4.5"/>
+    <circle class="port" cx="759" cy="470" r="4.5"/>
+  </g>
+</svg>
