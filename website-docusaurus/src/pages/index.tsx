@@ -58,19 +58,19 @@ const examples = [
 
 const capabilities = [
   {
-    title: "GitHub Action",
+    title: "Isolated",
     description:
-      "Use Rush Delivery as a versioned CI action that prepares Dagger, deploy env, runtime files, and Git source defaults.",
+      "Run every stage in an isolated Dagger environment, even locally, with each stage receiving only the secrets it is allowed to use.",
   },
   {
-    title: "Dagger Module",
+    title: "Portable",
     description:
       "Call the same workflow from local development, other CI providers, or deeper stage-level debugging.",
   },
   {
-    title: "Rush Metadata",
+    title: "Complete",
     description:
-      "Keep deploy targets, package outputs, runtime env, cache providers, and service order in the product repository.",
+      "Manage the full CI cycle from changed-target detection through validation, build, package, release, and deployment.",
   },
 ];
 
