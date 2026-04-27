@@ -174,9 +174,13 @@ export default function Home() {
       <main className={styles.page}>
         <section className={styles.hero}>
           <div className={styles.heroCopy}>
-            <p className={styles.eyebrow}>Dagger-powered release framework</p>
+            <p className={styles.eyebrow}>Dagger module for Rush monorepos</p>
             <Heading as="h1" className={styles.heroTitle}>
-              Rush Delivery
+              DETECT/<wbr />
+              BUILD/<wbr />
+              PACKAGE/<wbr />
+              DEPLOY/<wbr />
+              VALIDATE
             </Heading>
             <p className={styles.heroText}>
               A focused CI delivery layer for Rush monorepos. Detect affected
