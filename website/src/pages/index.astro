@@ -2,6 +2,55 @@
 const base = import.meta.env.BASE_URL;
 const docsUrl = `${base}docs/quick-start/github-actions/`;
 const tutorialUrl = `${base}docs/tutorial/`;
+const examples = [
+  {
+    id: "github-action",
+    label: "GitHub Action",
+    description: "Release workflow with deploy inputs and runtime files.",
+    language: "yaml",
+    code: [
+      "uses: BootstrapLaboratory/rush-delivery@v0.3.4",
+      "with:",
+      '  dry-run: "false"',
+      "  toolchain-image-provider: github",
+      "  rush-cache-provider: github",
+      "  runtime-file-map: |",
+      "    ${{ steps.auth.outputs.credentials_file_path }}=>gcp-credentials.json",
+      "  deploy-env: |",
+      "    GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }}",
+    ].join("\n"),
+  },
+  {
+    id: "dagger-cli",
+    label: "Dagger CLI",
+    description: "The same module call from a shell or another CI provider.",
+    language: "sh",
+    code: [
+      "dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.4 call workflow \\",
+      '  --git-sha="${GITHUB_SHA}" \\',
+      '  --event-name="${GITHUB_EVENT_NAME}" \\',
+      "  --source-mode=git \\",
+      '  --source-repository-url="${SOURCE_REPOSITORY_URL}" \\',
+      '  --source-ref="${SOURCE_REF}" \\',
+      "  --source-auth-token-env=GITHUB_TOKEN",
+    ].join("\n"),
+  },
+  {
+    id: "pr-validation",
+    label: "PR Validation",
+    description: "Read-only validation that reuses published CI artifacts.",
+    language: "yaml",
+    code: [
+      "uses: BootstrapLaboratory/rush-delivery@v0.3.4",
+      "with:",
+      "  entrypoint: validate",
+      "  toolchain-image-provider: github",
+      "  toolchain-image-policy: pull-or-build",
+      "  rush-cache-provider: github",
+      "  rush-cache-policy: pull-or-build",
+    ].join("\n"),
+  },
+];
 ---
 
 <!doctype html>
@@ -54,6 +103,48 @@ with:
         </div>
       </section>
 
+      <section class="example-switcher" aria-label="Workflow examples">
+        <div class="example-tabs" role="tablist" aria-orientation="vertical">
+          {
+            examples.map((example, index) => (
+              <button
+                class={index === 0 ? "example-tab active" : "example-tab"}
+                type="button"
+                id={`example-tab-${example.id}`}
+                role="tab"
+                aria-selected={index === 0 ? "true" : "false"}
+                aria-controls={`example-panel-${example.id}`}
+                tabindex={index === 0 ? "0" : "-1"}
+                data-example-tab={example.id}
+              >
+                {example.label}
+                <span>{example.description}</span>
+              </button>
+            ))
+          }
+        </div>
+        <div class="example-panels">
+          {
+            examples.map((example, index) => (
+              <div
+                class="example-panel"
+                id={`example-panel-${example.id}`}
+                role="tabpanel"
+                aria-labelledby={`example-tab-${example.id}`}
+                hidden={index !== 0}
+                data-example-panel={example.id}
+              >
+                <div class="example-panel-bar">
+                  <span></span><span></span><span></span>
+                  <strong>{example.language}</strong>
+                </div>
+                <pre><code>{example.code}</code></pre>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
       <section class="trust-strip" aria-label="Workflow capabilities">
         <div>
           <strong>Git source</strong>
@@ -99,6 +190,48 @@ with:
         </div>
       </section>
     </main>
+    <script>
+      const exampleTabs = Array.from(
+        document.querySelectorAll("[data-example-tab]"),
+      ) as HTMLButtonElement[];
+      const examplePanels = Array.from(
+        document.querySelectorAll("[data-example-panel]"),
+      ) as HTMLElement[];
+
+      function activateExample(target: string) {
+        for (const tab of exampleTabs) {
+          const isActive = tab.dataset.exampleTab === target;
+          tab.classList.toggle("active", isActive);
+          tab.setAttribute("aria-selected", isActive ? "true" : "false");
+          tab.tabIndex = isActive ? 0 : -1;
+        }
+
+        for (const panel of examplePanels) {
+          panel.hidden = panel.dataset.examplePanel !== target;
+        }
+      }
+
+      for (const [index, tab] of exampleTabs.entries()) {
+        tab.addEventListener("click", () => {
+          activateExample(tab.dataset.exampleTab ?? "");
+        });
+        tab.addEventListener("keydown", (event) => {
+          const isForward =
+            event.key === "ArrowDown" || event.key === "ArrowRight";
+          const isBackward =
+            event.key === "ArrowUp" || event.key === "ArrowLeft";
+
+          if (!isForward && !isBackward) return;
+          event.preventDefault();
+          const offset = isForward ? 1 : -1;
+          const nextIndex =
+            (index + offset + exampleTabs.length) % exampleTabs.length;
+          const nextTab = exampleTabs[nextIndex];
+          activateExample(nextTab.dataset.exampleTab ?? "");
+          nextTab.focus();
+        });
+      }
+    </script>
     <script>
       const canvas = document.getElementById(
         "pipeline-scene",
@@ -373,6 +506,109 @@ with:
     line-height: 1.7;
   }
 
+  .example-switcher {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.36fr) minmax(0, 0.64fr);
+    gap: 1px;
+    width: min(1120px, calc(100% - 32px));
+    margin: 0 auto clamp(42px, 6vw, 72px);
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.12);
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+  }
+
+  .example-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(248, 250, 252, 0.9);
+  }
+
+  .example-tab {
+    min-height: 82px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 14px;
+    color: #0f172a;
+    background: transparent;
+    font: inherit;
+    font-weight: 800;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .example-tab:hover,
+  .example-tab:focus-visible,
+  .example-tab.active {
+    border-color: rgba(15, 118, 110, 0.28);
+    background: rgba(255, 255, 255, 0.86);
+  }
+
+  .example-tab.active {
+    color: #0f766e;
+  }
+
+  .example-tab span {
+    display: block;
+    margin-top: 6px;
+    color: #475569;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .example-panels {
+    min-width: 0;
+    background: #111827;
+  }
+
+  .example-panel-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+    padding: 14px;
+    background: #0f172a;
+  }
+
+  .example-panel-bar span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #14b8a6;
+  }
+
+  .example-panel-bar span:nth-child(2) {
+    background: #f59e0b;
+  }
+
+  .example-panel-bar span:nth-child(3) {
+    background: #64748b;
+  }
+
+  .example-panel-bar strong {
+    margin-left: auto;
+    color: #94a3b8;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+  }
+
+  .example-panel pre {
+    min-height: 268px;
+    padding: clamp(18px, 2.4vw, 28px);
+    color: #e2e8f0;
+    background: #111827;
+    font-size: 0.88rem;
+    line-height: 1.68;
+  }
+
+  .example-panel code {
+    color: inherit;
+  }
+
   .trust-strip,
   .details {
     width: min(1120px, calc(100% - 32px));
@@ -464,6 +700,19 @@ with:
     .hero,
     .details {
       grid-template-columns: 1fr;
+    }
+
+    .example-switcher {
+      grid-template-columns: 1fr;
+    }
+
+    .example-tabs {
+      flex-direction: row;
+      overflow-x: auto;
+    }
+
+    .example-tab {
+      min-width: 210px;
     }
 
     .hero {
