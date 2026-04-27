@@ -184,6 +184,10 @@ test("prepare validate entrypoint writes source-aware Dagger args", async () => 
     INPUT_SOURCE_MODE: "git",
     INPUT_SOURCE_REF: "",
     INPUT_SOURCE_REPOSITORY_URL: "",
+    INPUT_TOOLCHAIN_IMAGE_POLICY: "pull-or-build",
+    INPUT_TOOLCHAIN_IMAGE_PROVIDER: "github",
+    INPUT_RUSH_CACHE_POLICY: "pull-or-build",
+    INPUT_RUSH_CACHE_PROVIDER: "github",
     INPUT_VALIDATE_TARGETS_JSON: '["api-contract"]',
     RD_GITHUB_API_URL: "https://api.github.example",
     RD_GITHUB_TOKEN: "token-value",
@@ -207,6 +211,10 @@ test("prepare validate entrypoint writes source-aware Dagger args", async () => 
   assert.match(outputs.args, /--validate-targets-json=/);
   assert.match(outputs.args, /api-contract/);
   assert.match(outputs.args, /--deploy-env-file=/);
+  assert.match(outputs.args, /--toolchain-image-provider=github/);
+  assert.match(outputs.args, /--toolchain-image-policy=pull-or-build/);
+  assert.match(outputs.args, /--rush-cache-provider=github/);
+  assert.match(outputs.args, /--rush-cache-policy=pull-or-build/);
   assert.match(outputs.args, /--source-mode=git/);
   assert.match(
     outputs.args,

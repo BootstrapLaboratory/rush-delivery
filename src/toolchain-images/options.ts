@@ -18,6 +18,7 @@ export function parseToolchainImageProvider(
 export function parseToolchainImagePolicy(value: string): ToolchainImagePolicy {
   switch (value) {
     case "lazy":
+    case "pull-or-build":
       return value;
     default:
       throw new Error(`Unsupported toolchain image policy "${value}".`);

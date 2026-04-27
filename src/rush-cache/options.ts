@@ -16,6 +16,7 @@ export function parseRushCacheProvider(value: string): RushCacheProvider {
 export function parseRushCachePolicy(value: string): RushCachePolicy {
   switch (value) {
     case "lazy":
+    case "pull-or-build":
       return value;
     default:
       throw new Error(`Unsupported Rush cache policy "${value}".`);

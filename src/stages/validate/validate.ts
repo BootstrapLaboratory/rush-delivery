@@ -8,11 +8,13 @@ import { parseDeployEnvFile } from "../deploy/runtime-env.ts";
 import { resolveSource } from "../../source/resolve-source.ts";
 import { buildSourceAcquisitionPlan } from "../../source/source-options.ts";
 import { buildRushValidationSteps } from "../build-stage/rush-build-plan.ts";
+import { RUSH_WORKDIR } from "../../rush/container.ts";
+import { resolveRushProviderOptions } from "../../rush/provider-options.ts";
 import {
-  installRush,
-  prepareRushContainer,
-  RUSH_WORKDIR,
-} from "../../rush/container.ts";
+  installRushWithCache,
+  prepareRushWorkflowContainer,
+  type RushWorkflowContainerOptions,
+} from "../../rush/workflow-container.ts";
 import {
   createManualValidationCiPlan,
   createValidationSummary,
@@ -31,11 +33,15 @@ export type ValidateInput = {
   gitSha?: string;
   prBaseSha?: string;
   repo?: Directory;
+  rushCachePolicy?: string;
+  rushCacheProvider?: string;
   sourceAuthTokenEnv?: string;
   sourceAuthUsername?: string;
   sourceMode?: string;
   sourceRef?: string;
   sourceRepositoryUrl?: string;
+  toolchainImagePolicy?: string;
+  toolchainImageProvider?: string;
   validateTargetsJson?: string;
 };
 
@@ -53,10 +59,7 @@ function runValidationStage(container: Container, ciPlan: CiPlan): Container {
   logSection("Rush validation");
   console.log(`[validate] Rush targets: ${ciPlan.validate_targets.join(", ")}`);
 
-  let nextContainer = installRush(container).withEnvVariable(
-    "FAILURE_MODE",
-    "validate",
-  );
+  let nextContainer = container.withEnvVariable("FAILURE_MODE", "validate");
 
   for (const { command, args } of buildRushValidationSteps(ciPlan)) {
     console.log(`[validate] Rush command: ${args[1]}`);
@@ -95,6 +98,7 @@ async function resolveValidationContext(
   eventName: string,
   prBaseSha: string,
   validateTargetsJson: string,
+  rushOptions: RushWorkflowContainerOptions,
 ): Promise<ValidationContext> {
   const validateTargets = parseValidateTargetsJson(validateTargetsJson);
 
@@ -108,7 +112,7 @@ async function resolveValidationContext(
     };
   }
 
-  const baseContainer = await prepareRushContainer(repo);
+  const baseContainer = await prepareRushWorkflowContainer(repo, rushOptions);
 
   return {
     baseContainer,
@@ -129,11 +133,15 @@ export async function validate(input: ValidateInput): Promise<string> {
     gitSha = "",
     prBaseSha = "",
     repo,
+    rushCachePolicy = "lazy",
+    rushCacheProvider = "off",
     sourceAuthTokenEnv = "",
     sourceAuthUsername = "",
     sourceMode = "local_copy",
     sourceRef = "",
     sourceRepositoryUrl = "",
+    toolchainImagePolicy = "lazy",
+    toolchainImageProvider = "off",
     validateTargetsJson = "[]",
   } = input;
   const hostEnv = deployEnvFile
@@ -155,11 +163,22 @@ export async function validate(input: ValidateInput): Promise<string> {
 
   await assertMetadataContract(sourceRepo);
 
+  const rushOptions = {
+    hostEnv,
+    ...(await resolveRushProviderOptions(sourceRepo, {
+      rushCachePolicy,
+      rushCacheProvider,
+      toolchainImagePolicy,
+      toolchainImageProvider,
+    })),
+  };
+
   const { baseContainer, ciPlan } = await resolveValidationContext(
     sourceRepo,
     eventName,
     prBaseSha,
     validateTargetsJson,
+    rushOptions,
   );
 
   if (ciPlan.validate_targets.length === 0) {
@@ -168,16 +187,20 @@ export async function validate(input: ValidateInput): Promise<string> {
   }
 
   const validationContainer =
-    baseContainer ?? (await prepareRushContainer(sourceRepo));
+    baseContainer ??
+    (await prepareRushWorkflowContainer(sourceRepo, rushOptions));
   const detectedContainer = validationContainer
     .withExec(["mkdir", "-p", `${RUSH_WORKDIR}/.dagger/runtime`], {
       expand: false,
     })
     .withNewFile(`${RUSH_WORKDIR}/${CI_PLAN_PATH}`, formatCiPlan(ciPlan));
+  const rushContainer = await installRushWithCache(
+    sourceRepo,
+    detectedContainer,
+    rushOptions,
+  );
 
-  await (
-    await runValidationStages(sourceRepo, detectedContainer, ciPlan)
-  ).sync();
+  await (await runValidationStages(sourceRepo, rushContainer, ciPlan)).sync();
 
   return formatValidationSummary(createValidationSummary(ciPlan));
 }

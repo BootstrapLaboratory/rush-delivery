@@ -1,6 +1,7 @@
 import { Container, Directory } from "@dagger.io/dagger";
 import type {
   ToolchainImageProvider,
+  ToolchainImagePolicy,
   ToolchainImageProvidersDefinition,
 } from "../model/toolchain-image.ts";
 import {
@@ -34,6 +35,7 @@ export type RushInstallOptions = {
 
 export type RushToolchainImageOptions = {
   hostEnv?: Record<string, string>;
+  policy?: ToolchainImagePolicy;
   provider?: ToolchainImageProvider;
   providers?: ToolchainImageProvidersDefinition;
 };

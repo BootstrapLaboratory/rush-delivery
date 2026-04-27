@@ -2,6 +2,7 @@ import { dag, type Container, type Secret } from "@dagger.io/dagger";
 
 import type {
   RushCacheProvider,
+  RushCachePolicy,
   RushCacheProvidersDefinition,
   RushCacheResolution,
   RushCacheSpec,
@@ -13,10 +14,12 @@ import {
   isMissingRushCacheImageError,
   RUSH_CACHE_ARCHIVE_IMAGE_PATH,
   RUSH_CACHE_ARCHIVE_WORK_PATH,
+  shouldPublishRushCache,
 } from "./resolve-plan.ts";
 
 export type ResolveRushInstallCacheOptions = {
   hostEnv?: Record<string, string>;
+  policy?: RushCachePolicy;
   provider?: RushCacheProvider;
   providers: RushCacheProvidersDefinition;
 };
@@ -29,6 +32,7 @@ type RegistryAuth = {
 
 export type ResolvedRushInstallCache = RushCacheResolution & {
   container: Container;
+  publish: boolean;
   registryAuth?: RegistryAuth;
 };
 
@@ -55,6 +59,7 @@ export async function resolveRushInstallCache(
         cacheHit: false,
         container,
         paths: [...options.providers.cache.paths],
+        publish: false,
         provider,
         spec,
       };
@@ -98,6 +103,7 @@ async function resolveGithubRushInstallCache(
       cacheHit: true,
       container: withRushCacheArchive(container, cacheContainer),
       paths: [...options.providers.cache.paths],
+      publish: false,
       provider: "github",
       reference: plan.reference,
       registryAuth,
@@ -115,6 +121,7 @@ async function resolveGithubRushInstallCache(
       cacheHit: false,
       container,
       paths: [...options.providers.cache.paths],
+      publish: shouldPublishRushCache(options.policy),
       provider: "github",
       reference: plan.reference,
       registryAuth,
@@ -130,6 +137,7 @@ export async function publishResolvedRushInstallCache(
   if (
     resolution.provider !== "github" ||
     resolution.cacheHit ||
+    !resolution.publish ||
     resolution.reference === undefined ||
     resolution.registryAuth === undefined
   ) {

@@ -3,6 +3,7 @@ import type { DeploymentPlan } from "../../model/deployment-plan.ts";
 import type { DeployTargetResult } from "../../model/deploy-result.ts";
 import type { PackageManifest } from "../../model/package-manifest.ts";
 import type {
+  ToolchainImagePolicy,
   ToolchainImageProvider,
   ToolchainImageProvidersDefinition,
 } from "../../model/toolchain-image.ts";
@@ -20,6 +21,7 @@ export async function executeDeploymentPlan(
   hostEnv: Record<string, string>,
   hostWorkspaceDir: string,
   toolchainImageProvider: ToolchainImageProvider = "off",
+  toolchainImagePolicy: ToolchainImagePolicy = "lazy",
   toolchainImageProviders?: ToolchainImageProvidersDefinition,
   dockerSocket?: Socket,
   deployTagTokenEnv: string = "",
@@ -59,6 +61,7 @@ export async function executeDeploymentPlan(
             hostWorkspaceDir,
             waveNumber,
             toolchainImageProvider,
+            toolchainImagePolicy,
             toolchainImageProviders,
             dockerSocket,
             deployTagTokenEnv,

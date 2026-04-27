@@ -38,7 +38,7 @@ For GitHub Actions, prefer the repository action wrapper:
 
 ```yaml
 - name: Rush Delivery
-  uses: BootstrapLaboratory/rush-delivery@v0.3.3
+  uses: BootstrapLaboratory/rush-delivery@v0.3.4
   with:
     force-targets-json: ${{ inputs.force_targets_json || '[]' }}
     environment: prod
@@ -52,13 +52,17 @@ For GitHub Actions, prefer the repository action wrapper:
 See [GitHub Action usage](github-actions.md) for the complete production shape.
 
 For pull-request validation, use the same action with the `validate`
-entrypoint:
+entrypoint and read-only provider policies:
 
 ```yaml
 - name: Rush Delivery validation
-  uses: BootstrapLaboratory/rush-delivery@v0.3.3
+  uses: BootstrapLaboratory/rush-delivery@v0.3.4
   with:
     entrypoint: validate
+    toolchain-image-provider: github
+    toolchain-image-policy: pull-or-build
+    rush-cache-provider: github
+    rush-cache-policy: pull-or-build
 ```
 
 For a raw Dagger command this means:

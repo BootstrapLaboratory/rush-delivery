@@ -3,6 +3,7 @@ import { dag, type Container, type Secret } from "@dagger.io/dagger";
 import type {
   ToolchainImageProvidersDefinition,
   ToolchainImageProvider,
+  ToolchainImagePolicy,
   ToolchainImageResolution,
   ToolchainImageSpec,
 } from "../model/toolchain-image.ts";
@@ -10,11 +11,13 @@ import { buildGithubToolchainImageReference } from "./github-reference.ts";
 import {
   isMissingToolchainImageError,
   resolveOffToolchainImage,
+  shouldPublishToolchainImage,
 } from "./resolve-plan.ts";
 import { toolchainImageName, toolchainImageTag } from "./spec.ts";
 
 export type ResolveToolchainImageOptions = {
   hostEnv?: Record<string, string>;
+  policy?: ToolchainImagePolicy;
   provider?: ToolchainImageProvider;
   providers?: ToolchainImageProvidersDefinition;
 };
@@ -124,19 +127,27 @@ async function resolveGithubToolchainImage(
       throw error;
     }
 
-    console.log(`[toolchain-images] building ${reference.reference}`);
-
-    const builtContainer = buildToolchainContainer(spec)
-      .withLabel(
-        "org.opencontainers.image.source",
-        `https://github.com/${repository}`,
-      )
-      .withRegistryAuth(registryAuth.address, username, secret);
-    const publishedReference = await builtContainer.publish(
-      reference.reference,
+    const publish = shouldPublishToolchainImage(options.policy);
+    console.log(
+      `[toolchain-images] building ${reference.reference}${publish ? "" : " locally"}`,
     );
 
-    console.log(`[toolchain-images] published ${publishedReference}`);
+    let builtContainer = buildToolchainContainer(spec);
+
+    if (publish) {
+      builtContainer = builtContainer
+        .withLabel(
+          "org.opencontainers.image.source",
+          `https://github.com/${repository}`,
+        )
+        .withRegistryAuth(registryAuth.address, username, secret);
+
+      const publishedReference = await builtContainer.publish(
+        reference.reference,
+      );
+
+      console.log(`[toolchain-images] published ${publishedReference}`);
+    }
 
     return {
       container: builtContainer,

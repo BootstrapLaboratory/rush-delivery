@@ -2,14 +2,6 @@ import { Container, Directory } from "@dagger.io/dagger";
 
 import type { CiPlan } from "../model/ci-plan.ts";
 import type { PackageManifestArtifact } from "../model/package-manifest.ts";
-import type {
-  ToolchainImageProvider,
-  ToolchainImageProvidersDefinition,
-} from "../model/toolchain-image.ts";
-import type {
-  RushCacheProvider,
-  RushCacheProvidersDefinition,
-} from "../model/rush-cache.ts";
 import { buildRushBuildSteps } from "../stages/build-stage/rush-build-plan.ts";
 import { formatCiPlan } from "../ci-plan/parse-ci-plan.ts";
 import { computeCiPlan } from "../stages/detect/compute-ci-plan.ts";
@@ -20,17 +12,12 @@ import {
   createEmptyPackageManifest,
   formatPackageManifest,
 } from "../stages/package-stage/package-manifest.ts";
+import { RUSH_WORKDIR } from "../rush/container.ts";
 import {
-  installRush,
-  prepareRushContainer,
-  rushWorkflowToolchainIdentity,
-  RUSH_WORKDIR,
-} from "../rush/container.ts";
-import {
-  publishResolvedRushInstallCache,
-  resolveRushInstallCache,
-} from "../rush-cache/resolve.ts";
-import { buildRushCacheSpec } from "../rush-cache/spec.ts";
+  installRushWithCache,
+  prepareRushWorkflowContainer,
+  type RushWorkflowContainerOptions,
+} from "../rush/workflow-container.ts";
 import { logSection, logSubsection } from "../logging/sections.ts";
 
 const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
@@ -128,31 +115,7 @@ export type BuildPackageWorkflowResult = {
   repo: Directory;
 };
 
-export type BuildPackageWorkflowOptions = {
-  hostEnv?: Record<string, string>;
-  rushCacheProvider?: RushCacheProvider;
-  rushCacheProviders?: RushCacheProvidersDefinition;
-  toolchainImageProvider?: ToolchainImageProvider;
-  toolchainImageProviders?: ToolchainImageProvidersDefinition;
-};
-
-async function buildRushInstallCacheSpec(
-  repo: Directory,
-  providers: RushCacheProvidersDefinition,
-) {
-  const keyFiles = await Promise.all(
-    providers.cache.key_files.map(async (path) => ({
-      contents: await repo.file(path).contents(),
-      path,
-    })),
-  );
-
-  return buildRushCacheSpec({
-    config: providers.cache,
-    keyFiles,
-    toolchainIdentity: rushWorkflowToolchainIdentity(),
-  });
-}
+export type BuildPackageWorkflowOptions = RushWorkflowContainerOptions;
 
 export async function runBuildPackageWorkflow(
   repo: Directory,
@@ -161,15 +124,11 @@ export async function runBuildPackageWorkflow(
   prBaseSha: string,
   deployTagPrefix: string,
   artifactPrefix: string,
-  options: BuildPackageWorkflowOptions = {},
+  options: BuildPackageWorkflowOptions,
 ): Promise<BuildPackageWorkflowResult> {
   logSection("Detect release targets");
 
-  const baseContainer = await prepareRushContainer(repo, {
-    hostEnv: options.hostEnv,
-    provider: options.toolchainImageProvider,
-    providers: options.toolchainImageProviders,
-  });
+  const baseContainer = await prepareRushWorkflowContainer(repo, options);
   const ciPlan = await computeCiPlan(
     repo,
     baseContainer,
@@ -198,31 +157,11 @@ export async function runBuildPackageWorkflow(
 
   logSection("Rush install cache");
 
-  if (options.rushCacheProviders === undefined) {
-    throw new Error(
-      "Rush cache provider metadata is required before running Rush install.",
-    );
-  }
-
-  const cacheSpec = await buildRushInstallCacheSpec(
+  const rushContainer = await installRushWithCache(
     repo,
-    options.rushCacheProviders,
-  );
-  const resolvedCache = await resolveRushInstallCache(
     detectedContainer,
-    cacheSpec,
-    {
-      hostEnv: options.hostEnv,
-      provider: options.rushCacheProvider,
-      providers: options.rushCacheProviders,
-    },
+    options,
   );
-  const rushContainer = installRush(resolvedCache.container, {
-    beforeInstallCommand: resolvedCache.restoreCommand,
-  });
-
-  await publishResolvedRushInstallCache(rushContainer, resolvedCache);
-
   const builtContainer = runBuildStage(rushContainer, ciPlan);
   const packagedRepo = await runPackageStage(
     repo,

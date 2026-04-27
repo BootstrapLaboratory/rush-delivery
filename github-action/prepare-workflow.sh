@@ -244,6 +244,10 @@ validate)
 		"--pr-base-sha=${pr_base_sha}"
 		"--validate-targets-json=${validate_targets_json}"
 		"--deploy-env-file=${deploy_env_file}"
+		"--toolchain-image-provider=${toolchain_image_provider}"
+		"--toolchain-image-policy=${toolchain_image_policy}"
+		"--rush-cache-provider=${rush_cache_provider}"
+		"--rush-cache-policy=${rush_cache_policy}"
 	)
 	append_source_args
 	;;

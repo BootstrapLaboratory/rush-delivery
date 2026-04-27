@@ -112,7 +112,7 @@ inputs:
     required: false
     default: "off"
   toolchain-image-policy:
-    description: Toolchain image policy.
+    description: "Toolchain image policy: lazy or pull-or-build."
     required: false
     default: lazy
   rush-cache-provider:
@@ -120,7 +120,7 @@ inputs:
     required: false
     default: "off"
   rush-cache-policy:
-    description: Rush cache policy.
+    description: "Rush cache policy: lazy or pull-or-build."
     required: false
     default: lazy
 

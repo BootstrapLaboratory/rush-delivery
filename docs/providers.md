@@ -30,8 +30,12 @@ Dagger run.
 store for content-addressed toolchain images. Image references are derived from
 normalized runtime specs and provider metadata.
 
-Use `toolchainImagePolicy=lazy` to pull an existing image or build and publish a
-missing one.
+Policies:
+
+- `toolchainImagePolicy=lazy` keeps trusted workflow behavior unchanged: pull an
+  existing image, or build and publish a missing one.
+- `toolchainImagePolicy=pull-or-build` pulls an existing image, or builds it
+  locally on miss without publishing. Use this for pull-request validation.
 
 ## Rush Cache Providers
 
@@ -42,8 +46,13 @@ engine.
 GHCR image. Cache keys are derived from configured metadata, key file contents,
 cache paths, and the Rush workflow toolchain identity.
 
-Use `rushCachePolicy=lazy` to restore an existing cache or publish a missing
-cache after a successful install.
+Policies:
+
+- `rushCachePolicy=lazy` keeps trusted workflow behavior unchanged: restore an
+  existing cache, or publish a missing cache after a successful install.
+- `rushCachePolicy=pull-or-build` restores an existing cache, or installs Rush
+  normally on miss without publishing a new cache. Use this for pull-request
+  validation.
 
 ## Deploy Providers
 
@@ -68,6 +77,10 @@ A CI provider should provide:
   targets need file mounts.
 - Optional Docker socket for targets that build container images.
 - Permissions for any selected provider adapters.
+
+For GitHub PR validation, `packages: read` is enough when both provider
+policies are `pull-or-build`. Trusted release workflows that use `lazy` need
+`packages: write` so misses can be published.
 
 The CI provider should not compute deploy plans, package artifacts, update
 deploy tags, or encode target-specific behavior.

@@ -11,6 +11,7 @@ import { parseToolchainImageProviders } from "../src/toolchain-images/parse-prov
 import {
   isMissingToolchainImageError,
   resolveOffToolchainImage,
+  shouldPublishToolchainImage,
 } from "../src/toolchain-images/resolve-plan.ts";
 import {
   deployTargetToolchainImageSpec,
@@ -269,6 +270,12 @@ test("parses supported toolchain image options", () => {
   assert.equal(parseToolchainImageProvider("off"), "off");
   assert.equal(parseToolchainImageProvider("github"), "github");
   assert.equal(parseToolchainImagePolicy("lazy"), "lazy");
+  assert.equal(parseToolchainImagePolicy("pull-or-build"), "pull-or-build");
+});
+
+test("plans toolchain image publishing from policy", () => {
+  assert.equal(shouldPublishToolchainImage("lazy"), true);
+  assert.equal(shouldPublishToolchainImage("pull-or-build"), false);
 });
 
 test("rejects unsupported toolchain image options", () => {

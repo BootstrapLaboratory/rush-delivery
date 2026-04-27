@@ -2,7 +2,11 @@ import { Directory, Socket } from "@dagger.io/dagger";
 
 import type { DeployTargetResult } from "../../model/deploy-result.ts";
 import type { PackageManifestArtifact } from "../../model/package-manifest.ts";
-import type { ToolchainImageProvidersDefinition } from "../../model/toolchain-image.ts";
+import type {
+  ToolchainImagePolicy,
+  ToolchainImageProvider,
+  ToolchainImageProvidersDefinition,
+} from "../../model/toolchain-image.ts";
 import { logSubsection } from "../../logging/sections.ts";
 import { deployTargetToolchainImageSpec } from "../../toolchain-images/spec.ts";
 import {
@@ -35,7 +39,8 @@ export async function executeTarget(
   hostEnv: Record<string, string>,
   hostWorkspaceDir: string,
   wave: number,
-  toolchainImageProvider: "off" | "github" = "off",
+  toolchainImageProvider: ToolchainImageProvider = "off",
+  toolchainImagePolicy: ToolchainImagePolicy = "lazy",
   toolchainImageProviders?: ToolchainImageProvidersDefinition,
   dockerSocket?: Socket,
   deployTagTokenEnv: string = "",
@@ -89,6 +94,7 @@ export async function executeTarget(
     deployTargetToolchainImageSpec(definition),
     {
       hostEnv,
+      policy: toolchainImagePolicy,
       provider: toolchainImageProvider,
       providers: toolchainImageProviders,
     },

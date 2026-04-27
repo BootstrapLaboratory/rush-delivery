@@ -51,7 +51,8 @@ export async function deployRelease(
   const parsedToolchainImageProvider = parseToolchainImageProvider(
     toolchainImageProvider,
   );
-  parseToolchainImagePolicy(toolchainImagePolicy);
+  const parsedToolchainImagePolicy =
+    parseToolchainImagePolicy(toolchainImagePolicy);
   const toolchainImageProviders: ToolchainImageProvidersDefinition | undefined =
     parsedToolchainImageProvider === "off"
       ? undefined
@@ -98,6 +99,7 @@ export async function deployRelease(
     hostEnv,
     hostWorkspaceDir,
     parsedToolchainImageProvider,
+    parsedToolchainImagePolicy,
     toolchainImageProviders,
     dockerSocket,
     deployTagTokenEnv,

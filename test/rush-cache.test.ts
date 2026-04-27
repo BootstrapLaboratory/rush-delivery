@@ -12,6 +12,7 @@ import {
   buildRushCacheArchiveCommand,
   buildRushCacheRestoreCommand,
   isMissingRushCacheImageError,
+  shouldPublishRushCache,
 } from "../src/rush-cache/resolve-plan.ts";
 import {
   buildRushCacheSpec,
@@ -423,6 +424,12 @@ test("parses supported Rush cache options", () => {
   assert.equal(parseRushCacheProvider("off"), "off");
   assert.equal(parseRushCacheProvider("github"), "github");
   assert.equal(parseRushCachePolicy("lazy"), "lazy");
+  assert.equal(parseRushCachePolicy("pull-or-build"), "pull-or-build");
+});
+
+test("plans Rush cache publishing from policy", () => {
+  assert.equal(shouldPublishRushCache("lazy"), true);
+  assert.equal(shouldPublishRushCache("pull-or-build"), false);
 });
 
 test("rejects unsupported Rush cache options", () => {

@@ -1,4 +1,5 @@
 import type {
+  RushCachePolicy,
   RushCacheProvidersDefinition,
   RushCacheReference,
   RushCacheSpec,
@@ -22,6 +23,12 @@ export type GithubRushCacheResolvePlan = {
   reference: RushCacheReference;
   registryAuth: GithubRushCacheRegistryAuthPlan;
 };
+
+export function shouldPublishRushCache(
+  policy: RushCachePolicy = "lazy",
+): boolean {
+  return policy === "lazy";
+}
 
 function requireHostEnv(
   hostEnv: Record<string, string>,

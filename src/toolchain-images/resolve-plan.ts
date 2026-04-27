@@ -1,4 +1,5 @@
 import type {
+  ToolchainImagePolicy,
   ToolchainImageResolution,
   ToolchainImageSpec,
 } from "../model/toolchain-image.ts";
@@ -12,6 +13,12 @@ export function resolveOffToolchainImage(
     prebuilt: false,
     provider: "off",
   };
+}
+
+export function shouldPublishToolchainImage(
+  policy: ToolchainImagePolicy = "lazy",
+): boolean {
+  return policy === "lazy";
 }
 
 export function isMissingToolchainImageError(error: unknown): boolean {

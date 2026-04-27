@@ -2,7 +2,7 @@ export type ToolchainImageKind = "deploy-executor" | "rush";
 
 export type ToolchainImageProvider = "off" | "github";
 
-export type ToolchainImagePolicy = "lazy";
+export type ToolchainImagePolicy = "lazy" | "pull-or-build";
 
 export type ToolchainImageSpec = {
   baseImage: string;

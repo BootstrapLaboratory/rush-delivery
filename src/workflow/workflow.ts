@@ -4,18 +4,7 @@ import { deployRelease } from "../stages/deploy/deploy-release.ts";
 import { logSection } from "../logging/sections.ts";
 import { validateMetadataContract } from "../metadata/dagger-metadata-contract.ts";
 import { formatMetadataContractValidationResult } from "../metadata/metadata-contract.ts";
-import {
-  parseToolchainImagePolicy,
-  parseToolchainImageProvider,
-} from "../toolchain-images/options.ts";
-import { parseToolchainImageProviders } from "../toolchain-images/parse-providers.ts";
-import { toolchainImageProvidersPath } from "../toolchain-images/metadata-paths.ts";
-import {
-  parseRushCachePolicy,
-  parseRushCacheProvider,
-} from "../rush-cache/options.ts";
-import { parseRushCacheProviders } from "../rush-cache/parse-providers.ts";
-import { rushCacheProvidersPath } from "../rush-cache/metadata-paths.ts";
+import { resolveRushProviderOptions } from "../rush/provider-options.ts";
 import { parseDeployEnvFile } from "../stages/deploy/runtime-env.ts";
 import { resolveSource } from "../source/resolve-source.ts";
 import { buildWorkflowSourcePlan } from "../source/source-options.ts";
@@ -88,11 +77,6 @@ export async function workflow(input: WorkflowInput): Promise<string> {
     sourceRef,
     sourceRepositoryUrl,
   });
-  const parsedToolchainImageProvider = parseToolchainImageProvider(
-    toolchainImageProvider,
-  );
-  parseToolchainImagePolicy(toolchainImagePolicy);
-
   logSection("Source acquisition");
   console.log(`[source] mode=${sourcePlan.mode}`);
   const sourceRepo = await resolveSource(sourcePlan, { hostEnv, repo });
@@ -105,17 +89,12 @@ export async function workflow(input: WorkflowInput): Promise<string> {
     ),
   );
 
-  const parsedRushCacheProvider = parseRushCacheProvider(rushCacheProvider);
-  parseRushCachePolicy(rushCachePolicy);
-  const toolchainImageProviders =
-    parsedToolchainImageProvider === "off"
-      ? undefined
-      : parseToolchainImageProviders(
-          await sourceRepo.file(toolchainImageProvidersPath).contents(),
-        );
-  const rushCacheProviders = parseRushCacheProviders(
-    await sourceRepo.file(rushCacheProvidersPath).contents(),
-  );
+  const providerOptions = await resolveRushProviderOptions(sourceRepo, {
+    rushCachePolicy,
+    rushCacheProvider,
+    toolchainImagePolicy,
+    toolchainImageProvider,
+  });
 
   const { ciPlan, repo: packagedRepo } = await runBuildPackageWorkflow(
     sourceRepo,
@@ -126,10 +105,7 @@ export async function workflow(input: WorkflowInput): Promise<string> {
     artifactPrefix,
     {
       hostEnv,
-      rushCacheProvider: parsedRushCacheProvider,
-      rushCacheProviders,
-      toolchainImageProvider: parsedToolchainImageProvider,
-      toolchainImageProviders,
+      ...providerOptions,
     },
   );
 

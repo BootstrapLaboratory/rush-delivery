@@ -1,6 +1,6 @@
 export type RushCacheProvider = "off" | "github";
 
-export type RushCachePolicy = "lazy";
+export type RushCachePolicy = "lazy" | "pull-or-build";
 
 export type RushCacheConfig = {
   key_files: string[];

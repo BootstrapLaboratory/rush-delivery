@@ -9,7 +9,8 @@ and validation behavior stay identical between action and raw CLI usage.
 Use `entrypoint: validate` for PR CI. The action defaults to Git source mode,
 uses the current GitHub repository and ref, writes `GITHUB_TOKEN` into the
 deploy env file for source authentication, and forwards the pull request base
-SHA from the GitHub event.
+SHA from the GitHub event. Use read-only provider policies in PRs so existing
+toolchain images and Rush cache can be reused without granting publish access.
 
 ```yaml
 name: ci-validate
@@ -19,15 +20,24 @@ on:
 
 permissions:
   contents: read
+  packages: read
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: BootstrapLaboratory/rush-delivery@v0.3.3
+      - uses: BootstrapLaboratory/rush-delivery@v0.3.4
         with:
           entrypoint: validate
+          toolchain-image-provider: github
+          toolchain-image-policy: pull-or-build
+          rush-cache-provider: github
+          rush-cache-policy: pull-or-build
 ```
+
+`pull-or-build` pulls the provider artifact when it exists. If it is missing,
+validation builds locally inside the current Dagger run and does not publish to
+GHCR.
 
 To validate unpushed local-copy source from a checked-out runner workspace,
 override the source mode and pass `repo`:
@@ -38,7 +48,7 @@ steps:
     with:
       fetch-depth: 0
 
-  - uses: BootstrapLaboratory/rush-delivery@v0.3.3
+  - uses: BootstrapLaboratory/rush-delivery@v0.3.4
     with:
       entrypoint: validate
       repo: .
@@ -62,7 +72,7 @@ steps:
       service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
   - name: Rush Delivery
-    uses: BootstrapLaboratory/rush-delivery@v0.3.3
+    uses: BootstrapLaboratory/rush-delivery@v0.3.4
     with:
       force-targets-json: ${{ inputs.force_targets_json || '[]' }}
       deploy-tag-prefix: ${{ env.DEPLOY_TAG_PREFIX }}
@@ -125,7 +135,7 @@ The action mode does not replace raw Dagger usage. Local runs, other CI
 providers, and lower-level debugging can still call the module directly:
 
 ```sh
-dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.3 call workflow \
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.4 call workflow \
   --git-sha="$GITHUB_SHA" \
   --source-mode=git \
   --source-repository-url="$SOURCE_REPOSITORY_URL" \
