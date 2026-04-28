@@ -9,3 +9,5 @@
 /website-docusaurus/build/
 /website-docusaurus/docs/
 /website-docusaurus/static/schemas/
+/**/node_modules/**
+/**/.pnpm-store/**
