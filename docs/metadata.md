@@ -10,11 +10,11 @@ For editor integration in external projects, prefer exact versioned schema
 URLs. For example:
 
 ```yaml
-# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.0/deploy-target.schema.json
+# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/deploy-target.schema.json
 ```
 
 The root `https://bootstraplaboratory.github.io/rush-delivery/schemas/` URLs
-track the current release. Exact paths such as `/schemas/v0.4.0/...` are the
+track the current release. Exact paths such as `/schemas/v0.4.1/...` are the
 stable contract for projects pinned to that Rush Delivery version.
 
 ## Deploy Services Mesh

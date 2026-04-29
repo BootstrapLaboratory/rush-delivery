@@ -14,7 +14,7 @@ permissions:
   packages: read
 
 steps:
-  - uses: BootstrapLaboratory/rush-delivery@v0.4.0
+  - uses: BootstrapLaboratory/rush-delivery@v0.4.1
     with:
       entrypoint: validate
       toolchain-image-provider: github
@@ -79,7 +79,7 @@ metadata, provider settings, runtime files, package logic, and deploy mesh.
 Pin Rush Delivery to a released tag:
 
 ```yaml
-uses: BootstrapLaboratory/rush-delivery@v0.4.0
+uses: BootstrapLaboratory/rush-delivery@v0.4.1
 ```
 
 Advance the tag intentionally when you want new behavior. Do not use an

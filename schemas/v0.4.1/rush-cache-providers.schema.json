@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://bootstraplaboratory.github.io/rush-delivery/schemas/rush-cache-providers.schema.json",
+  "$id": "https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/rush-cache-providers.schema.json",
   "title": "Rush Delivery Rush cache providers",
   "type": "object",
   "required": ["cache", "providers"],

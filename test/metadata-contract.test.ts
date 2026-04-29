@@ -155,9 +155,6 @@ function validMetadataFiles(): Record<string, string> {
     ".dagger/rush-cache/providers.yaml": [
       "cache:",
       "  version: v1",
-      "  key_files:",
-      "    - rush.json",
-      "    - common/config/rush/pnpm-lock.yaml",
       "  paths:",
       "    - common/temp/node_modules",
       "    - common/temp/pnpm-store",

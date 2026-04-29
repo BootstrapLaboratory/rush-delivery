@@ -25,9 +25,6 @@ test("parses GitHub Rush cache provider metadata", () => {
   const providers = parseRushCacheProviders(`
 cache:
   version: v1
-  key_files:
-    - rush.json
-    - common/config/rush/pnpm-lock.yaml
   paths:
     - common/temp/node_modules
 providers:
@@ -42,7 +39,6 @@ providers:
 
   assert.deepStrictEqual(providers, {
     cache: {
-      key_files: ["rush.json", "common/config/rush/pnpm-lock.yaml"],
       paths: ["common/temp/node_modules"],
       version: "v1",
     },
@@ -74,7 +70,6 @@ providers:
 `);
 
   assert.deepStrictEqual(providers.cache, {
-    key_files: [],
     paths: ["common/temp/node_modules"],
     version: "v1",
   });
@@ -88,19 +83,19 @@ providers:
   });
 });
 
-test("fails when Rush cache key files are not repo-relative", () => {
+test("fails when Rush cache config contains key_files", () => {
   assert.throws(
     () =>
       parseRushCacheProviders(`
 cache:
   version: v1
   key_files:
-    - /rush.json
+    - rush.json
   paths:
     - common/temp/node_modules
 providers: {}
 `),
-    /key_files\[0\] must be a repository-relative path/,
+    /Rush cache config has unsupported field: key_files\./,
   );
 });
 
@@ -108,8 +103,6 @@ test("allows repository-relative Rush cache paths", () => {
   const providers = parseRushCacheProviders(`
 cache:
   version: v1
-  key_files:
-    - rush.json
   paths:
     - common/temp/node_modules
 providers: {}
@@ -124,8 +117,6 @@ test("fails when Rush cache paths are absolute", () => {
       parseRushCacheProviders(`
 cache:
   version: v1
-  key_files:
-    - rush.json
   paths:
     - /workspace/common/temp
 providers: {}
@@ -140,8 +131,6 @@ test("fails when Rush cache provider metadata contains unsupported providers", (
       parseRushCacheProviders(`
 cache:
   version: v1
-  key_files:
-    - rush.json
   paths:
     - common/temp/node_modules
 providers:
@@ -158,8 +147,6 @@ test("fails when GitHub Rush cache provider env names are invalid", () => {
       parseRushCacheProviders(`
 cache:
   version: v1
-  key_files:
-    - rush.json
   paths:
     - common/temp/node_modules
 providers:
@@ -175,7 +162,6 @@ providers:
 
 test("normalizes Rush cache specs for stable cache identity", () => {
   const config = {
-    key_files: ["common/config/rush/pnpm-lock.yaml", "rush.json"],
     paths: ["common/temp/node_modules", "common/temp/pnpm-store"],
     version: "v1",
   };
@@ -203,14 +189,12 @@ test("normalizes Rush cache specs for stable cache identity", () => {
 test("keeps Rush cache tag stable when cache paths change", () => {
   const baseSpec = buildRushCacheSpec({
     config: {
-      key_files: ["rush.json"],
       paths: ["common/temp/node_modules"],
       version: "v1",
     },
   });
   const changedSpec = buildRushCacheSpec({
     config: {
-      key_files: ["rush.json"],
       paths: ["common/temp/node_modules", "common/temp/pnpm-store"],
       version: "v1",
     },
@@ -225,7 +209,6 @@ test("rejects Rush cache versions that cannot be OCI tags", () => {
       rushCacheTag(
         buildRushCacheSpec({
           config: {
-            key_files: [],
             paths: ["common/temp/node_modules"],
             version: "rush cache/v1",
           },
@@ -239,14 +222,12 @@ test("rejects Rush cache versions that cannot be OCI tags", () => {
 test("changes the Rush cache tag when cache version changes", () => {
   const left = buildRushCacheSpec({
     config: {
-      key_files: ["rush.json"],
       paths: ["common/temp/node_modules"],
       version: "v1",
     },
   });
   const right = buildRushCacheSpec({
     config: {
-      key_files: ["rush.json"],
       paths: ["common/temp/node_modules"],
       version: "v2",
     },
@@ -258,7 +239,6 @@ test("changes the Rush cache tag when cache version changes", () => {
 test("builds a default GitHub Container Registry Rush cache reference", () => {
   const spec = buildRushCacheSpec({
     config: {
-      key_files: ["rush.json"],
       paths: ["common/temp/node_modules"],
       version: "v1",
     },
@@ -313,8 +293,6 @@ test("builds a GitHub Rush cache resolve plan from provider metadata", () => {
   const providers = parseRushCacheProviders(`
 cache:
   version: v1
-  key_files:
-    - rush.json
   paths:
     - common/temp/node_modules
 providers:
@@ -354,8 +332,6 @@ test("fails when GitHub Rush cache provider env is missing", () => {
   const providers = parseRushCacheProviders(`
 cache:
   version: v1
-  key_files:
-    - rush.json
   paths:
     - common/temp/node_modules
 providers:

@@ -38,7 +38,7 @@ For GitHub Actions, prefer the repository action wrapper:
 
 ```yaml
 - name: Rush Delivery
-  uses: BootstrapLaboratory/rush-delivery@v0.4.0
+  uses: BootstrapLaboratory/rush-delivery@v0.4.1
   with:
     force-targets-json: ${{ inputs.force_targets_json || '[]' }}
     environment: prod
@@ -57,7 +57,7 @@ validation:
 
 ```yaml
 - name: Rush Delivery validation
-  uses: BootstrapLaboratory/rush-delivery@v0.4.0
+  uses: BootstrapLaboratory/rush-delivery@v0.4.1
   with:
     entrypoint: validate
     toolchain-image-provider: github
