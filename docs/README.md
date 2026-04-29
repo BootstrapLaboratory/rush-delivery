@@ -28,3 +28,12 @@ extension surface for validation, packaging, deployment, caches, and toolchains.
 
 The schemas under [`../schemas`](../schemas) are the field-level metadata
 contract. These docs explain intent and usage; schemas define file shape.
+
+Published schemas are available from the documentation site:
+
+- `https://bootstraplaboratory.github.io/rush-delivery/schemas/<schema>.schema.json`
+- `https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.0/<schema>.schema.json`
+
+Use exact versioned schema URLs in project metadata editor hints so older
+projects keep the schema contract they were written against. The root
+`/schemas/` URLs point at the current release line.

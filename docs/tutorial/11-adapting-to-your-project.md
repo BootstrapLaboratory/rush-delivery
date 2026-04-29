@@ -112,3 +112,7 @@ Deploy scripts depending on the whole repo:
 
 From here, use the [Metadata](../metadata.md) and [Provider Adapters](../providers.md)
 references when you need exact schema details.
+
+For editor validation, point metadata files at exact published schema versions
+such as
+`https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.0/deploy-target.schema.json`.
