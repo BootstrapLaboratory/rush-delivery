@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstraplaboratory.github.io/rush-delivery/schemas/validation-target.schema.json",
   "title": "Rush Delivery validation target",
   "type": "object",
   "required": ["name"],

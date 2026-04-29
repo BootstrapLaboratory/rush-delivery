@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.3.4/toolchain-image-providers.schema.json",
   "title": "Rush Delivery toolchain image providers",
   "type": "object",
   "required": ["providers"],

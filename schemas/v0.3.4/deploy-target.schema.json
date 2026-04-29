@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.3.4/deploy-target.schema.json",
   "title": "Rush Delivery deploy target",
   "type": "object",
   "required": ["deploy_script", "name", "runtime"],

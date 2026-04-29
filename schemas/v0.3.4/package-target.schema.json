@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.3.4/package-target.schema.json",
   "title": "Rush Delivery package target",
   "type": "object",
   "required": ["artifact", "name"],
