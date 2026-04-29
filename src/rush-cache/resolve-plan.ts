@@ -5,7 +5,7 @@ import type {
   RushCacheSpec,
 } from "../model/rush-cache.ts";
 import { buildGithubRushCacheReference } from "./github-reference.ts";
-import { hashRushCacheSpec, rushCacheTag } from "./spec.ts";
+import { rushCacheTag } from "./spec.ts";
 
 export const RUSH_CACHE_ARCHIVE_IMAGE_PATH = "/rush-cache/cache.tar.gz";
 export const RUSH_CACHE_ARCHIVE_WORK_PATH = "/tmp/rush-cache.tar.gz";
@@ -85,7 +85,7 @@ export function buildGithubRushCacheResolvePlan(
     registryAuth: {
       address: githubProvider.registry,
       token,
-      tokenSecretName: `rush-cache-${hashRushCacheSpec(spec)}-github-token`,
+      tokenSecretName: "rush-cache-github-token",
       username,
     },
   };
@@ -104,6 +104,11 @@ export function buildRushCacheArchiveCommand(paths: string[]): string {
     "set -euo pipefail",
     [
       "tar",
+      "--sort=name",
+      "--mtime=@0",
+      "--owner=0",
+      "--group=0",
+      "--numeric-owner",
       "-C",
       shellQuote(RUSH_CACHE_WORKDIR),
       "-cf",
@@ -112,6 +117,7 @@ export function buildRushCacheArchiveCommand(paths: string[]): string {
       "|",
       "gzip",
       "-9",
+      "-n",
       ">",
       shellQuote(RUSH_CACHE_ARCHIVE_WORK_PATH),
     ].join(" "),

@@ -112,17 +112,17 @@ inputs:
     required: false
     default: "off"
   toolchain-image-policy:
-    description: "Toolchain image policy: lazy or pull-or-build."
+    description: "Toolchain image policy: lazy or pull-or-build. Defaults to lazy for workflow and pull-or-build for validate."
     required: false
-    default: lazy
+    default: ""
   rush-cache-provider:
     description: Rush cache provider.
     required: false
     default: "off"
   rush-cache-policy:
-    description: "Rush cache policy: lazy or pull-or-build."
+    description: "Rush cache policy: lazy or pull-or-build. Defaults to lazy for workflow and pull-or-build for validate."
     required: false
-    default: lazy
+    default: ""
 
   source-mode:
     description: Source acquisition mode.

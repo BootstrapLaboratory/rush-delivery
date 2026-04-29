@@ -14,21 +14,19 @@ permissions:
   packages: read
 
 steps:
-  - uses: BootstrapLaboratory/rush-delivery@v0.3.4
+  - uses: BootstrapLaboratory/rush-delivery@v0.4.0
     with:
       entrypoint: validate
       toolchain-image-provider: github
-      toolchain-image-policy: pull-or-build
       rush-cache-provider: github
-      rush-cache-policy: pull-or-build
 ```
 
 No checkout step is needed for normal PR validation. The action passes Git
 source coordinates to Dagger, and Rush Delivery acquires the source inside the
 Dagger workflow.
 
-`packages: read` is enough because `pull-or-build` never publishes missing
-provider artifacts.
+`packages: read` is enough because the validate defaults use `pull-or-build`,
+which never publishes provider artifacts.
 
 ## Main Release Workflow
 
@@ -81,7 +79,7 @@ metadata, provider settings, runtime files, package logic, and deploy mesh.
 Pin Rush Delivery to a released tag:
 
 ```yaml
-uses: BootstrapLaboratory/rush-delivery@v0.3.4
+uses: BootstrapLaboratory/rush-delivery@v0.4.0
 ```
 
 Advance the tag intentionally when you want new behavior. Do not use an
@@ -90,7 +88,7 @@ unversioned branch in production CI.
 ## Checklist
 
 - PR workflow uses `contents: read` and `packages: read`.
-- PR workflow uses `pull-or-build` policies.
+- PR workflow uses validate defaults or explicit `pull-or-build` policies.
 - Release workflow uses `packages: write`.
 - Runtime files carry credential files.
 - Deploy env carries settings and secrets.

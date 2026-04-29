@@ -6,32 +6,18 @@ import {
   resolveRushInstallCache,
 } from "../rush-cache/resolve.ts";
 import { buildRushCacheSpec } from "../rush-cache/spec.ts";
-import {
-  installRush,
-  prepareRushContainer,
-  rushWorkflowToolchainIdentity,
-} from "./container.ts";
+import { installRush, prepareRushContainer } from "./container.ts";
 import type { RushProviderOptions } from "./provider-options.ts";
 
 export type RushWorkflowContainerOptions = RushProviderOptions & {
   hostEnv?: Record<string, string>;
 };
 
-async function buildRushInstallCacheSpec(
-  repo: Directory,
+function buildRushInstallCacheSpec(
   providers: RushCacheProvidersDefinition,
 ) {
-  const keyFiles = await Promise.all(
-    providers.cache.key_files.map(async (path) => ({
-      contents: await repo.file(path).contents(),
-      path,
-    })),
-  );
-
   return buildRushCacheSpec({
     config: providers.cache,
-    keyFiles,
-    toolchainIdentity: rushWorkflowToolchainIdentity(),
   });
 }
 
@@ -52,10 +38,7 @@ export async function installRushWithCache(
   container: Container,
   options: RushWorkflowContainerOptions,
 ): Promise<Container> {
-  const cacheSpec = await buildRushInstallCacheSpec(
-    repo,
-    options.rushCacheProviders,
-  );
+  const cacheSpec = buildRushInstallCacheSpec(options.rushCacheProviders);
   const resolvedCache = await resolveRushInstallCache(container, cacheSpec, {
     hostEnv: options.hostEnv,
     policy: options.rushCachePolicy,

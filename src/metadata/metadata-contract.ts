@@ -204,11 +204,7 @@ async function validateRushCacheMetadata(
     return;
   }
 
-  await Promise.all(
-    definition.cache.key_files.map((filePath) =>
-      fileExists(repository, filePath, `Rush cache key file`, issues),
-    ),
-  );
+  void definition;
 }
 
 function validatePackageArtifact(

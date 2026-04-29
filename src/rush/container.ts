@@ -8,11 +8,7 @@ import {
   buildResolvedToolchainContainer,
   resolveToolchainImage,
 } from "../toolchain-images/resolve.ts";
-import {
-  rushToolchainImageSpec,
-  toolchainImageName,
-  toolchainImageTag,
-} from "../toolchain-images/spec.ts";
+import { rushToolchainImageSpec } from "../toolchain-images/spec.ts";
 
 export const RUSH_WORKDIR = "/workspace";
 
@@ -42,12 +38,6 @@ export type RushToolchainImageOptions = {
 
 export function rushWorkflowToolchainSpec() {
   return rushToolchainImageSpec(RUSH_IMAGE, RUSH_INSTALL_COMMANDS);
-}
-
-export function rushWorkflowToolchainIdentity(): string {
-  const spec = rushWorkflowToolchainSpec();
-
-  return `${toolchainImageName(spec)}:${toolchainImageTag(spec)}`;
 }
 
 export async function prepareRushContainer(

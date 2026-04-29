@@ -43,16 +43,19 @@ Policies:
 engine.
 
 `rushCacheProvider=github` stores a compressed Rush install cache archive in a
-GHCR image. Cache keys are derived from configured metadata, key file contents,
-cache paths, and the Rush workflow toolchain identity.
+GHCR image. The cache reference is a stable project snapshot identified by the
+`cache.version` value in `.dagger/rush-cache/providers.yaml`. Rush Delivery
+restores that snapshot before `rush install`, lets Rush reconcile the
+dependencies, and can publish the refreshed snapshot after the install
+succeeds.
 
 Policies:
 
-- `rushCachePolicy=lazy` keeps trusted workflow behavior unchanged: restore an
-  existing cache, or publish a missing cache after a successful install.
-- `rushCachePolicy=pull-or-build` restores an existing cache, or installs Rush
-  normally on miss without publishing a new cache. Use this for pull-request
-  validation.
+- `rushCachePolicy=lazy` is for trusted workflows: restore the existing cache
+  when available, run Rush install, then publish the post-install cache.
+- `rushCachePolicy=pull-or-build` is for pull-request validation: restore the
+  existing cache when available and run Rush install, but never publish a cache
+  from the PR run.
 
 ## Deploy Providers
 
@@ -80,7 +83,7 @@ A CI provider should provide:
 
 For GitHub PR validation, `packages: read` is enough when both provider
 policies are `pull-or-build`. Trusted release workflows that use `lazy` need
-`packages: write` so misses can be published.
+`packages: write` so refreshed artifacts can be published.
 
 The CI provider should not compute deploy plans, package artifacts, update
 deploy tags, or encode target-specific behavior.

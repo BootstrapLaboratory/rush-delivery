@@ -16,8 +16,8 @@ want new behavior.
 Use `entrypoint: validate` for PR CI. The action resolves the pull request
 source through Git source mode, so the workflow does not need to check out the
 repository for normal validation. Give PRs read-only package access and use
-`pull-or-build` so provider artifacts can be reused without publishing from PR
-runs.
+the validate defaults so provider artifacts can be reused without publishing
+from PR runs.
 
 ```yaml
 name: ci-validate
@@ -33,13 +33,11 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: BootstrapLaboratory/rush-delivery@v0.3.4
+      - uses: BootstrapLaboratory/rush-delivery@v0.4.0
         with:
           entrypoint: validate
           toolchain-image-provider: github
-          toolchain-image-policy: pull-or-build
           rush-cache-provider: github
-          rush-cache-policy: pull-or-build
 ```
 
 ## Release Workflow
@@ -64,7 +62,7 @@ jobs:
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Rush Delivery
-        uses: BootstrapLaboratory/rush-delivery@v0.3.4
+        uses: BootstrapLaboratory/rush-delivery@v0.4.0
         with:
           dry-run: "false"
           force-targets-json: ${{ inputs.force_targets_json || '[]' }}

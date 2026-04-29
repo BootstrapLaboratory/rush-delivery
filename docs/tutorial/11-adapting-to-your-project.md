@@ -76,10 +76,13 @@ Mismatched target names:
 
 Pick one name and use it everywhere.
 
-Missing Rush cache key files:
+Stale Rush install cache:
 
-- If installs change but the cache key does not, add the relevant config file
-  to `.dagger/rush-cache/providers.yaml`.
+- Rush Delivery restores the configured cache snapshot and then runs
+  `rush install`, so normal lockfile and package changes should be reconciled by
+  Rush.
+- If you intentionally want to discard the existing install snapshot, bump
+  `cache.version` in `.dagger/rush-cache/providers.yaml`.
 
 Publishing from PRs:
 

@@ -44,8 +44,8 @@ PNPM and tracks the install state with:
 - `common/config/rush/pnpm-config.json`
 - `common/config/rush/version-policies.json`
 
-Those files later become Rush cache key files. If they change, Rush Delivery
-computes a different cache key.
+Rush Delivery restores the configured install cache snapshot first, then Rush
+reconciles the actual dependency state during `rush install`.
 
 ## Root Scripts Are Optional
 

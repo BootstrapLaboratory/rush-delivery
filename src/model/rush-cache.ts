@@ -8,22 +8,13 @@ export type RushCacheConfig = {
   version: string;
 };
 
-export type RushCacheKeyFile = {
-  contents: string;
-  path: string;
-};
-
 export type RushCacheSpec = {
-  keyFiles: RushCacheKeyFile[];
   paths: string[];
-  toolchainIdentity: string;
   version: string;
 };
 
 export type NormalizedRushCacheSpec = {
-  key_files: RushCacheKeyFile[];
   paths: string[];
-  toolchain_identity: string;
   version: string;
 };
 

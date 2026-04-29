@@ -103,7 +103,7 @@ async function resolveGithubRushInstallCache(
       cacheHit: true,
       container: withRushCacheArchive(container, cacheContainer),
       paths: [...options.providers.cache.paths],
-      publish: false,
+      publish: shouldPublishRushCache(options.policy),
       provider: "github",
       reference: plan.reference,
       registryAuth,
@@ -136,7 +136,6 @@ export async function publishResolvedRushInstallCache(
 ): Promise<string | undefined> {
   if (
     resolution.provider !== "github" ||
-    resolution.cacheHit ||
     !resolution.publish ||
     resolution.reference === undefined ||
     resolution.registryAuth === undefined

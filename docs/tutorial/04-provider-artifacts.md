@@ -36,27 +36,21 @@ tag.
 ## Rush Install Cache
 
 The Rush cache stores selected install directories in a compressed OCI image.
-The example cache key uses Rush config and lock files:
+The cache identity is a stable project snapshot, controlled by `cache.version`:
 
 ```yaml
 cache:
   version: v1
-  key_files:
-    - rush.json
-    - common/config/rush/pnpm-lock.yaml
-    - common/config/rush/pnpm-config.json
+  paths:
+    - common/temp/install-run
+    - common/temp/node_modules
+    - common/temp/pnpm-store
 ```
 
-The cache paths include Rush install state and the PNPM store:
-
-```yaml
-paths:
-  - common/temp/install-run
-  - common/temp/node_modules
-  - common/temp/pnpm-store
-```
-
-If one of the key files changes, Rush Delivery computes a new cache tag.
+Rush Delivery restores the `v1` snapshot when it exists, runs `rush install`,
+and lets Rush reconcile lockfile or package-manager changes. If you want to
+discard the old snapshot intentionally, bump `version` to a new OCI tag such as
+`v2`.
 
 ## Policies
 
@@ -77,8 +71,8 @@ with:
   rush-cache-policy: pull-or-build
 ```
 
-`pull-or-build` pulls existing artifacts. On miss, it builds locally and does
-not publish. This keeps PRs read-only.
+`pull-or-build` pulls existing artifacts. On miss, it builds or installs
+locally and does not publish. This keeps PRs read-only.
 
 For trusted release workflows:
 
@@ -92,8 +86,9 @@ with:
   rush-cache-provider: github
 ```
 
-`lazy` is the default policy. It pulls first, builds on miss, and publishes the
-missing artifact.
+`lazy` is the trusted workflow policy. Toolchain images are published when they
+are missing. Rush cache is restored when available, then the post-install cache
+is published after a successful install.
 
 ## Checklist
 
@@ -101,6 +96,7 @@ missing artifact.
 - Pass `GITHUB_ACTOR`, `GITHUB_REPOSITORY`, and `GITHUB_TOKEN` through CI env.
 - Use `packages: read` for PR validation.
 - Use `packages: write` only in trusted workflows.
-- Include every file that should invalidate the Rush install cache.
+- Bump `cache.version` only when you intentionally want a fresh Rush install
+  cache snapshot.
 
 Next: [Package Targets](05-package-targets.md).

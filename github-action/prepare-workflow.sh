@@ -164,9 +164,9 @@ artifact_prefix="${INPUT_ARTIFACT_PREFIX:-deploy-target}"
 environment="${INPUT_ENVIRONMENT:-prod}"
 dry_run="${INPUT_DRY_RUN:-true}"
 toolchain_image_provider="${INPUT_TOOLCHAIN_IMAGE_PROVIDER:-off}"
-toolchain_image_policy="${INPUT_TOOLCHAIN_IMAGE_POLICY:-lazy}"
+toolchain_image_policy="${INPUT_TOOLCHAIN_IMAGE_POLICY:-}"
 rush_cache_provider="${INPUT_RUSH_CACHE_PROVIDER:-off}"
-rush_cache_policy="${INPUT_RUSH_CACHE_POLICY:-lazy}"
+rush_cache_policy="${INPUT_RUSH_CACHE_POLICY:-}"
 source_mode="${INPUT_SOURCE_MODE:-git}"
 source_repository_url="${INPUT_SOURCE_REPOSITORY_URL-}"
 source_ref="${INPUT_SOURCE_REF:-${GITHUB_REF-}}"
@@ -181,6 +181,22 @@ fi
 
 if [[ -z ${source_repository_url} && -n ${GITHUB_SERVER_URL-} && -n ${GITHUB_REPOSITORY-} ]]; then
 	source_repository_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+fi
+
+if [[ -z ${toolchain_image_policy} ]]; then
+	if [[ ${entrypoint} == "validate" ]]; then
+		toolchain_image_policy="pull-or-build"
+	else
+		toolchain_image_policy="lazy"
+	fi
+fi
+
+if [[ -z ${rush_cache_policy} ]]; then
+	if [[ ${entrypoint} == "validate" ]]; then
+		rush_cache_policy="pull-or-build"
+	else
+		rush_cache_policy="lazy"
+	fi
 fi
 
 append_source_args() {

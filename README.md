@@ -27,9 +27,9 @@ want new behavior.
 
 Use the `validate` entrypoint for PR CI. The action clones the pull request
 source inside Dagger, so normal validation does not need `actions/checkout`.
-Provider-backed toolchain images and Rush cache should be read-only in PRs:
-`pull-or-build` pulls an existing artifact when available and builds locally on
-miss without publishing to GHCR.
+Provider-backed toolchain images and Rush cache stay read-only in PRs by
+default: `validate` uses `pull-or-build`, which pulls an existing artifact when
+available and builds locally on miss without publishing to GHCR.
 
 ```yaml
 name: ci-validate
@@ -45,13 +45,11 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: BootstrapLaboratory/rush-delivery@v0.3.4
+      - uses: BootstrapLaboratory/rush-delivery@v0.4.0
         with:
           entrypoint: validate
           toolchain-image-provider: github
-          toolchain-image-policy: pull-or-build
           rush-cache-provider: github
-          rush-cache-policy: pull-or-build
 ```
 
 ### Release Workflow
@@ -76,7 +74,7 @@ jobs:
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Rush Delivery
-        uses: BootstrapLaboratory/rush-delivery@v0.3.4
+        uses: BootstrapLaboratory/rush-delivery@v0.4.0
         with:
           dry-run: "false"
           environment: prod
@@ -105,7 +103,7 @@ This mode clones the target repository inside Dagger, so the CI runner does not
 need to mount the repository into the module.
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.4
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.4.0
 RUNTIME_FILES_DIR="${RUNNER_TEMP}/rush-delivery-runtime-files"
 DEPLOY_ENV_FILE="${RUNNER_TEMP}/dagger-deploy.env"
 SOURCE_REPOSITORY_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
@@ -150,7 +148,7 @@ available to Dagger and avoids relying on a remote Git ref that does not contain
 your latest changes.
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.4
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.4.0
 
 dagger -m "${RUSH_DELIVERY_MODULE}" call workflow \
   --repo=. \

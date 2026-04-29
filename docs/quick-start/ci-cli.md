@@ -9,7 +9,7 @@ need to mount the repository into the module.
 For pull-request validation:
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.4
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.4.0
 DEPLOY_ENV_FILE="${RUNNER_TEMP}/dagger-validate.env"
 SOURCE_REPOSITORY_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
 
@@ -25,23 +25,21 @@ dagger -m "${RUSH_DELIVERY_MODULE}" call validate \
   --pr-base-sha="${PR_BASE_SHA}" \
   --deploy-env-file="${DEPLOY_ENV_FILE}" \
   --toolchain-image-provider=github \
-  --toolchain-image-policy=pull-or-build \
   --rush-cache-provider=github \
-  --rush-cache-policy=pull-or-build \
   --source-mode=git \
   --source-repository-url="${SOURCE_REPOSITORY_URL}" \
   --source-ref="${GITHUB_REF}" \
   --source-auth-token-env=GITHUB_TOKEN
 ```
 
-`pull-or-build` is the recommended PR policy. It pulls existing GHCR artifacts
-when they are present, builds locally on miss, and never publishes from the PR
-run.
+The `validate` entrypoint defaults provider policies to `pull-or-build`. It
+pulls existing GHCR artifacts when they are present, builds locally on miss, and
+never publishes from the PR run.
 
 For release workflow runs:
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.3.4
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.4.0
 RUNTIME_FILES_DIR="${RUNNER_TEMP}/rush-delivery-runtime-files"
 DEPLOY_ENV_FILE="${RUNNER_TEMP}/dagger-deploy.env"
 SOURCE_REPOSITORY_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"

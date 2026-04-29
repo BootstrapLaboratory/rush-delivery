@@ -62,7 +62,7 @@ The example says `webapp` waits for `server`.
 
 - Where should reusable toolchain images and Rush install cache be stored?
 - Which environment variables provide repository, token, and username?
-- Which Rush files participate in cache keys?
+- Which Rush install paths should be restored and published?
 
 ## Validation Targets
 

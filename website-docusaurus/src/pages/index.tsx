@@ -13,7 +13,7 @@ const examples = [
     description: "Release workflow with deploy inputs and runtime files.",
     language: "yaml",
     code: [
-      "uses: BootstrapLaboratory/rush-delivery@v0.3.4",
+      "uses: BootstrapLaboratory/rush-delivery@v0.4.0",
       "with:",
       '  dry-run: "false"',
       "  toolchain-image-provider: github",
@@ -30,7 +30,7 @@ const examples = [
     description: "The same module call from a shell or another CI provider.",
     language: "sh",
     code: [
-      "dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.3.4 call workflow \\",
+      "dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.4.0 call workflow \\",
       '  --git-sha="${GITHUB_SHA}" \\',
       '  --event-name="${GITHUB_EVENT_NAME}" \\',
       "  --source-mode=git \\",
@@ -45,7 +45,7 @@ const examples = [
     description: "Read-only validation that reuses published CI artifacts.",
     language: "yaml",
     code: [
-      "uses: BootstrapLaboratory/rush-delivery@v0.3.4",
+      "uses: BootstrapLaboratory/rush-delivery@v0.4.0",
       "with:",
       "  entrypoint: validate",
       "  toolchain-image-provider: github",

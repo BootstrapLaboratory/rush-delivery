@@ -47,9 +47,7 @@ dagger -m "$RUSH_DELIVERY_MODULE" call validate \
   --pr-base-sha="$PR_BASE_SHA" \
   --deploy-env-file="$DEPLOY_ENV_FILE" \
   --toolchain-image-provider=github \
-  --toolchain-image-policy=pull-or-build \
   --rush-cache-provider=github \
-  --rush-cache-policy=pull-or-build \
   --source-mode=git \
   --source-repository-url="$SOURCE_REPOSITORY_URL" \
   --source-ref="$SOURCE_REF" \
@@ -80,7 +78,7 @@ once, then passes only target-allowed variables to runtime containers.
 `runtimeFiles` is an optional directory of deploy-only files such as cloud
 credentials, kubeconfig files, or signing material. Deploy target metadata can
 mount files from this bundle without making them part of source, package
-artifacts, cache keys, or toolchain image hashes.
+artifacts, Rush install cache, or toolchain image hashes.
 
 `sourceMode` is `git` or `local_copy`. Git mode is the recommended CI path and
 uses provider-neutral source coordinates. Local-copy mode needs `repo` and is
@@ -89,10 +87,11 @@ intended for local tests, offline runs, and unpushed changes.
 `toolchainImageProvider` and `rushCacheProvider` are `off` by default. Provider
 `github` enables GHCR-backed toolchain images or Rush install cache.
 
-`toolchainImagePolicy` and `rushCachePolicy` default to `lazy`, which keeps
-trusted release behavior unchanged: pull first, build on miss, then publish the
-missing provider artifact. Use `pull-or-build` for PR validation to pull
-existing artifacts and build locally on miss without publishing.
+For `workflow`, `toolchainImagePolicy` and `rushCachePolicy` default to `lazy`,
+which is the trusted release behavior: pull first, build or install on miss, and
+publish refreshed provider artifacts after success. For `validate`, both
+policies default to `pull-or-build`, which pulls existing artifacts and builds
+or installs locally on miss without publishing.
 
 `dockerSocket` is optional. Live Cloud Run image builds need it; dry-runs and
 non-Docker targets do not.

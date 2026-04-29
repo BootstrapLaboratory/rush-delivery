@@ -51,6 +51,14 @@ function parseStringArray(rawValue: unknown, name: string): string[] {
   );
 }
 
+function parseOptionalStringArray(rawValue: unknown, name: string): string[] {
+  if (rawValue === undefined) {
+    return [];
+  }
+
+  return parseStringArray(rawValue, name);
+}
+
 function hasParentSegment(value: string): boolean {
   return value.split("/").some((segment) => segment === "..");
 }
@@ -90,7 +98,7 @@ function parseRushCacheConfig(rawValue: unknown): RushCacheConfig {
 
   return {
     key_files: uniqueValues(
-      parseStringArray(
+      parseOptionalStringArray(
         "key_files" in rawValue ? rawValue.key_files : undefined,
         "Rush cache key_files",
       ).map((path, index) =>

@@ -7,7 +7,7 @@
   "properties": {
     "cache": {
       "type": "object",
-      "required": ["paths", "version"],
+      "required": ["key_files", "paths", "version"],
       "additionalProperties": false,
       "properties": {
         "key_files": {
@@ -17,7 +17,7 @@
           "$ref": "#/$defs/repoPathList"
         },
         "version": {
-          "$ref": "#/$defs/ociTag"
+          "$ref": "#/$defs/nonEmptyString"
         }
       }
     },
@@ -64,10 +64,6 @@
     "nonEmptyString": {
       "type": "string",
       "minLength": 1
-    },
-    "ociTag": {
-      "type": "string",
-      "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$"
     },
     "repoPath": {
       "type": "string",

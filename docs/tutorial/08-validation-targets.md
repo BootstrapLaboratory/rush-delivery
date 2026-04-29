@@ -60,9 +60,7 @@ In PRs, validation should be read-only against provider artifacts:
 with:
   entrypoint: validate
   toolchain-image-provider: github
-  toolchain-image-policy: pull-or-build
   rush-cache-provider: github
-  rush-cache-policy: pull-or-build
 ```
 
 This still reuses toolchain images and Rush cache when they exist, but it does

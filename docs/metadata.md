@@ -109,8 +109,8 @@ Rush cache metadata lives in `.dagger/rush-cache/providers.yaml`.
 
 The `cache` section defines:
 
-- `version`: user-controlled cache salt.
-- `key_files`: files whose contents invalidate the cache.
+- `version`: user-controlled cache snapshot tag. Bump it when you intentionally
+  want to start a fresh Rush install cache namespace.
 - `paths`: repository-relative Rush install cache paths restored into the
   Dagger-owned source.
 

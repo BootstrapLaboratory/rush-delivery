@@ -16,9 +16,8 @@ import {
 } from "../src/rush-cache/resolve-plan.ts";
 import {
   buildRushCacheSpec,
-  hashRushCacheSpec,
   normalizeRushCacheSpec,
-  RUSH_CACHE_HASH_LENGTH,
+  RUSH_CACHE_TAG_PATTERN,
   rushCacheTag,
 } from "../src/rush-cache/spec.ts";
 
@@ -64,8 +63,6 @@ test("fills GitHub Rush cache provider metadata defaults", () => {
   const providers = parseRushCacheProviders(`
 cache:
   version: v1
-  key_files:
-    - rush.json
   paths:
     - common/temp/node_modules
 providers:
@@ -76,6 +73,11 @@ providers:
     username_env: GITHUB_ACTOR
 `);
 
+  assert.deepStrictEqual(providers.cache, {
+    key_files: [],
+    paths: ["common/temp/node_modules"],
+    version: "v1",
+  });
   assert.deepStrictEqual(providers.providers.github, {
     image_namespace: "rush-delivery-caches",
     kind: "github_container_registry",
@@ -171,7 +173,7 @@ providers:
   );
 });
 
-test("normalizes Rush cache specs for stable hashing", () => {
+test("normalizes Rush cache specs for stable cache identity", () => {
   const config = {
     key_files: ["common/config/rush/pnpm-lock.yaml", "rush.json"],
     paths: ["common/temp/node_modules", "common/temp/pnpm-store"],
@@ -179,73 +181,32 @@ test("normalizes Rush cache specs for stable hashing", () => {
   };
   const left = buildRushCacheSpec({
     config,
-    keyFiles: [
-      { contents: "lock", path: "common/config/rush/pnpm-lock.yaml" },
-      { contents: "rush", path: "rush.json" },
-    ],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
   });
   const right = buildRushCacheSpec({
     config: {
       ...config,
       paths: ["common/temp/pnpm-store", "common/temp/node_modules"],
     },
-    keyFiles: [
-      { contents: "rush", path: "rush.json" },
-      { contents: "lock", path: "common/config/rush/pnpm-lock.yaml" },
-    ],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
   });
 
   assert.deepStrictEqual(normalizeRushCacheSpec(left), {
-    key_files: [
-      { contents: "lock", path: "common/config/rush/pnpm-lock.yaml" },
-      { contents: "rush", path: "rush.json" },
-    ],
     paths: ["common/temp/node_modules", "common/temp/pnpm-store"],
-    toolchain_identity: "rush-workflow:sha256-abc123",
-    version: "rush-delivery-rush-cache/v1:v1",
+    version: "v1",
   });
-  assert.equal(hashRushCacheSpec(left), hashRushCacheSpec(right));
-  assert.match(rushCacheTag(left), /^sha256-[a-f0-9]+$/);
-  assert.equal(
-    rushCacheTag(left).length,
-    "sha256-".length + RUSH_CACHE_HASH_LENGTH,
+  assert.deepStrictEqual(
+    normalizeRushCacheSpec(left),
+    normalizeRushCacheSpec(right),
   );
+  assert.equal(rushCacheTag(left), "v1");
 });
 
-test("changes the Rush cache hash when key file contents change", () => {
+test("keeps Rush cache tag stable when cache paths change", () => {
   const baseSpec = buildRushCacheSpec({
     config: {
       key_files: ["rush.json"],
       paths: ["common/temp/node_modules"],
       version: "v1",
     },
-    keyFiles: [{ contents: "rush", path: "rush.json" }],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
-  });
-  const changedSpec = buildRushCacheSpec({
-    config: {
-      key_files: ["rush.json"],
-      paths: ["common/temp/node_modules"],
-      version: "v1",
-    },
-    keyFiles: [{ contents: "changed", path: "rush.json" }],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
-  });
-
-  assert.notEqual(hashRushCacheSpec(baseSpec), hashRushCacheSpec(changedSpec));
-});
-
-test("changes the Rush cache hash when cache paths change", () => {
-  const baseSpec = buildRushCacheSpec({
-    config: {
-      key_files: ["rush.json"],
-      paths: ["common/temp/node_modules"],
-      version: "v1",
-    },
-    keyFiles: [{ contents: "rush", path: "rush.json" }],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
   });
   const changedSpec = buildRushCacheSpec({
     config: {
@@ -253,34 +214,45 @@ test("changes the Rush cache hash when cache paths change", () => {
       paths: ["common/temp/node_modules", "common/temp/pnpm-store"],
       version: "v1",
     },
-    keyFiles: [{ contents: "rush", path: "rush.json" }],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
   });
 
-  assert.notEqual(hashRushCacheSpec(baseSpec), hashRushCacheSpec(changedSpec));
+  assert.equal(rushCacheTag(baseSpec), rushCacheTag(changedSpec));
 });
 
-test("changes the Rush cache hash when toolchain identity changes", () => {
-  const baseSpec = buildRushCacheSpec({
+test("rejects Rush cache versions that cannot be OCI tags", () => {
+  assert.throws(
+    () =>
+      rushCacheTag(
+        buildRushCacheSpec({
+          config: {
+            key_files: [],
+            paths: ["common/temp/node_modules"],
+            version: "rush cache/v1",
+          },
+        }),
+      ),
+    /must match/,
+  );
+  assert.match("v1", RUSH_CACHE_TAG_PATTERN);
+});
+
+test("changes the Rush cache tag when cache version changes", () => {
+  const left = buildRushCacheSpec({
     config: {
       key_files: ["rush.json"],
       paths: ["common/temp/node_modules"],
       version: "v1",
     },
-    keyFiles: [{ contents: "rush", path: "rush.json" }],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
   });
-  const changedSpec = buildRushCacheSpec({
+  const right = buildRushCacheSpec({
     config: {
       key_files: ["rush.json"],
       paths: ["common/temp/node_modules"],
-      version: "v1",
+      version: "v2",
     },
-    keyFiles: [{ contents: "rush", path: "rush.json" }],
-    toolchainIdentity: "rush-workflow:sha256-def456",
   });
 
-  assert.notEqual(hashRushCacheSpec(baseSpec), hashRushCacheSpec(changedSpec));
+  assert.notEqual(rushCacheTag(left), rushCacheTag(right));
 });
 
 test("builds a default GitHub Container Registry Rush cache reference", () => {
@@ -290,8 +262,6 @@ test("builds a default GitHub Container Registry Rush cache reference", () => {
       paths: ["common/temp/node_modules"],
       version: "v1",
     },
-    keyFiles: [{ contents: "rush", path: "rush.json" }],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
   });
   const reference = buildGithubRushCacheReference({
     repository: "BeltOrg/beltapp",
@@ -324,7 +294,7 @@ test("builds Rush cache archive and restore commands", () => {
       "common/temp/node_modules",
       "common/temp/pnpm-store",
     ]),
-    "set -euo pipefail && tar -C '/workspace' -cf - 'common/temp/node_modules' 'common/temp/pnpm-store' | gzip -9 > '/tmp/rush-cache.tar.gz' && printf '[rush-cache] created archive size: %s bytes\\n' \"$(stat -c %s '/tmp/rush-cache.tar.gz')\"",
+    "set -euo pipefail && tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -C '/workspace' -cf - 'common/temp/node_modules' 'common/temp/pnpm-store' | gzip -9 -n > '/tmp/rush-cache.tar.gz' && printf '[rush-cache] created archive size: %s bytes\\n' \"$(stat -c %s '/tmp/rush-cache.tar.gz')\"",
   );
   assert.equal(
     buildRushCacheRestoreCommand(),
@@ -356,8 +326,6 @@ providers:
 `);
   const spec = buildRushCacheSpec({
     config: providers.cache,
-    keyFiles: [{ contents: "rush", path: "rush.json" }],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
   });
   const plan = buildGithubRushCacheResolvePlan(spec, providers, {
     GITHUB_ACTOR: "octocat",
@@ -368,15 +336,15 @@ providers:
   assert.deepStrictEqual(plan, {
     reference: {
       imagePath: "beltorg/beltapp/rush-delivery-caches/rush-install",
-      reference: `ghcr.io/beltorg/beltapp/rush-delivery-caches/rush-install:${rushCacheTag(spec)}`,
+      reference: `ghcr.io/beltorg/beltapp/rush-delivery-caches/rush-install:v1`,
       registry: "ghcr.io",
       repository: "beltorg/beltapp",
-      tag: rushCacheTag(spec),
+      tag: "v1",
     },
     registryAuth: {
       address: "ghcr.io",
       token: "secret-token",
-      tokenSecretName: `rush-cache-${hashRushCacheSpec(spec)}-github-token`,
+      tokenSecretName: "rush-cache-github-token",
       username: "octocat",
     },
   });
@@ -399,8 +367,6 @@ providers:
 `);
   const spec = buildRushCacheSpec({
     config: providers.cache,
-    keyFiles: [{ contents: "rush", path: "rush.json" }],
-    toolchainIdentity: "rush-workflow:sha256-abc123",
   });
 
   assert.throws(

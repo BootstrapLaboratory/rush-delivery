@@ -47,9 +47,7 @@ dagger -m "$RUSH_DELIVERY_MODULE" call validate \
   --pr-base-sha="$PR_BASE_SHA" \
   --deploy-env-file="$DEPLOY_ENV_FILE" \
   --toolchain-image-provider=github \
-  --toolchain-image-policy=pull-or-build \
   --rush-cache-provider=github \
-  --rush-cache-policy=pull-or-build \
   --source-mode=git \
   --source-repository-url="$SOURCE_REPOSITORY_URL" \
   --source-ref="$SOURCE_REF" \
