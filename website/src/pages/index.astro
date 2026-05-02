@@ -743,12 +743,32 @@ const highlightedExamples = await Promise.all(
     }
 
     .example-tabs {
-      flex-direction: row;
-      overflow-x: auto;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      overflow: visible;
     }
 
     .example-tab {
-      min-width: 210px;
+      min-width: 0;
+      min-height: 76px;
+      padding: 12px;
+    }
+
+    .example-tab span {
+      font-size: 0.78rem;
+    }
+
+    .highlighted-code :global(pre) {
+      padding: 15px;
+      font-size: 0.78rem;
+      line-height: 1.58;
+      white-space: pre-wrap;
+    }
+
+    .highlighted-code :global(code),
+    .highlighted-code :global(.line) {
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
     }
 
     .hero {
@@ -758,6 +778,16 @@ const highlightedExamples = await Promise.all(
 
     .trust-strip {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .example-tab {
+      min-height: 54px;
+    }
+
+    .example-tab span {
+      display: none;
     }
   }
 </style>
