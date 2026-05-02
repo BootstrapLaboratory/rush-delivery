@@ -4,13 +4,14 @@
   "scripts": {
     "sync-docs": "node scripts/sync-docs.mjs",
     "sync-versioned-docs": "node scripts/sync-versioned-docs.mjs",
+    "sync-versioned-inputs": "node scripts/sync-versioned-inputs.mjs",
     "sync-static": "node scripts/sync-static.mjs",
-    "start": "npm run sync-docs && npm run sync-static && docusaurus start --host 0.0.0.0",
-    "build": "npm run sync-docs && npm run sync-static && docusaurus build",
+    "start": "npm run sync-docs && npm run sync-versioned-inputs && npm run sync-static && docusaurus start --host 0.0.0.0",
+    "build": "npm run sync-docs && npm run sync-versioned-inputs && npm run sync-static && docusaurus build",
     "serve": "docusaurus serve --host 0.0.0.0",
     "clear": "docusaurus clear",
     "typecheck": "tsc --noEmit",
-    "check": "npm run sync-docs && npm run sync-static && npm run typecheck && docusaurus build"
+    "check": "npm run sync-docs && npm run sync-versioned-inputs && npm run sync-static && npm run typecheck && docusaurus build"
   },
   "dependencies": {
     "@docusaurus/core": "3.10.0",

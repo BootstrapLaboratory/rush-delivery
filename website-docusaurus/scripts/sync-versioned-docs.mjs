@@ -6,9 +6,10 @@ import { parse as parseYaml } from "yaml";
 import { repoRoot, websiteRoot } from "../src/lib/docsTree.mjs";
 
 const execFileAsync = promisify(execFile);
-const versionedDocsDir = path.join(websiteRoot, "versioned_docs");
-const versionedSidebarsDir = path.join(websiteRoot, "versioned_sidebars");
-const versionsJsonPath = path.join(websiteRoot, "versions.json");
+const docsVersionsRoot = path.join(repoRoot, "docs-versions");
+const versionedDocsDir = path.join(docsVersionsRoot, "versioned_docs");
+const versionedSidebarsDir = path.join(docsVersionsRoot, "versioned_sidebars");
+const versionsJsonPath = path.join(docsVersionsRoot, "versions.json");
 const githubBlobBase =
   "https://github.com/BootstrapLaboratory/rush-delivery/blob";
 

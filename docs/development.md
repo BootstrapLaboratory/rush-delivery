@@ -58,9 +58,13 @@ shape.
 
 Docusaurus is the canonical versioned documentation site. The current editable
 docs stay in [`docs`](.), while released snapshots are committed under
-[`../website-docusaurus/versioned_docs`](../website-docusaurus/versioned_docs)
-and
-[`../website-docusaurus/versioned_sidebars`](../website-docusaurus/versioned_sidebars).
+[`../docs-versions`](../docs-versions).
+
+Docusaurus expects `versions.json`, `versioned_docs`, and `versioned_sidebars`
+inside the website directory, so
+[`../website-docusaurus/scripts/sync-versioned-inputs.mjs`](../website-docusaurus/scripts/sync-versioned-inputs.mjs)
+copies the canonical root snapshots into Docusaurus-local generated inputs
+before `start`, `build`, and `check`.
 
 After a docs-bearing release:
 
@@ -73,6 +77,7 @@ After a docs-bearing release:
 
    ```sh
    npm --prefix website-docusaurus run sync-versioned-docs
+   npm --prefix website-docusaurus run sync-versioned-inputs
    npm run site:docusaurus:check
    ```
 
