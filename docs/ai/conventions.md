@@ -43,6 +43,10 @@ field rules rather than duplicating every validation detail.
 Use relative links. Remove obsolete descriptions instead of adding historical
 warnings about old behavior.
 
+After completing any repository file changes, include two semantic commit
+message suggestions: one short commit subject and one more detailed commit
+message with a body.
+
 ## Schema Versioning
 
 Root schemas under [`../../schemas`](../../schemas) track the current release.
