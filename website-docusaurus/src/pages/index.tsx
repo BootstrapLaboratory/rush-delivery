@@ -31,7 +31,7 @@ const examples = [
     id: "dagger-cli",
     label: "Dagger CLI",
     description: "The same module call from a shell or another CI provider.",
-    language: "sh",
+    language: "bash",
     code: [
       "dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.5.0 call workflow \\",
       '  --git-sha="${GITHUB_SHA}" \\',
