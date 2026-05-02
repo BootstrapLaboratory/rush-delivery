@@ -5,16 +5,22 @@ import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
 import { useColorMode } from "@docusaurus/theme-common";
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { Highlight, themes } from "prism-react-renderer";
+import { Highlight, Prism, themes } from "prism-react-renderer";
 import type { Language } from "prism-react-renderer";
 import styles from "./index.module.css";
+
+declare const require: (path: string) => unknown;
+
+(globalThis as typeof globalThis & { Prism?: typeof Prism }).Prism = Prism;
+require("prismjs/components/prism-bash");
 
 const examples = [
   {
     id: "github-action",
     label: "GitHub Action",
     description: "Release workflow with deploy inputs and runtime files.",
-    language: "yaml",
+    languageLabel: "yaml",
+    highlightLanguage: "yaml",
     code: [
       "uses: BootstrapLaboratory/rush-delivery@v0.5.0",
       "with:",
@@ -31,7 +37,8 @@ const examples = [
     id: "dagger-cli",
     label: "Dagger CLI",
     description: "The same module call from a shell or another CI provider.",
-    language: "bash",
+    languageLabel: "sh",
+    highlightLanguage: "bash",
     code: [
       "dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.5.0 call workflow \\",
       '  --git-sha="${GITHUB_SHA}" \\',
@@ -46,7 +53,8 @@ const examples = [
     id: "pr-validation",
     label: "PR Validation",
     description: "Read-only validation that reuses published CI artifacts.",
-    language: "yaml",
+    languageLabel: "yaml",
+    highlightLanguage: "yaml",
     code: [
       "uses: BootstrapLaboratory/rush-delivery@v0.5.0",
       "with:",
@@ -62,7 +70,8 @@ const examples = [
     label: "Project Metadata",
     description:
       "Schema-backed YAML keeps deploy order, runtime inputs, and artifacts with the repo.",
-    language: "yaml",
+    languageLabel: "yaml",
+    highlightLanguage: "yaml",
     code: [
       "# schemas: https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.5.0/",
       "",
@@ -132,8 +141,6 @@ function ExampleSwitcher() {
   const { colorMode } = useColorMode();
   const activeExample =
     examples.find((example) => example.id === activeId) ?? examples[0];
-  const activeLanguage =
-    activeExample.language === "sh" ? "bash" : activeExample.language;
   const highlightTheme = colorMode === "dark" ? themes.oneDark : themes.github;
 
   function activateExample(index: number) {
@@ -202,11 +209,11 @@ function ExampleSwitcher() {
           <span />
           <span />
           <span />
-          <strong>{activeExample.language}</strong>
+          <strong>{activeExample.languageLabel}</strong>
         </div>
         <Highlight
           code={activeExample.code}
-          language={activeLanguage as Language}
+          language={activeExample.highlightLanguage as Language}
           theme={highlightTheme}
         >
           {({ className, getLineProps, getTokenProps, style, tokens }) => (

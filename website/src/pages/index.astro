@@ -11,7 +11,8 @@ const examples = [
     id: "github-action",
     label: "GitHub Action",
     description: "Release workflow with deploy inputs and runtime files.",
-    language: "yaml",
+    languageLabel: "yaml",
+    highlightLanguage: "yaml",
     code: [
       "uses: BootstrapLaboratory/rush-delivery@v0.5.0",
       "with:",
@@ -28,7 +29,8 @@ const examples = [
     id: "dagger-cli",
     label: "Dagger CLI",
     description: "The same module call from a shell or another CI provider.",
-    language: "sh",
+    languageLabel: "sh",
+    highlightLanguage: "shellscript",
     code: [
       "dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.5.0 call workflow \\",
       '  --git-sha="${GITHUB_SHA}" \\',
@@ -43,7 +45,8 @@ const examples = [
     id: "pr-validation",
     label: "PR Validation",
     description: "Read-only validation that reuses published CI artifacts.",
-    language: "yaml",
+    languageLabel: "yaml",
+    highlightLanguage: "yaml",
     code: [
       "uses: BootstrapLaboratory/rush-delivery@v0.5.0",
       "with:",
@@ -59,7 +62,8 @@ const examples = [
     label: "Project Metadata",
     description:
       "Schema-backed YAML keeps deploy order, runtime inputs, and artifacts with the repo.",
-    language: "yaml",
+    languageLabel: "yaml",
+    highlightLanguage: "yaml",
     code: [
       "# schemas: https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.5.0/",
       "",
@@ -97,7 +101,7 @@ const highlightedExamples = await Promise.all(
   examples.map(async (example) => ({
     ...example,
     highlightedCode: await codeToHtml(example.code, {
-      lang: example.language === "sh" ? "shellscript" : example.language,
+      lang: example.highlightLanguage,
       theme: "github-dark-default",
     }),
   })),
@@ -181,7 +185,7 @@ const highlightedExamples = await Promise.all(
               >
                 <div class="example-panel-bar">
                   <span></span><span></span><span></span>
-                  <strong>{example.language}</strong>
+                  <strong>{example.languageLabel}</strong>
                 </div>
                 <div class="highlighted-code" set:html={example.highlightedCode} />
               </div>
