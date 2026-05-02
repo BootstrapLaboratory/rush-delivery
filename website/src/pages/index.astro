@@ -524,6 +524,7 @@ const examples = [
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-height: 0;
     padding: 12px;
     background: rgba(248, 250, 252, 0.9);
   }
@@ -562,8 +563,22 @@ const examples = [
   }
 
   .example-panels {
+    display: flex;
     min-width: 0;
+    min-height: 0;
+    overflow: hidden;
     background: #111827;
+  }
+
+  .example-panel:not([hidden]) {
+    display: flex;
+    width: 100%;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .example-panel[hidden] {
+    display: none;
   }
 
   .example-panel-bar {
@@ -598,8 +613,8 @@ const examples = [
   }
 
   .example-panel pre {
-    min-height: 268px;
-    max-height: min(52vh, 420px);
+    flex: 1 1 auto;
+    min-height: 0;
     margin: 0;
     padding: clamp(18px, 2.4vw, 28px);
     overflow: auto;
