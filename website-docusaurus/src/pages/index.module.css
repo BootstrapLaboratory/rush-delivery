@@ -214,6 +214,7 @@
 
 .examplePanel pre {
   min-height: 268px;
+  max-height: min(52vh, 420px);
   margin: 0;
   padding: clamp(1rem, 2vw, 1.35rem);
   overflow: auto;

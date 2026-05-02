@@ -54,6 +54,43 @@ const examples = [
       "  rush-cache-policy: pull-or-build",
     ].join("\n"),
   },
+  {
+    id: "project-metadata",
+    label: "Project Metadata",
+    description:
+      "Schema-backed YAML keeps deploy order, runtime inputs, and artifacts with the repo.",
+    language: "yaml",
+    code: [
+      "# schemas: https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.5.0/",
+      "",
+      "# .dagger/deploy/services-mesh.yaml",
+      "services:",
+      "  server: { deploy_after: [] }",
+      "  webapp: { deploy_after: [server] }",
+      "",
+      "# .dagger/deploy/targets/webapp.yaml",
+      "name: webapp",
+      "deploy_script: deploy/cloudflare-pages/scripts/deploy-webapp.sh",
+      "runtime:",
+      "  image: node:24-bookworm-slim",
+      "  workspace:",
+      "    dirs: [apps/webapp/dist, deploy/cloudflare-pages/scripts]",
+      "  pass_env:",
+      "    - CLOUDFLARE_ACCOUNT_ID",
+      "    - CLOUDFLARE_API_TOKEN",
+      "    - WEBAPP_URL",
+      "  dry_run_defaults:",
+      "    WEBAPP_URL: https://webapp.pages.dev",
+      "",
+      "# .dagger/package/targets/webapp.yaml",
+      "name: webapp",
+      "artifact: { kind: directory, path: apps/webapp/dist }",
+      "build:",
+      "  map_env:",
+      "    VITE_GRAPHQL_HTTP: WEBAPP_VITE_GRAPHQL_HTTP",
+      "    VITE_GRAPHQL_WS: WEBAPP_VITE_GRAPHQL_WS",
+    ].join("\n"),
+  },
 ];
 
 const capabilities = [
@@ -101,7 +138,10 @@ function ExampleSwitcher() {
   }
 
   return (
-    <section className={styles.exampleSwitcher} aria-label="Workflow examples">
+    <section
+      className={styles.exampleSwitcher}
+      aria-label="Workflow and metadata examples"
+    >
       <div
         className={styles.exampleTabs}
         role="tablist"
