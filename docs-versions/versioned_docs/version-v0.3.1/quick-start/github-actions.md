@@ -3,6 +3,7 @@ title: "GitHub Actions"
 sidebar_label: "GitHub Actions"
 description: "Run Rush Delivery as a pinned GitHub Action."
 ---
+
 Rush Delivery is a Dagger module for Rush-based release workflows. It owns the
 release path from source acquisition through detect, validate, build, package,
 and deploy while keeping project-specific behavior in metadata.

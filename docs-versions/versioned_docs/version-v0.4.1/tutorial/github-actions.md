@@ -2,6 +2,7 @@
 title: "GitHub Actions"
 sidebar_label: "GitHub Actions"
 ---
+
 The example repository uses GitHub Actions as a thin Rush Delivery adapter. The
 workflows do not calculate deploy plans or run Rush directly. They provide
 permissions, credentials, env, runtime files, and action inputs.

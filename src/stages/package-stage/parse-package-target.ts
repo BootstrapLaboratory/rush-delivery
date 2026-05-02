@@ -46,7 +46,10 @@ function parseEnvNameArray(rawValue: unknown, name: string): string[] {
   return normalizedValues;
 }
 
-function parseStringRecord(rawValue: unknown, name: string): Record<string, string> {
+function parseStringRecord(
+  rawValue: unknown,
+  name: string,
+): Record<string, string> {
   if (rawValue === undefined) {
     return {};
   }

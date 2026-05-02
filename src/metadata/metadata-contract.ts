@@ -251,7 +251,9 @@ function validateEnvPassthroughDefaults(
 
   for (const envName of requiredSourceNames) {
     if (!(envName in spec.dry_run_defaults)) {
-      issues.push(`${context} "${envName}" must have a dry_run_defaults value.`);
+      issues.push(
+        `${context} "${envName}" must have a dry_run_defaults value.`,
+      );
     }
   }
 }

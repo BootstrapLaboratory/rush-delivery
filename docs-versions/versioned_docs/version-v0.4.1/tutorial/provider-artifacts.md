@@ -2,6 +2,7 @@
 title: "Provider Artifacts"
 sidebar_label: "Provider Artifacts"
 ---
+
 Provider artifacts are the reusable pieces that make Rush Delivery fast in CI:
 
 - toolchain images

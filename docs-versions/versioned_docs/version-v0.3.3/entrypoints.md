@@ -3,6 +3,7 @@ id: "entrypoints"
 title: "Entrypoints"
 sidebar_label: "Entrypoints"
 ---
+
 When consuming this module from CI, prefer Git source mode so Dagger clones the
 Rush repository internally:
 

@@ -2,6 +2,7 @@
 title: "Validation Targets"
 sidebar_label: "Validation Targets"
 ---
+
 Rush Delivery always runs Rush validation for affected projects. Validation
 targets add product-specific runtime checks when a selected project needs more
 than `verify`, `lint`, `test`, and `build`.

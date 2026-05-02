@@ -2,6 +2,7 @@
 title: "Adapt To Your Project"
 sidebar_label: "Adapt To Your Project"
 ---
+
 The example repository is intentionally concrete, but your project does not
 need to copy its cloud providers or application stack. Copy the contracts and
 adapt the details.

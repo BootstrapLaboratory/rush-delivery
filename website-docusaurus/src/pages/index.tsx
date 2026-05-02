@@ -231,10 +231,7 @@ function ExampleSwitcher() {
                     })}
                   >
                     {line.map((token, tokenIndex) => (
-                      <span
-                        key={tokenIndex}
-                        {...getTokenProps({ token })}
-                      />
+                      <span key={tokenIndex} {...getTokenProps({ token })} />
                     ))}
                   </span>
                 ))}
@@ -258,10 +255,14 @@ export default function Home() {
           <div className={styles.heroCopy}>
             <p className={styles.eyebrow}>Dagger module for Rush monorepos</p>
             <Heading as="h1" className={styles.heroTitle}>
-              DETECT/<wbr />
-              BUILD/<wbr />
-              PACKAGE/<wbr />
-              DEPLOY/<wbr />
+              DETECT/
+              <wbr />
+              BUILD/
+              <wbr />
+              PACKAGE/
+              <wbr />
+              DEPLOY/
+              <wbr />
               VALIDATE
             </Heading>
             <p className={styles.heroText}>

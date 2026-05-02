@@ -3,6 +3,7 @@ id: "metadata"
 title: "Metadata"
 sidebar_label: "Metadata"
 ---
+
 Project-specific behavior lives under `.dagger` in the caller's Rush
 repository. This module treats those files as the public extension contract.
 

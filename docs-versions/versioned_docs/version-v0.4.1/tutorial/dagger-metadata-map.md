@@ -2,6 +2,7 @@
 title: "Dagger Metadata Map"
 sidebar_label: "Dagger Metadata Map"
 ---
+
 Rush Delivery is configured by metadata in `.dagger`. The directory belongs to
 the product repository, not to the Rush Delivery module, because target
 behavior is product-specific.

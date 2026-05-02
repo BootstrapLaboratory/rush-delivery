@@ -3,6 +3,7 @@ id: "api"
 title: "Public API"
 sidebar_label: "Public API"
 ---
+
 When consuming this module from CI, prefer Git source mode so Dagger clones the
 Rush repository internally. Use `--repo=.` only for local-copy runs against a
 checked-out working tree.

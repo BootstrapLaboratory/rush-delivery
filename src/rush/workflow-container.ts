@@ -13,9 +13,7 @@ export type RushWorkflowContainerOptions = RushProviderOptions & {
   hostEnv?: Record<string, string>;
 };
 
-function buildRushInstallCacheSpec(
-  providers: RushCacheProvidersDefinition,
-) {
+function buildRushInstallCacheSpec(providers: RushCacheProvidersDefinition) {
   return buildRushCacheSpec({
     config: providers.cache,
   });

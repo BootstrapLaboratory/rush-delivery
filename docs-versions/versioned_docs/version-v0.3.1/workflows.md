@@ -3,6 +3,7 @@ id: "workflows"
 title: "Workflow Guide"
 sidebar_label: "Workflow Guide"
 ---
+
 ## Local Framework Check
 
 Use `self-check` before changing metadata, schemas, or Dagger source:

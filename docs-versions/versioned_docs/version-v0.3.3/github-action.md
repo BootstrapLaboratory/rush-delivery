@@ -4,6 +4,7 @@ title: "GitHub Action"
 sidebar_label: "GitHub Action"
 description: "Use Rush Delivery directly from GitHub Actions."
 ---
+
 Rush Delivery can be used as a GitHub Action or as a raw Dagger module. The
 GitHub Action is a thin adapter over the module's Dagger functions, so release
 and validation behavior stay identical between action and raw CLI usage.

@@ -2,6 +2,7 @@
 title: "Rush Monorepo Baseline"
 sidebar_label: "Rush Monorepo Baseline"
 ---
+
 Rush Delivery starts from Rush. Before adding `.dagger` metadata, make sure the
 monorepo has stable Rush project names, project folders, package scripts, and a
 committed lockfile.

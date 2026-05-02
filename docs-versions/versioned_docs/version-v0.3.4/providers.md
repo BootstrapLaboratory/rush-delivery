@@ -3,6 +3,7 @@ id: "providers"
 title: "Providers"
 sidebar_label: "Providers"
 ---
+
 Rush Delivery keeps provider behavior behind explicit adapters. Local use works
 with providers off; CI can opt into adapters by passing provider names and
 credentials.

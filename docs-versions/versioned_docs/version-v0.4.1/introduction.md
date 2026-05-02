@@ -3,6 +3,7 @@ id: "introduction"
 title: "Introduction"
 sidebar_label: "Introduction"
 ---
+
 Rush Delivery is a provider-adaptable Dagger module for Rush monorepos. The
 framework assumes Rush is the project graph and uses `.dagger/` metadata as the
 extension surface for validation, packaging, deployment, caches, and toolchains.

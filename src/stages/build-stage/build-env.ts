@@ -64,9 +64,11 @@ export async function resolvePackageBuildEnvironment(
   return envVars;
 }
 
-export function withBuildEnvironment<TContainer extends {
-  withEnvVariable(name: string, value: string): TContainer;
-}>(container: TContainer, envVars: Record<string, string>): TContainer {
+export function withBuildEnvironment<
+  TContainer extends {
+    withEnvVariable(name: string, value: string): TContainer;
+  },
+>(container: TContainer, envVars: Record<string, string>): TContainer {
   let nextContainer = container;
 
   for (const [name, value] of Object.entries(envVars)) {
