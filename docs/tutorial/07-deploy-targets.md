@@ -55,9 +55,10 @@ map_env:
 
 Static `env` values are set directly by metadata.
 
-There is no precedence between `pass_env` and `map_env`. Both add variables to
-the runtime container. If they produce the same output name with different
-values, Rush Delivery fails instead of choosing one silently.
+There is no precedence between `pass_env`, `map_env`, and static `env`. All
+three add variables to the runtime container. If they produce the same output
+name with different values, Rush Delivery fails instead of choosing one
+silently.
 
 The backend uses static env to point cloud SDKs at the mounted credentials file:
 

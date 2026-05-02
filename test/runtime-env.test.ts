@@ -110,6 +110,73 @@ test("uses dry-run defaults for mapped pass-through env values", () => {
   });
 });
 
+test("allows static env to repeat a pass-through env with the same value", () => {
+  const resolvedEnv = resolveSpecEnvironment(
+    {
+      ...webappLikeSpec,
+      env: {
+        WEBAPP_URL: "https://beltapp.pages.dev",
+      },
+      pass_env: ["WEBAPP_URL"],
+    },
+    {
+      WEBAPP_URL: "https://beltapp.pages.dev",
+    },
+    false,
+    "webapp",
+  );
+
+  assert.deepEqual(resolvedEnv, {
+    WEBAPP_URL: "https://beltapp.pages.dev",
+  });
+});
+
+test("fails when static env collides with pass-through env", () => {
+  assert.throws(
+    () =>
+      resolveSpecEnvironment(
+        {
+          ...webappLikeSpec,
+          env: {
+            WEBAPP_URL: "https://static.example.test",
+          },
+          pass_env: ["WEBAPP_URL"],
+        },
+        {
+          WEBAPP_URL: "https://beltapp.pages.dev",
+        },
+        false,
+        "webapp",
+      ),
+    /Environment variable "WEBAPP_URL" for target "webapp" is defined by both runtime env passthrough and static env with different values\./,
+  );
+});
+
+test("fails when static env collides with mapped env", () => {
+  assert.throws(
+    () =>
+      resolveSpecEnvironment(
+        {
+          ...webappLikeSpec,
+          dry_run_defaults: {},
+          env: {
+            VITE_GRAPHQL_HTTP: "https://static.example.test/graphql",
+          },
+          map_env: {
+            VITE_GRAPHQL_HTTP: "WEBAPP_VITE_GRAPHQL_HTTP",
+          },
+          pass_env: [],
+        },
+        {
+          WEBAPP_VITE_GRAPHQL_HTTP: "https://api.example.test/graphql",
+        },
+        false,
+        "webapp",
+      ),
+    /Environment variable "VITE_GRAPHQL_HTTP" for target "webapp" is defined by both runtime env passthrough and static env with different values\./,
+  );
+});
+
 test("uses dry-run defaults for missing pass-through env values", () => {
   const resolvedEnv = resolveSpecEnvironment(
     webappLikeSpec,

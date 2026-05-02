@@ -82,10 +82,10 @@ runtime:
 For renamed deploy env with `runtime.map_env`, `runtime.dry_run_defaults` are
 keyed by the source variable name.
 
-`runtime.pass_env` and `runtime.map_env` have no precedence order. Both add
-explicit runtime environment variables. If they resolve the same output name
-with different values, Rush Delivery fails instead of silently overriding one
-value with another.
+`runtime.pass_env`, `runtime.map_env`, and static `runtime.env` share one output
+environment namespace and have no precedence order. If they resolve the same
+output name with different values, Rush Delivery fails instead of silently
+overriding one value with another.
 
 Schema:
 [`../schemas/deploy-target.schema.json`](../schemas/deploy-target.schema.json)

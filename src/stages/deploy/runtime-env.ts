@@ -45,16 +45,27 @@ export function resolveSpecEnvironment(
   dryRun: boolean,
   target: string,
 ): Record<string, string> {
-  return {
-    ...resolvePassThroughEnvironment({
-      context: "target",
-      dryRun,
-      hostEnv,
-      spec,
-      target,
-    }),
-    ...spec.env,
-  };
+  const envVars = resolvePassThroughEnvironment({
+    context: "target",
+    dryRun,
+    hostEnv,
+    spec,
+    target,
+  });
+
+  for (const [name, value] of Object.entries(spec.env)) {
+    const existingValue = envVars[name];
+
+    if (existingValue !== undefined && existingValue !== value) {
+      throw new Error(
+        `Environment variable "${name}" for target "${target}" is defined by both runtime env passthrough and static env with different values.`,
+      );
+    }
+
+    envVars[name] = value;
+  }
+
+  return envVars;
 }
 
 export function validateRequiredHostEnv(
