@@ -5,6 +5,6 @@
 - Do not load specialized docs unless the task touches that area.
 - after completing a coding task give two commit messages in semantic commits style: short and detailed
 - Read `docs/ai/rules/DocEditing.md` only when editing documentation, markdown documents
-- if the task user is asking for is big enough and cannot be complited in one run, then create a task file under `tasks` directory with checklist/phases/etc
+- Create a task file under `tasks` before implementation when the request is more than a small local fix, needs multiple design decisions, or changes public project contracts. Task files are required by default for module public API changes, metadata or JSON schema changes, behavior changes across `workflow`/`validate`/`deploy`, combined docs-and-implementation changes, and anything that needs version guidance.
 - Read `docs/ai/rules/TasksFiles.md` when creating, managing, or modifying
   files under the `tasks` directory.

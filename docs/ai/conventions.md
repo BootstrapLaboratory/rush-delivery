@@ -61,8 +61,18 @@ projects, for example
 
 ## Task Files
 
-Read [`../../../docs/ai/rules/TasksFiles.md`](../../../docs/ai/rules/TasksFiles.md)
-before creating or modifying task files.
+Read [`rules/TasksFiles.md`](rules/TasksFiles.md) before creating or modifying
+task files.
+
+Create a task file before implementation when the work is more than a small
+local fix, needs multiple design decisions, or changes public project
+contracts. Task files are required by default for:
+
+- module public API changes
+- metadata or JSON schema changes
+- behavior changes across `workflow`, `validate`, or `deploy`
+- combined docs-and-implementation changes
+- anything that needs version guidance
 
 When a task checklist is complete, move the file into the matching `completed`
 directory. Do not modify completed task files.
