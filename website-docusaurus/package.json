@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "sync-docs": "node scripts/sync-docs.mjs",
+    "sync-versioned-docs": "node scripts/sync-versioned-docs.mjs",
     "sync-static": "node scripts/sync-static.mjs",
     "start": "npm run sync-docs && npm run sync-static && docusaurus start --host 0.0.0.0",
     "build": "npm run sync-docs && npm run sync-static && docusaurus build",

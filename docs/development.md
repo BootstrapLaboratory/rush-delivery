@@ -53,3 +53,32 @@ schemas also live under versioned subdirectories such as
 When releasing a version that changes schema behavior, keep the versioned
 schema directory immutable and update the root schemas to the current release
 shape.
+
+## Versioned Docusaurus Docs
+
+Docusaurus is the canonical versioned documentation site. The current editable
+docs stay in [`docs`](.), while released snapshots are committed under
+[`../website-docusaurus/versioned_docs`](../website-docusaurus/versioned_docs)
+and
+[`../website-docusaurus/versioned_sidebars`](../website-docusaurus/versioned_sidebars).
+
+After a docs-bearing release:
+
+1. Update the current docs version in
+   [`../website-docusaurus/docusaurus.config.ts`](../website-docusaurus/docusaurus.config.ts).
+2. Add the previous current version to `publishedVersions` in
+   [`../website-docusaurus/scripts/sync-versioned-docs.mjs`](../website-docusaurus/scripts/sync-versioned-docs.mjs)
+   when the release changed public docs.
+3. Run:
+
+   ```sh
+   npm --prefix website-docusaurus run sync-versioned-docs
+   npm run site:docusaurus:check
+   ```
+
+4. Confirm the generated versioned docs and sidebars match the released tag.
+
+Patch releases do not need a new docs snapshot when user-facing docs did not
+change. Versioned docs should point users at exact versioned schema URLs where
+editor stability matters, while root schema URLs continue to track the current
+release.

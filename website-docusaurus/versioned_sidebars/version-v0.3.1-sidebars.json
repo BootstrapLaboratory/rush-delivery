@@ -1,0 +1,63 @@
+{
+  "docsSidebar": [
+    {
+      "type": "doc",
+      "id": "introduction",
+      "label": "Introduction"
+    },
+    {
+      "type": "doc",
+      "id": "github-action",
+      "label": "GitHub Action"
+    },
+    {
+      "type": "doc",
+      "id": "api",
+      "label": "Public API"
+    },
+    {
+      "type": "doc",
+      "id": "entrypoints",
+      "label": "Entrypoints"
+    },
+    {
+      "type": "doc",
+      "id": "workflows",
+      "label": "Workflow Guide"
+    },
+    {
+      "type": "doc",
+      "id": "metadata",
+      "label": "Metadata"
+    },
+    {
+      "type": "doc",
+      "id": "providers",
+      "label": "Providers"
+    }
+  ],
+  "quickStartSidebar": [
+    {
+      "type": "doc",
+      "id": "quick-start/github-actions",
+      "label": "GitHub Actions"
+    },
+    {
+      "type": "doc",
+      "id": "quick-start/ci-cli",
+      "label": "CI Using Command Line"
+    },
+    {
+      "type": "doc",
+      "id": "quick-start/local-run",
+      "label": "Local Runs"
+    }
+  ],
+  "tutorialSidebar": [
+    {
+      "type": "doc",
+      "id": "tutorial",
+      "label": "Tutorial"
+    }
+  ]
+}

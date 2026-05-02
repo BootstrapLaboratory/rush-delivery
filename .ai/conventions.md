@@ -49,7 +49,7 @@ message with a body.
 
 ## Schema Versioning
 
-Root schemas under [`../../schemas`](../../schemas) track the current release.
+Root schemas under [`../schemas`](../schemas) track the current release.
 
 Versioned schema directories such as `schemas/v0.5.0/` are immutable release
 snapshots. Never modify an already released version directory; create a new

@@ -10,6 +10,15 @@ const baseUrl =
   process.env.PAGES_BASE_PATH ?? (isProjectPages ? `/${repositoryName}/` : "/");
 const url =
   process.env.PAGES_SITE_URL ?? "https://bootstraplaboratory.github.io";
+const currentDocsVersion = "v0.5.0";
+const archivedDocsVersions = [
+  "v0.4.1",
+  "v0.4.0",
+  "v0.3.4",
+  "v0.3.3",
+  "v0.3.2",
+  "v0.3.1",
+];
 
 const config: Config = {
   title: "Rush Delivery",
@@ -47,6 +56,24 @@ const config: Config = {
           path: "docs",
           routeBasePath: "docs",
           sidebarPath: "./sidebars.ts",
+          lastVersion: "current",
+          versions: {
+            current: {
+              label: currentDocsVersion,
+              path: "",
+              banner: "none",
+              badge: false,
+            },
+            ...Object.fromEntries(
+              archivedDocsVersions.map((version) => [
+                version,
+                {
+                  label: version,
+                  banner: "unmaintained",
+                },
+              ]),
+            ),
+          },
           editUrl:
             "https://github.com/BootstrapLaboratory/rush-delivery/edit/main/",
         },
@@ -87,6 +114,11 @@ const config: Config = {
           type: "docSidebar",
           sidebarId: "tutorialSidebar",
           label: "Tutorial",
+          position: "left",
+        },
+        {
+          type: "docsVersionDropdown",
+          label: currentDocsVersion,
           position: "left",
         },
         {
