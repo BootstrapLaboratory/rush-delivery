@@ -48,6 +48,11 @@ requirements.
 Target runtime containers receive only explicitly allowed environment variables,
 files, workspace paths, and sockets.
 
+Environment passthrough has no precedence order. `pass_env` and `map_env` both
+add explicit container environment variables; if they resolve the same output
+name with different values, the framework must fail instead of silently
+overriding one value with another.
+
 ## Invariants
 
 Provider-off local workflows must remain useful.

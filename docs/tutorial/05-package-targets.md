@@ -83,6 +83,10 @@ The Rush build stage is shared for selected targets. If two selected package
 targets resolve the same target variable to different values, Rush Delivery
 fails instead of choosing one silently.
 
+There is no precedence between `pass_env` and `map_env`. Both add variables to
+the build container. If they produce the same output name with different values,
+the run fails so build configuration cannot be changed by a silent override.
+
 ## Artifact Paths In Deploy Scripts
 
 Rush Delivery passes the selected artifact path to deploy scripts through

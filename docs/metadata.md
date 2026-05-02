@@ -82,6 +82,11 @@ runtime:
 For renamed deploy env with `runtime.map_env`, `runtime.dry_run_defaults` are
 keyed by the source variable name.
 
+`runtime.pass_env` and `runtime.map_env` have no precedence order. Both add
+explicit runtime environment variables. If they resolve the same output name
+with different values, Rush Delivery fails instead of silently overriding one
+value with another.
+
 Schema:
 [`../schemas/deploy-target.schema.json`](../schemas/deploy-target.schema.json)
 
@@ -113,6 +118,11 @@ Rush Delivery merges build env from all selected package targets into the
 shared Rush build container. If two selected targets resolve the same target
 environment variable to different values, the build fails with a metadata error.
 For `map_env`, `dry_run_defaults` are keyed by the source variable name.
+
+`build.pass_env` and `build.map_env` also have no precedence order. Both add
+explicit build environment variables. If they resolve the same output name with
+different values, Rush Delivery fails instead of silently overriding one value
+with another.
 
 Supported artifact types:
 
