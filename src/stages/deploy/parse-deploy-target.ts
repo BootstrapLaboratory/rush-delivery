@@ -142,6 +142,25 @@ function parseStringRecord(
   return normalizedValues;
 }
 
+function parseEnvNameRecord(
+  rawValue: unknown,
+  name: string,
+  keyName: string,
+  valueName: string,
+): Record<string, string> {
+  const normalizedValues = parseStringRecord(rawValue, name, keyName);
+
+  for (const [key, value] of Object.entries(normalizedValues)) {
+    if (!ENV_NAME_PATTERN.test(value)) {
+      throw new Error(
+        `${valueName} for "${key}" "${value}" must match ${ENV_NAME_PATTERN}.`,
+      );
+    }
+  }
+
+  return normalizedValues;
+}
+
 function parseFileMountSpecs(rawValue: unknown, name: string): FileMountSpec[] {
   if (rawValue === undefined) {
     return [];
@@ -280,6 +299,7 @@ function parseRuntime(rawValue: unknown): DeployRuntimeSpec {
       "file_mounts",
       "image",
       "install",
+      "map_env",
       "pass_env",
       "required_host_env",
       "workspace",
@@ -310,6 +330,12 @@ function parseRuntime(rawValue: unknown): DeployRuntimeSpec {
       "install" in rawValue ? rawValue.install : undefined,
       "Deploy target runtime install",
       "Deploy target runtime install entry",
+    ),
+    map_env: parseEnvNameRecord(
+      "map_env" in rawValue ? rawValue.map_env : undefined,
+      "Deploy target runtime map_env",
+      "Deploy target runtime map_env key",
+      "Deploy target runtime map_env value",
     ),
     pass_env: parseEnvNameArray(
       "pass_env" in rawValue ? rawValue.pass_env : undefined,

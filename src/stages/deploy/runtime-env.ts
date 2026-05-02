@@ -2,8 +2,8 @@ import type {
   DeployRuntimeSpec,
   FileMountSpec,
 } from "../../model/deploy-target.ts";
-
-type HostEnv = Record<string, string | undefined>;
+import type { HostEnv } from "../../model/env.ts";
+import { resolvePassThroughEnvironment } from "../../env/pass-through.ts";
 
 function isNonEmptyString(value: string | undefined): value is string {
   return typeof value === "string" && value.length > 0;
@@ -45,29 +45,14 @@ export function resolveSpecEnvironment(
   dryRun: boolean,
   target: string,
 ): Record<string, string> {
-  const envVars: Record<string, string> = {};
-
-  for (const name of spec.pass_env) {
-    const hostValue = hostEnv[name];
-
-    if (isNonEmptyString(hostValue)) {
-      envVars[name] = hostValue;
-      continue;
-    }
-
-    const dryRunDefault = spec.dry_run_defaults[name];
-    if (dryRun && isNonEmptyString(dryRunDefault)) {
-      envVars[name] = dryRunDefault;
-      continue;
-    }
-
-    throw new Error(
-      `Missing required host environment variable "${name}" for target "${target}".`,
-    );
-  }
-
   return {
-    ...envVars,
+    ...resolvePassThroughEnvironment({
+      context: "target",
+      dryRun,
+      hostEnv,
+      spec,
+      target,
+    }),
     ...spec.env,
   };
 }

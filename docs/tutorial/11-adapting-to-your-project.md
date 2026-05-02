@@ -103,7 +103,7 @@ Deploy scripts depending on the whole repo:
 
 - Rush projects are stable and buildable.
 - Rush commands cover validation and build.
-- `.dagger/package` defines deploy artifacts.
+- `.dagger/package` defines deploy artifacts and any build-time env allowlists.
 - `.dagger/deploy` defines deploy ordering and runtime behavior.
 - `.dagger/validate` defines only orchestration-heavy checks.
 - Provider metadata is configured.
@@ -115,4 +115,4 @@ references when you need exact schema details.
 
 For editor validation, point metadata files at exact published schema versions
 such as
-`https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/deploy-target.schema.json`.
+`https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.5.0/deploy-target.schema.json`.

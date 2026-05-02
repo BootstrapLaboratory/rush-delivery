@@ -9,7 +9,7 @@ need to mount the repository into the module.
 For pull-request validation:
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.4.1
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.5.0
 DEPLOY_ENV_FILE="${RUNNER_TEMP}/dagger-validate.env"
 SOURCE_REPOSITORY_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
 
@@ -36,10 +36,13 @@ The `validate` entrypoint defaults provider policies to `pull-or-build`. It
 pulls existing GHCR artifacts when they are present, builds locally on miss, and
 never publishes from the PR run.
 
+When package target build metadata uses `pass_env` or `map_env`, write those
+source variables into `DEPLOY_ENV_FILE` before calling `validate`.
+
 For release workflow runs:
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.4.1
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.5.0
 RUNTIME_FILES_DIR="${RUNNER_TEMP}/rush-delivery-runtime-files"
 DEPLOY_ENV_FILE="${RUNNER_TEMP}/dagger-deploy.env"
 SOURCE_REPOSITORY_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"

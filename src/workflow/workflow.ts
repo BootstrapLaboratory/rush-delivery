@@ -104,6 +104,7 @@ export async function workflow(input: WorkflowInput): Promise<string> {
     deployTagPrefix,
     artifactPrefix,
     {
+      dryRun,
       hostEnv,
       ...providerOptions,
     },

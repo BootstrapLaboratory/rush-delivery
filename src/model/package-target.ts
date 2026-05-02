@@ -1,3 +1,5 @@
+import type { EnvPassthroughSpec } from "./env.ts";
+
 export type PackageArtifactDefinition =
   | {
       kind: "directory";
@@ -10,7 +12,10 @@ export type PackageArtifactDefinition =
       scenario: string;
     };
 
+export type PackageBuildSpec = EnvPassthroughSpec;
+
 export type PackageTargetDefinition = {
   artifact: PackageArtifactDefinition;
+  build: PackageBuildSpec;
   name: string;
 };

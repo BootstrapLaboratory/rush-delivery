@@ -10,11 +10,11 @@ For editor integration in external projects, prefer exact versioned schema
 URLs. For example:
 
 ```yaml
-# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/deploy-target.schema.json
+# yaml-language-server: $schema=https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.5.0/deploy-target.schema.json
 ```
 
 The root `https://bootstraplaboratory.github.io/rush-delivery/schemas/` URLs
-track the current release. Exact paths such as `/schemas/v0.4.1/...` are the
+track the current release. Exact paths such as `/schemas/v0.5.0/...` are the
 stable contract for projects pinned to that Rush Delivery version.
 
 ## Deploy Services Mesh
@@ -39,6 +39,8 @@ Each target declares:
 - `runtime.image`: base image for the executor container.
 - `runtime.install`: toolchain preparation commands.
 - `runtime.pass_env`: allowed 1:1 host-to-container environment variables.
+- `runtime.map_env`: allowed renamed environment variables, written as
+  `TARGET_ENV: SOURCE_ENV`.
 - `runtime.env`: static container environment values.
 - `runtime.dry_run_defaults`: safe defaults used during dry-runs.
 - `runtime.required_host_env`: host environment keys required for live runs.
@@ -77,12 +79,40 @@ runtime:
       target: /tmp/gcp-credentials.json
 ```
 
+For renamed deploy env with `runtime.map_env`, `runtime.dry_run_defaults` are
+keyed by the source variable name.
+
 Schema:
 [`../schemas/deploy-target.schema.json`](../schemas/deploy-target.schema.json)
 
 ## Package Targets
 
 Package targets live in `.dagger/package/targets`.
+
+Package targets can also declare build-time environment for the generic Rush
+`verify`, `lint`, `test`, and `build` stage:
+
+- `build.pass_env`: allowed 1:1 variables from the deploy env file.
+- `build.map_env`: allowed renamed variables, written as
+  `TARGET_ENV: SOURCE_ENV`.
+- `build.dry_run_defaults`: safe values used when workflow dry-run mode is
+  enabled and a source variable is not present.
+
+```yaml
+build:
+  pass_env:
+    - WEBAPP_URL
+  map_env:
+    VITE_GRAPHQL_HTTP: WEBAPP_VITE_GRAPHQL_HTTP
+  dry_run_defaults:
+    WEBAPP_URL: https://webapp.example.test
+    WEBAPP_VITE_GRAPHQL_HTTP: https://api.example.test/graphql
+```
+
+Rush Delivery merges build env from all selected package targets into the
+shared Rush build container. If two selected targets resolve the same target
+environment variable to different values, the build fails with a metadata error.
+For `map_env`, `dry_run_defaults` are keyed by the source variable name.
 
 Supported artifact types:
 

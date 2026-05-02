@@ -9,7 +9,8 @@ Use it when a Rush monorepo needs one repeatable release path across CI and
 local debugging:
 
 - detect affected deploy targets from repository metadata;
-- run validation and build work through Dagger;
+- run validation and build work through Dagger with explicit metadata-selected
+  environment;
 - package deploy artifacts;
 - mount deploy-only runtime files such as cloud credentials;
 - publish deploy tags and provider-backed cache or toolchain images.
@@ -45,7 +46,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: BootstrapLaboratory/rush-delivery@v0.4.1
+      - uses: BootstrapLaboratory/rush-delivery@v0.5.0
         with:
           entrypoint: validate
           toolchain-image-provider: github
@@ -74,7 +75,7 @@ jobs:
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Rush Delivery
-        uses: BootstrapLaboratory/rush-delivery@v0.4.1
+        uses: BootstrapLaboratory/rush-delivery@v0.5.0
         with:
           dry-run: "false"
           environment: prod
@@ -103,7 +104,7 @@ This mode clones the target repository inside Dagger, so the CI runner does not
 need to mount the repository into the module.
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.4.1
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.5.0
 RUNTIME_FILES_DIR="${RUNNER_TEMP}/rush-delivery-runtime-files"
 DEPLOY_ENV_FILE="${RUNNER_TEMP}/dagger-deploy.env"
 SOURCE_REPOSITORY_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
@@ -148,7 +149,7 @@ available to Dagger and avoids relying on a remote Git ref that does not contain
 your latest changes.
 
 ```sh
-RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.4.1
+RUSH_DELIVERY_MODULE=github.com/BootstrapLaboratory/rush-delivery@v0.5.0
 
 dagger -m "${RUSH_DELIVERY_MODULE}" call workflow \
   --repo=. \

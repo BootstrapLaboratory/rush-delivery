@@ -16,6 +16,10 @@ import {
   type RushWorkflowContainerOptions,
 } from "../../rush/workflow-container.ts";
 import {
+  resolvePackageBuildEnvironment,
+  withBuildEnvironment,
+} from "../build-stage/build-env.ts";
+import {
   createManualValidationCiPlan,
   createValidationSummary,
   formatValidationSummary,
@@ -75,8 +79,29 @@ async function runValidationStages(
   repo: Directory,
   container: Container,
   ciPlan: CiPlan,
+  hostEnv: Record<string, string>,
 ): Promise<Container> {
-  const rushValidatedContainer = runValidationStage(container, ciPlan);
+  const buildEnv = await resolvePackageBuildEnvironment(
+    repo,
+    ciPlan.validate_targets,
+    hostEnv,
+    {
+      dryRun: false,
+      requirePackageTargets: false,
+      stage: "validate",
+    },
+  );
+
+  if (Object.keys(buildEnv).length > 0) {
+    console.log(
+      `[validate] Environment: ${Object.keys(buildEnv).sort().join(", ")}`,
+    );
+  }
+
+  const rushValidatedContainer = runValidationStage(
+    withBuildEnvironment(container, buildEnv),
+    ciPlan,
+  );
 
   if (ciPlan.validate_targets.length === 0) {
     return rushValidatedContainer;
@@ -200,7 +225,9 @@ export async function validate(input: ValidateInput): Promise<string> {
     rushOptions,
   );
 
-  await (await runValidationStages(sourceRepo, rushContainer, ciPlan)).sync();
+  await (
+    await runValidationStages(sourceRepo, rushContainer, ciPlan, hostEnv)
+  ).sync();
 
   return formatValidationSummary(createValidationSummary(ciPlan));
 }

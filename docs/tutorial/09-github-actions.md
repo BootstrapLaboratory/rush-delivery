@@ -14,7 +14,7 @@ permissions:
   packages: read
 
 steps:
-  - uses: BootstrapLaboratory/rush-delivery@v0.4.1
+  - uses: BootstrapLaboratory/rush-delivery@v0.5.0
     with:
       entrypoint: validate
       toolchain-image-provider: github
@@ -27,6 +27,10 @@ Dagger workflow.
 
 `packages: read` is enough because the validate defaults use `pull-or-build`,
 which never publishes provider artifacts.
+
+If a package target needs build-time env, pass the source values through
+`deploy-env` in PR validation too. The metadata allowlist still decides which
+values reach the build container.
 
 ## Main Release Workflow
 
@@ -59,7 +63,7 @@ deploy-env: |
 ```
 
 Rush Delivery reads the deploy env file once, then only passes variables that
-target metadata allows through `pass_env`.
+package and deploy target metadata allow through `pass_env` or `map_env`.
 
 ## Forced Deploy Workflows
 
@@ -79,7 +83,7 @@ metadata, provider settings, runtime files, package logic, and deploy mesh.
 Pin Rush Delivery to a released tag:
 
 ```yaml
-uses: BootstrapLaboratory/rush-delivery@v0.4.1
+uses: BootstrapLaboratory/rush-delivery@v0.5.0
 ```
 
 Advance the tag intentionally when you want new behavior. Do not use an

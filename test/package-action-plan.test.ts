@@ -12,6 +12,11 @@ test("builds package plan for a directory artifact", () => {
           kind: "directory",
           path: "apps/webapp/dist",
         },
+        build: {
+          dry_run_defaults: {},
+          map_env: {},
+          pass_env: [],
+        },
         name: "webapp",
       },
       "deploy-target",
@@ -43,6 +48,11 @@ test("builds package plan for a Rush deploy archive artifact", () => {
           output: "common/deploy/server",
           project: "server",
           scenario: "server",
+        },
+        build: {
+          dry_run_defaults: {},
+          map_env: {},
+          pass_env: [],
         },
         name: "server",
       },
@@ -94,6 +104,11 @@ test("fails when package metadata name does not match target", () => {
           artifact: {
             kind: "directory",
             path: "apps/webapp/dist",
+          },
+          build: {
+            dry_run_defaults: {},
+            map_env: {},
+            pass_env: [],
           },
           name: "webapp",
         },

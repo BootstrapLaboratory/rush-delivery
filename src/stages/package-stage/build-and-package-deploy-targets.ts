@@ -8,10 +8,17 @@ export async function buildAndPackageDeployTargets(
   repo: Directory,
   ciPlanFile: File,
   artifactPrefix: string = "deploy-target",
+  deployEnvFile?: File,
+  dryRun: boolean = false,
 ): Promise<Directory> {
   logSection("Build and package deploy targets");
 
-  const builtRepo = await buildDeployTargets(repo, ciPlanFile);
+  const builtRepo = await buildDeployTargets(
+    repo,
+    ciPlanFile,
+    deployEnvFile,
+    dryRun,
+  );
 
   return packageDeployTargets(builtRepo, ciPlanFile, artifactPrefix);
 }

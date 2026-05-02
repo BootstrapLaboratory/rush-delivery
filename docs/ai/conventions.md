@@ -47,7 +47,7 @@ warnings about old behavior.
 
 Root schemas under [`../../schemas`](../../schemas) track the current release.
 
-Versioned schema directories such as `schemas/v0.4.1/` are immutable release
+Versioned schema directories such as `schemas/v0.5.0/` are immutable release
 snapshots. Never modify an already released version directory; create a new
 version directory instead.
 
@@ -57,7 +57,7 @@ website examples to reference the new version.
 
 Exact published schema URLs are the recommended editor contract for downstream
 projects, for example
-`https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/deploy-target.schema.json`.
+`https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.5.0/deploy-target.schema.json`.
 
 ## Task Files
 

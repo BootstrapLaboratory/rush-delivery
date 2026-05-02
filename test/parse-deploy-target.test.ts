@@ -14,6 +14,8 @@ runtime:
     - WEBAPP_URL
     - WEBAPP_VITE_GRAPHQL_HTTP
     - WEBAPP_VITE_GRAPHQL_HTTP
+  map_env:
+    VITE_GRAPHQL_WS: WEBAPP_VITE_GRAPHQL_WS
   env:
     STATIC_ENV: always
   workspace:
@@ -36,6 +38,9 @@ runtime:
       file_mounts: [],
       image: "node:24-bookworm-slim",
       install: [],
+      map_env: {
+        VITE_GRAPHQL_WS: "WEBAPP_VITE_GRAPHQL_WS",
+      },
       pass_env: ["WEBAPP_URL", "WEBAPP_VITE_GRAPHQL_HTTP"],
       required_host_env: [],
       workspace: {
@@ -44,6 +49,22 @@ runtime:
       },
     },
   });
+});
+
+test("fails when runtime map_env source is invalid", () => {
+  assert.throws(
+    () =>
+      parseDeployTarget(`
+name: webapp
+deploy_script: deploy/cloudflare-pages/scripts/deploy-webapp.sh
+
+runtime:
+  image: node:24-bookworm-slim
+  map_env:
+    VITE_GRAPHQL_HTTP: webapp_vite_graphql_http
+`),
+    /Deploy target runtime map_env value for "VITE_GRAPHQL_HTTP" "webapp_vite_graphql_http" must match/,
+  );
 });
 
 test("preserves ordered duplicate install commands", () => {

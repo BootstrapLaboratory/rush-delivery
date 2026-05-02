@@ -87,10 +87,14 @@ deploy.
 ```sh
 dagger -m "$RUSH_DELIVERY_MODULE" call build-deploy-targets \
   --repo=. \
-  --ci-plan-file="$CI_PLAN_FILE"
+  --ci-plan-file="$CI_PLAN_FILE" \
+  --deploy-env-file="$DEPLOY_ENV_FILE"
 ```
 
-Returns a Dagger directory containing the built workspace.
+Returns a Dagger directory containing the built workspace. `deploy-env-file` is
+optional, but required when selected package targets declare build-time
+`pass_env` or `map_env` values without dry-run defaults. Pass `--dry-run=true`
+when you want build-time env to use package target `dry_run_defaults`.
 
 ## `package-deploy-targets`
 
@@ -107,6 +111,8 @@ dagger -m "$RUSH_DELIVERY_MODULE" call package-deploy-targets \
 ```
 
 Returns a Dagger directory containing packaged artifacts and a package manifest.
+It accepts the same build-time `deploy-env-file` and `dry-run` inputs as
+`build-deploy-targets`.
 
 ## `build-and-package-deploy-targets`
 
@@ -119,7 +125,8 @@ Use it when a split workflow needs build and package together but deploy later.
 dagger -m "$RUSH_DELIVERY_MODULE" call build-and-package-deploy-targets \
   --repo=. \
   --ci-plan-file="$CI_PLAN_FILE" \
-  --artifact-prefix=deploy-target
+  --artifact-prefix=deploy-target \
+  --deploy-env-file="$DEPLOY_ENV_FILE"
 ```
 
 Returns a Dagger directory containing packaged artifacts and a package manifest.

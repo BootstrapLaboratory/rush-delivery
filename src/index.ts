@@ -89,10 +89,12 @@ export class RushDelivery {
   async buildDeployTargets(
     repo: Directory,
     ciPlanFile: File,
+    deployEnvFile?: File,
+    dryRun: boolean = false,
   ): Promise<Directory> {
     await assertMetadataContract(repo);
 
-    return buildDeployTargets(repo, ciPlanFile);
+    return buildDeployTargets(repo, ciPlanFile, deployEnvFile, dryRun);
   }
 
   /**
@@ -117,10 +119,18 @@ export class RushDelivery {
     repo: Directory,
     ciPlanFile: File,
     artifactPrefix: string = "deploy-target",
+    deployEnvFile?: File,
+    dryRun: boolean = false,
   ): Promise<Directory> {
     await assertMetadataContract(repo);
 
-    return buildAndPackageDeployTargets(repo, ciPlanFile, artifactPrefix);
+    return buildAndPackageDeployTargets(
+      repo,
+      ciPlanFile,
+      artifactPrefix,
+      deployEnvFile,
+      dryRun,
+    );
   }
 
   /**

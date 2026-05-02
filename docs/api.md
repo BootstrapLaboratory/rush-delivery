@@ -73,7 +73,8 @@ source mode.
 detection. Forced targets are used by manual deploy wrappers.
 
 `deployEnvFile` is a newline-delimited environment file. The framework reads it
-once, then passes only target-allowed variables to runtime containers.
+once, then passes only package- or deploy-target-allowed variables to build and
+runtime containers.
 
 `runtimeFiles` is an optional directory of deploy-only files such as cloud
 credentials, kubeconfig files, or signing material. Deploy target metadata can

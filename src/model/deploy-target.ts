@@ -1,3 +1,5 @@
+import type { EnvPassthroughSpec } from "./env.ts";
+
 export const RUNTIME_FILES_MOUNT_ROOT = "/runtime-files";
 
 export type HostFileMountSpec = {
@@ -20,13 +22,11 @@ export type DeployWorkspaceSpec = {
   mode?: "full";
 };
 
-export type DeployRuntimeSpec = {
-  dry_run_defaults: Record<string, string>;
+export type DeployRuntimeSpec = EnvPassthroughSpec & {
   env: Record<string, string>;
   file_mounts: FileMountSpec[];
   image: string;
   install: string[];
-  pass_env: string[];
   required_host_env: string[];
   workspace: DeployWorkspaceSpec;
 };

@@ -27,7 +27,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: BootstrapLaboratory/rush-delivery@v0.4.1
+      - uses: BootstrapLaboratory/rush-delivery@v0.5.0
         with:
           entrypoint: validate
           toolchain-image-provider: github
@@ -38,6 +38,10 @@ jobs:
 validation builds locally inside the current Dagger run and does not publish to
 GHCR.
 
+If selected package targets declare build-time `pass_env` or `map_env`, include
+those source values in `deploy-env` for PR validation too. Keep PR values
+read-only and avoid granting publish credentials.
+
 To validate unpushed local-copy source from a checked-out runner workspace,
 override the source mode and pass `repo`:
 
@@ -47,7 +51,7 @@ steps:
     with:
       fetch-depth: 0
 
-  - uses: BootstrapLaboratory/rush-delivery@v0.4.1
+  - uses: BootstrapLaboratory/rush-delivery@v0.5.0
     with:
       entrypoint: validate
       repo: .
@@ -57,8 +61,8 @@ steps:
 ## Release Workflow
 
 Provider authentication stays in the caller workflow. Pass any generated files
-to Rush Delivery through `runtime-file-map`, and pass deploy environment values
-through `deploy-env`.
+to Rush Delivery through `runtime-file-map`, and pass build or deploy
+environment values through `deploy-env`.
 
 ```yaml
 steps:
@@ -71,7 +75,7 @@ steps:
       service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
   - name: Rush Delivery
-    uses: BootstrapLaboratory/rush-delivery@v0.4.1
+    uses: BootstrapLaboratory/rush-delivery@v0.5.0
     with:
       force-targets-json: ${{ inputs.force_targets_json || '[]' }}
       deploy-tag-prefix: ${{ env.DEPLOY_TAG_PREFIX }}
@@ -134,7 +138,7 @@ The action mode does not replace raw Dagger usage. Local runs, other CI
 providers, and lower-level debugging can still call the module directly:
 
 ```sh
-dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.4.1 call workflow \
+dagger -m github.com/BootstrapLaboratory/rush-delivery@v0.5.0 call workflow \
   --git-sha="$GITHUB_SHA" \
   --source-mode=git \
   --source-repository-url="$SOURCE_REPOSITORY_URL" \

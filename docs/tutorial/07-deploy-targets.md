@@ -43,8 +43,17 @@ change, Rush Delivery derives a new toolchain image tag.
 ## Environment
 
 `pass_env` lists environment variables that Rush Delivery may pass from the
-deploy env file into the runtime. Static `env` values are set directly by
-metadata.
+deploy env file into the runtime under the same name. `map_env` passes a source
+variable under a different target name:
+
+```yaml
+pass_env:
+  - WEBAPP_URL
+map_env:
+  VITE_GRAPHQL_HTTP: WEBAPP_VITE_GRAPHQL_HTTP
+```
+
+Static `env` values are set directly by metadata.
 
 The backend uses static env to point cloud SDKs at the mounted credentials file:
 
@@ -59,8 +68,9 @@ the action runtime files bundle and mounted by metadata.
 ## Dry-Run Defaults
 
 `dry_run_defaults` make dry-runs useful without requiring production secrets.
-Every required `pass_env` value that is not available in dry-run mode should
-have a harmless placeholder.
+Every required `pass_env` value and every source variable used by `map_env` that
+is not available in dry-run mode should have a harmless placeholder.
+For renamed variables, key the default by the source variable name.
 
 Dry-runs should show what would happen, not accidentally deploy.
 
@@ -89,7 +99,9 @@ image inputs.
 - Keep deploy scripts in the product repository.
 - Mount only the workspace paths the script needs.
 - Put provider tooling in runtime install commands.
-- Use `pass_env` as an allowlist.
+- Use `pass_env` as an allowlist for same-name variables.
+- Use `map_env` when the runtime variable name should differ from the source
+  variable name.
 - Use `dry_run_defaults` for harmless dry-run values.
 - Use runtime files for credentials and other deploy-only files.
 

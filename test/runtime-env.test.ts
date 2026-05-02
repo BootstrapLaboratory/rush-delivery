@@ -22,6 +22,7 @@ const webappLikeSpec: DeployRuntimeSpec = {
   file_mounts: [],
   image: "node:24-bookworm-slim",
   install: [],
+  map_env: {},
   pass_env: ["CLOUDFLARE_PAGES_PROJECT_NAME", "WEBAPP_URL"],
   required_host_env: ["REQUIRED_ONLY_IN_LIVE_RUN"],
   workspace: {
@@ -58,6 +59,54 @@ test("resolves pass-through env from host env and static env values", () => {
     CLOUDFLARE_PAGES_PROJECT_NAME: "beltapp",
     STATIC_ENV: "always",
     WEBAPP_URL: "https://beltapp.pages.dev",
+  });
+});
+
+test("resolves mapped pass-through env from host env", () => {
+  const resolvedEnv = resolveSpecEnvironment(
+    {
+      ...webappLikeSpec,
+      dry_run_defaults: {
+        WEBAPP_VITE_GRAPHQL_HTTP: "https://dry-run.example.test/graphql",
+      },
+      map_env: {
+        VITE_GRAPHQL_HTTP: "WEBAPP_VITE_GRAPHQL_HTTP",
+      },
+      pass_env: [],
+    },
+    {
+      WEBAPP_VITE_GRAPHQL_HTTP: "https://api.example.test/graphql",
+    },
+    false,
+    "webapp",
+  );
+
+  assert.deepEqual(resolvedEnv, {
+    STATIC_ENV: "always",
+    VITE_GRAPHQL_HTTP: "https://api.example.test/graphql",
+  });
+});
+
+test("uses dry-run defaults for mapped pass-through env values", () => {
+  const resolvedEnv = resolveSpecEnvironment(
+    {
+      ...webappLikeSpec,
+      dry_run_defaults: {
+        WEBAPP_VITE_GRAPHQL_HTTP: "https://dry-run.example.test/graphql",
+      },
+      map_env: {
+        VITE_GRAPHQL_HTTP: "WEBAPP_VITE_GRAPHQL_HTTP",
+      },
+      pass_env: [],
+    },
+    {},
+    true,
+    "webapp",
+  );
+
+  assert.deepEqual(resolvedEnv, {
+    STATIC_ENV: "always",
+    VITE_GRAPHQL_HTTP: "https://dry-run.example.test/graphql",
   });
 });
 

@@ -26,6 +26,7 @@ test("dry-run output lists runtime file bundle mounts", () => {
         ],
         image: "node:24-bookworm-slim",
         install: [],
+        map_env: {},
         pass_env: [],
         required_host_env: [],
         workspace: {

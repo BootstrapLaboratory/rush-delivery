@@ -1,7 +1,11 @@
 import path from "node:path";
 
 import type { DeployRuntimeSpec } from "../model/deploy-target.ts";
-import type { PackageTargetDefinition } from "../model/package-target.ts";
+import type { EnvPassthroughSpec } from "../model/env.ts";
+import type {
+  PackageBuildSpec,
+  PackageTargetDefinition,
+} from "../model/package-target.ts";
 import { buildDeploymentPlan } from "../planning/build-deployment-plan.ts";
 import { parseServicesMesh } from "../planning/parse-services-mesh.ts";
 import {
@@ -235,18 +239,33 @@ function validatePackageArtifact(
   );
 }
 
+function validateEnvPassthroughDefaults(
+  context: string,
+  spec: EnvPassthroughSpec | PackageBuildSpec,
+  issues: string[],
+): void {
+  const requiredSourceNames = new Set([
+    ...spec.pass_env,
+    ...Object.values(spec.map_env),
+  ]);
+
+  for (const envName of requiredSourceNames) {
+    if (!(envName in spec.dry_run_defaults)) {
+      issues.push(`${context} "${envName}" must have a dry_run_defaults value.`);
+    }
+  }
+}
+
 function validateDeployRuntime(
   target: string,
   runtime: DeployRuntimeSpec,
   issues: string[],
 ): void {
-  for (const envName of runtime.pass_env) {
-    if (!(envName in runtime.dry_run_defaults)) {
-      issues.push(
-        `Deploy target "${target}" pass_env "${envName}" must have a dry_run_defaults value.`,
-      );
-    }
-  }
+  validateEnvPassthroughDefaults(
+    `Deploy target "${target}" pass-through env`,
+    runtime,
+    issues,
+  );
 
   for (const fileMount of runtime.file_mounts) {
     if (fileMount.kind === "runtime_file") {
@@ -383,6 +402,11 @@ async function validatePackageTarget(
 
   validateTargetIsRushProject(target, rushProjects, "Package target", issues);
   validatePackageArtifact(target, definition, rushProjects, issues);
+  validateEnvPassthroughDefaults(
+    `Package target "${target}" build env`,
+    definition.build,
+    issues,
+  );
 }
 
 async function validateValidationTarget(

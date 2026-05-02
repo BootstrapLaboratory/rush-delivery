@@ -27,7 +27,8 @@ dagger -m "$RUSH_DELIVERY_MODULE" call workflow \
   --source-mode=local_copy
 ```
 
-Dry-runs use target `dry_run_defaults` for allowed runtime environment values.
+Dry-runs use package and deploy target `dry_run_defaults` for allowed build and
+runtime environment values.
 
 ## CI Release Workflow
 
@@ -38,7 +39,7 @@ For GitHub Actions, prefer the repository action wrapper:
 
 ```yaml
 - name: Rush Delivery
-  uses: BootstrapLaboratory/rush-delivery@v0.4.1
+  uses: BootstrapLaboratory/rush-delivery@v0.5.0
   with:
     force-targets-json: ${{ inputs.force_targets_json || '[]' }}
     environment: prod
@@ -57,7 +58,7 @@ validation:
 
 ```yaml
 - name: Rush Delivery validation
-  uses: BootstrapLaboratory/rush-delivery@v0.4.1
+  uses: BootstrapLaboratory/rush-delivery@v0.5.0
   with:
     entrypoint: validate
     toolchain-image-provider: github
@@ -68,7 +69,8 @@ For a raw Dagger command this means:
 
 - Install the Dagger CLI.
 - Authenticate to external providers when live deploy targets need it.
-- Write a deploy environment file with provider secrets and configuration.
+- Write a deploy environment file with provider secrets, build-time values, and
+  deploy configuration.
 - Copy deploy-only credential files into a runtime files directory when targets
   mount files.
 - Call `dagger -m "$RUSH_DELIVERY_MODULE" call workflow`.

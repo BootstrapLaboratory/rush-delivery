@@ -49,6 +49,40 @@ artifact:
 Use this style when the build already produces a deployable directory. Static
 frontend assets are the common case.
 
+## Build Environment
+
+Package metadata can allow build-time environment variables for the generic Rush
+`verify`, `lint`, `test`, and `build` stage.
+
+Use `pass_env` when the variable name should stay the same inside the build
+container. Use `map_env` when CI stores the value under one name, but the build
+tool expects another:
+
+```yaml
+name: webapp
+
+build:
+  pass_env:
+    - WEBAPP_URL
+  map_env:
+    VITE_GRAPHQL_HTTP: WEBAPP_VITE_GRAPHQL_HTTP
+  dry_run_defaults:
+    WEBAPP_URL: https://webapp.example.test
+    WEBAPP_VITE_GRAPHQL_HTTP: https://api.example.test/graphql
+
+artifact:
+  kind: directory
+  path: apps/webapp/dist
+```
+
+The source values come from the same deploy env file that the action prepares
+from `deploy-env`. Rush Delivery applies only the variables allowed by selected
+package targets.
+
+The Rush build stage is shared for selected targets. If two selected package
+targets resolve the same target variable to different values, Rush Delivery
+fails instead of choosing one silently.
+
 ## Artifact Paths In Deploy Scripts
 
 Rush Delivery passes the selected artifact path to deploy scripts through
@@ -66,6 +100,8 @@ not point at the expected shape.
 - Create one package target for every deploy target.
 - Use `rush_deploy_archive` for backend/runtime bundles.
 - Use `directory` for already-built static assets.
+- Allow build-time env with `build.pass_env` and `build.map_env` only when the
+  Rush build really needs it.
 - Keep artifact paths relative to the repository root.
 - Make deploy scripts validate the artifact shape before deploying.
 

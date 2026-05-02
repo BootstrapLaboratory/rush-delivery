@@ -18,6 +18,10 @@ import {
   prepareRushWorkflowContainer,
   type RushWorkflowContainerOptions,
 } from "../rush/workflow-container.ts";
+import {
+  resolvePackageBuildEnvironment,
+  withBuildEnvironment,
+} from "../stages/build-stage/build-env.ts";
 import { logSection, logSubsection } from "../logging/sections.ts";
 
 const CI_PLAN_PATH = ".dagger/runtime/ci-plan.json";
@@ -31,7 +35,11 @@ function buildDetectedContainer(
   return container.withNewFile(CI_PLAN_CONTAINER_PATH, formatCiPlan(ciPlan));
 }
 
-function runBuildStage(container: Container, ciPlan: CiPlan): Container {
+function runBuildStage(
+  container: Container,
+  ciPlan: CiPlan,
+  buildEnv: Record<string, string>,
+): Container {
   logSection("Rush build");
 
   if (ciPlan.deploy_targets.length === 0) {
@@ -41,7 +49,16 @@ function runBuildStage(container: Container, ciPlan: CiPlan): Container {
 
   console.log(`[build] Rush targets: ${ciPlan.deploy_targets.join(", ")}`);
 
-  let nextContainer = container.withEnvVariable("FAILURE_MODE", "deploy");
+  if (Object.keys(buildEnv).length > 0) {
+    console.log(
+      `[build] Environment: ${Object.keys(buildEnv).sort().join(", ")}`,
+    );
+  }
+
+  let nextContainer = withBuildEnvironment(
+    container.withEnvVariable("FAILURE_MODE", "deploy"),
+    buildEnv,
+  );
 
   for (const { command, args } of buildRushBuildSteps(ciPlan)) {
     console.log(`[build] Rush command: ${args[1]}`);
@@ -115,7 +132,9 @@ export type BuildPackageWorkflowResult = {
   repo: Directory;
 };
 
-export type BuildPackageWorkflowOptions = RushWorkflowContainerOptions;
+export type BuildPackageWorkflowOptions = RushWorkflowContainerOptions & {
+  dryRun?: boolean;
+};
 
 export async function runBuildPackageWorkflow(
   repo: Directory,
@@ -162,7 +181,17 @@ export async function runBuildPackageWorkflow(
     detectedContainer,
     options,
   );
-  const builtContainer = runBuildStage(rushContainer, ciPlan);
+  const buildEnv = await resolvePackageBuildEnvironment(
+    repo,
+    ciPlan.deploy_targets,
+    options.hostEnv ?? {},
+    {
+      dryRun: options.dryRun ?? false,
+      requirePackageTargets: true,
+      stage: "build",
+    },
+  );
+  const builtContainer = runBuildStage(rushContainer, ciPlan, buildEnv);
   const packagedRepo = await runPackageStage(
     repo,
     builtContainer,
