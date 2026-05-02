@@ -31,13 +31,13 @@ For Astro/Starlight, either:
 - keep it as an unversioned showcase/preview site using current docs only, or
 - implement a small custom version route later if we decide Astro must remain feature-equivalent with Docusaurus.
 
-## Decisions To Confirm
+## Confirmed Decisions
 
-- [ ] Make Docusaurus the canonical versioned docs site.
-- [ ] Keep Astro/Starlight unversioned for now, unless there is a strong reason to support versioned docs there too.
-- [ ] Move internal AI docs out of public docs, likely from `docs/ai` to `.ai`, and update `AGENTS.md` references in the same change.
-- [ ] Decide whether to publish every historical tag or only tags where docs were meaningfully public and accurate.
-- [ ] Decide whether patch releases always get docs snapshots, or only releases with docs/API behavior changes.
+- [x] Make Docusaurus the canonical versioned docs site.
+- [x] Keep Astro/Starlight unversioned for now, unless there is a strong reason to support versioned docs there too.
+- [x] Move internal AI docs out of public docs, likely from `docs/ai` to `.ai`, and update `AGENTS.md` references in the same change.
+- [x] Inventory old tags first, because early releases may not have meaningful docs worth publishing.
+- [x] Decide per release whether docs are worth publishing instead of blindly snapshotting every patch release.
 
 ## Implementation Plan
 
