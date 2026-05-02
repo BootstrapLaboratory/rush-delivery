@@ -223,7 +223,6 @@
   margin: 0;
   padding: clamp(1rem, 2vw, 1.35rem);
   overflow: auto;
-  color: var(--home-title);
   font-size: 0.88rem;
   line-height: 1.68;
 }
@@ -233,6 +232,10 @@
   border: 0;
   background: transparent;
   color: inherit;
+}
+
+.exampleCodeLine {
+  display: block;
 }
 
 .capabilities {

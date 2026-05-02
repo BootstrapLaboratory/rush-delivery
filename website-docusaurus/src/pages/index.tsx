@@ -3,7 +3,10 @@ import clsx from "clsx";
 import Heading from "@theme/Heading";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
+import { useColorMode } from "@docusaurus/theme-common";
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import { Highlight, themes } from "prism-react-renderer";
+import type { Language } from "prism-react-renderer";
 import styles from "./index.module.css";
 
 const examples = [
@@ -126,8 +129,12 @@ function HeroDiagram() {
 
 function ExampleSwitcher() {
   const [activeId, setActiveId] = useState(examples[0].id);
+  const { colorMode } = useColorMode();
   const activeExample =
     examples.find((example) => example.id === activeId) ?? examples[0];
+  const activeLanguage =
+    activeExample.language === "sh" ? "bash" : activeExample.language;
+  const highlightTheme = colorMode === "dark" ? themes.oneDark : themes.github;
 
   function activateExample(index: number) {
     const nextExample = examples[index];
@@ -197,9 +204,37 @@ function ExampleSwitcher() {
           <span />
           <strong>{activeExample.language}</strong>
         </div>
-        <pre>
-          <code>{activeExample.code}</code>
-        </pre>
+        <Highlight
+          code={activeExample.code}
+          language={activeLanguage as Language}
+          theme={highlightTheme}
+        >
+          {({ className, getLineProps, getTokenProps, style, tokens }) => (
+            <pre
+              className={clsx(className, styles.exampleCode)}
+              style={{ ...style, background: "transparent" }}
+            >
+              <code>
+                {tokens.map((line, lineIndex) => (
+                  <span
+                    key={lineIndex}
+                    {...getLineProps({
+                      className: styles.exampleCodeLine,
+                      line,
+                    })}
+                  >
+                    {line.map((token, tokenIndex) => (
+                      <span
+                        key={tokenIndex}
+                        {...getTokenProps({ token })}
+                      />
+                    ))}
+                  </span>
+                ))}
+              </code>
+            </pre>
+          )}
+        </Highlight>
       </div>
     </section>
   );
