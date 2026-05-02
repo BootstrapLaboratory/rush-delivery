@@ -43,6 +43,22 @@ field rules rather than duplicating every validation detail.
 Use relative links. Remove obsolete descriptions instead of adding historical
 warnings about old behavior.
 
+## Schema Versioning
+
+Root schemas under [`../../schemas`](../../schemas) track the current release.
+
+Versioned schema directories such as `schemas/v0.4.1/` are immutable release
+snapshots. Never modify an already released version directory; create a new
+version directory instead.
+
+When schema behavior changes, add a new `schemas/vX.Y.Z/` directory, update the
+root schemas to the current release shape, and update docs, tutorials, and
+website examples to reference the new version.
+
+Exact published schema URLs are the recommended editor contract for downstream
+projects, for example
+`https://bootstraplaboratory.github.io/rush-delivery/schemas/v0.4.1/deploy-target.schema.json`.
+
 ## Task Files
 
 Read [`../../../docs/ai/rules/TasksFiles.md`](../../../docs/ai/rules/TasksFiles.md)
