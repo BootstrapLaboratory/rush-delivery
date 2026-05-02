@@ -83,6 +83,13 @@ After a docs-bearing release:
 
 4. Confirm the generated versioned docs and sidebars match the released tag.
 
+When preparing documentation for the next release line, snapshot the latest
+released documentation before editing root [`docs`](.). In practice, finish and
+tag the release, run the versioned docs sync so `docs-versions` contains a
+directory for that released tag, and only then update current docs for the next
+version. This keeps published docs stable for users pinned to older module
+versions.
+
 Patch releases do not need a new docs snapshot when user-facing docs did not
 change. Versioned docs should point users at exact versioned schema URLs where
 editor stability matters, while root schema URLs continue to track the current

@@ -43,6 +43,12 @@ field rules rather than duplicating every validation detail.
 Use relative links. Remove obsolete descriptions instead of adding historical
 warnings about old behavior.
 
+Before updating root [`../docs`](../docs) for a new release line, freeze the
+currently released docs first. The snapshot directory must use the latest
+released tag version, for example `docs-versions/versioned_docs/version-v0.5.0/`.
+Only after the released docs are captured should root `docs/` be edited for the
+next version.
+
 After completing any repository file changes, include two semantic commit
 message suggestions: one short commit subject and one more detailed commit
 message with a body.
