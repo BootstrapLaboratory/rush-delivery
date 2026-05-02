@@ -119,7 +119,7 @@ const config: Config = {
         {
           type: "docsVersionDropdown",
           label: currentDocsVersion,
-          position: "left",
+          position: "right",
         },
         {
           href: "https://github.com/BootstrapLaboratory/rush-delivery",
